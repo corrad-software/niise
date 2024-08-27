@@ -85,60 +85,6 @@ onMounted(() => {
       </div>
 
       <div class="flex gap-2 item-center justify-items-end">
-        <VDropdown placement="bottom-end" distance="13" name="language">
-          <button class="icon-btn h-10 w-10 rounded-full">
-            <country-flag :country="languageNow.flagCode" />
-          </button>
-          <template #popper>
-            <ul class="header-dropdown w-full md:w-32">
-              <li
-                v-for="lang in langList"
-                class="flex items-center justify-center hover:bg-[rgb(var(--bg-1))]"
-              >
-                <button
-                  @click="changeLanguage(lang.value)"
-                  class="w-full py-2 px-2 flex justify-center items-center h-10"
-                >
-                  <div class="ml-3 flex justify-center items-center">
-                    <country-flag :country="lang.flagCode" />
-                  </div>
-                  <span class="grow">{{ lang.name }}</span>
-                </button>
-              </li>
-            </ul>
-          </template>
-        </VDropdown>
-        <VDropdown placement="bottom-end" distance="13" name="theme">
-          <button class="icon-btn h-10 w-10 rounded-full">
-            <Icon size="22px" name="material-symbols:format-paint-rounded" />
-          </button>
-          <template #popper>
-            <ul class="header-dropdown w-full md:w-52">
-              <li v-for="(val, index) in themes">
-                <a
-                  @click="setTheme(val.theme)"
-                  class="flex justify-between items-center cursor-pointer py-2 px-4 hover:bg-[rgb(var(--bg-1))]"
-                >
-                  <span class="capitalize"> {{ val.theme }} </span>
-                  <div class="flex items-center gap-x-1">
-                    <div
-                      v-for="(color, index) in val.colors"
-                      class="h-[25px] w-[10px] rounded-lg"
-                      :style="{
-                        backgroundColor: rgbToHex(color.value),
-                      }"
-                    ></div>
-                  </div>
-                </a>
-              </li>
-            </ul>
-          </template>
-        </VDropdown>
-
-        <button @click="toggleSearch" class="icon-btn h-10 w-10 rounded-full">
-          <Icon name="ic:round-search" class="" />
-        </button>
-
         <VDropdown placement="bottom-end" distance="13" name="notification">
           <button class="relative icon-btn h-10 w-10 rounded-full">
             <span
@@ -202,7 +148,12 @@ onMounted(() => {
           </template>
         </VDropdown>
 
-        <VDropdown placement="bottom-end" distance="13" name="profile">
+        <VDropdown
+          placement="bottom-end"
+          distance="13"
+          name="profile"
+          class="flex justify-center item-center"
+        >
           <button class="icon-btn profile px-2">
             <img
               class="w-8 h-8 object-cover rounded-full"
@@ -212,10 +163,7 @@ onMounted(() => {
               v-if="isDesktop"
               class="grid grid-cols-1 text-left ml-3 flex-none"
             >
-              <p class="font-semibold text-sm truncate w-24 mb-0">John Doe</p>
-              <span class="font-medium text-xs truncate w-24"
-                >RM 10,000.00</span
-              >
+              <p class="font-semibold text-sm truncate w-24 mb-0">Johan</p>
             </div>
             <Icon name="ic:outline-keyboard-arrow-down" class="ml-3" />
           </button>

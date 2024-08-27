@@ -26,3 +26,7 @@
 .badge.badge-danger {
   @apply bg-danger text-white;
 }
+
+.badge.badge-disabled {
+  @apply bg-gray-300 text-gray-600;
+}

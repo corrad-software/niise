@@ -25,6 +25,7 @@ const props = defineProps({
       'badge-success': variant === 'success',
       'badge-warning': variant === 'warning',
       'badge-danger': variant === 'danger',
+      'badge-disabled': variant === 'disabled',
     }"
   >
     <Icon v-if="icon" :name="icon" :size="iconSize"></Icon>

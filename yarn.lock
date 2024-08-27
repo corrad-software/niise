@@ -9227,6 +9227,11 @@ vue3-perfect-scrollbar@^1.6.1:
     perfect-scrollbar "^1.5.5"
     postcss-import "^12.0.0"
 
+vue3-recaptcha-v2@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/vue3-recaptcha-v2/-/vue3-recaptcha-v2-2.0.2.tgz#127d568d90cd3de3588429eb500d16f408380f13"
+  integrity sha512-uIxJG4+BVquSVJxCLdkJV3Y0IgXPG+sWqAG34qwHt9MungDFshuKprtrN48oJHcLXePLey/FEo2B5pbfMB5cjQ==
+
 vue@^2.5.16:
   version "2.7.14"
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.7.14.tgz#3743dcd248fd3a34d421ae456b864a0246bafb17"

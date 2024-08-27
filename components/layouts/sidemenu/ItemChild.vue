@@ -17,7 +17,7 @@ const props = defineProps({
   },
   indent: {
     type: Number,
-    default: 0.2,
+    default: 0.5,
   },
 });
 const emit = defineEmits(["openMenu"]);
@@ -61,15 +61,8 @@ function openMenu(event) {
 // Active menu
 function activeMenu(routePath) {
   return route.path == routePath
-    ? ` shadow-lg
-            shadow-primary/50
-            dark:shadow-primary/10
-            text-white
-            bg-gradient-to-r
-            from-primary
-            to-primary/90
-            active-menu`
-    : `transition-all	duration-300 hover:ml-4`;
+    ? `bg-[rgb(var(--color-primary))] font-normal text-white active-menu`
+    : `font-light text-white/90 md:transition-all md:duration-200 hover:md:ml-2`;
 }
 
 function toggleMenu() {
@@ -85,7 +78,7 @@ function navigationPage(path, external) {
 }
 
 const indentStyle = computed(() => {
-  return { "background-color": `rgba(var(--bg-1), ${indent.value})` };
+  return { "background-color": `rgba(var(--sidebar-menu), ${indent.value})` };
 });
 </script>
 
@@ -113,7 +106,7 @@ const indentStyle = computed(() => {
           v-if="
             item.child === undefined || (item.child && item.child.length === 0)
           "
-          class="flex items-center px-4 py-3 mx-3 rounded-lg cursor-pointer"
+          class="flex items-center px-6 py-3 cursor-pointer"
           @click="navigationPage(item.path, item.external)"
           :class="activeMenu(item.path)"
         >
@@ -128,7 +121,7 @@ const indentStyle = computed(() => {
         </NuxtLink>
         <a
           v-else
-          class="flex items-center px-4 py-3 mx-3 rounded-lg cursor-pointer"
+          class="flex items-center px-6 py-3 rounded-lg cursor-pointer"
           :class="activeMenu(item.path)"
         >
           <span class="mx-3 font-normal">{{ item.title }}</span>

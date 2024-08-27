@@ -31,14 +31,15 @@ onMounted(() => {
 
 <template>
   <div class="vertical-menu">
-    <div class="py-2 px-4">
+    <div class="py-2 px-4 bg-[rgb(var(--header))]">
       <nuxt-link to="/">
         <div class="flex flex-auto gap-3 justify-center items-center h-[48px]">
           <img
-            class="h-10 block"
-            src="@/assets/img/logo/logo-word-black.svg"
+            class="h-8 block"
+            src="@/assets/img/logo/logo-imigresen.svg"
             alt=""
           />
+          <span class="text-xs">Jabatan Imigresen Malaysia</span>
         </div>
       </nuxt-link>
     </div>

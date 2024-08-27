@@ -15,12 +15,9 @@ const refreshPage = () => {
   <div class="rs-loading bg-white absolute z-50 top-0 left-0 w-full h-full">
     <div class="flex justify-center text-center items-center h-screen">
       <div>
-        <div class="flex justify-center items-center">
-          <img
-            src="@/assets/img/logo/logo-nobg.svg"
-            class="w-[50px] mb-5"
-            alt=""
-          />
+        <div class="img-container flex justify-center items-center mb-5">
+          <img src="@/assets/img/logo/niise-logo.svg" class="max-w-[60px]" />
+          <img src="@/assets/img/logo/niise-text.svg" class="max-w-[120px]" />
         </div>
 
         <div

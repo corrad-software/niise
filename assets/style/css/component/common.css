@@ -5,7 +5,8 @@ body {
 
 .w-header {
   @apply z-20 fixed top-0 right-0 px-5 py-3 duration-300 shadow-md;
-  background-color: rgb(var(--bg-2));
+  background-color: rgb(var(--header));
+  color: rgb(var(--header-text));
   box-shadow: var(--box-shadow);
 }
 
@@ -16,7 +17,8 @@ body {
 
 .vertical-menu {
   @apply text-base h-screen fixed w-64 top-0 z-50 duration-300 border-l-0 shadow-md;
-  background-color: rgb(var(--bg-2));
+  background-color: rgb(var(--sidebar));
+  color: rgb(var(--sidebar-text));
   box-shadow: var(--box-shadow);
 }
 
@@ -26,17 +28,13 @@ body {
           justify-center
           transition-colors
           duration-300;
-  color: rgb(var(--text-color));
+  color: rgb(var(--header-text));
 }
 
 .icon-btn.profile {
-  @apply border;
-  border-radius: var(--rounded-box);
-  border: 1px solid rgb(var(--border-color));
-  color: rgb(var(--text-color));
+  color: rgb(var(--header-text));
 }
 
 .icon-btn:hover {
-  color: rgb(var(--text-color));
-  background-color: rgb(var(--bg-1));
+  background-color: rgb(var(--sidebar));
 }

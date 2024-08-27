@@ -3,6 +3,12 @@ definePageMeta({
   title: "Dashboard",
   middleware: ["auth"],
   requiresAuth: true,
+  breadcrumb: [
+    {
+      name: "Dashboard",
+      path: "/",
+    },
+  ],
 });
 
 const data1 = ref([]);

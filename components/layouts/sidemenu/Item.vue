@@ -62,15 +62,8 @@ function openMenu(event) {
 // Active menu
 function activeMenu(routePath) {
   return route.path == routePath
-    ? ` shadow-lg
-            shadow-primary/50
-            dark:shadow-primary/10
-            text-white
-            bg-gradient-to-r
-            from-primary
-            to-primary/90
-            active-menu`
-    : `transition-all	duration-300 hover:ml-4`;
+    ? `bg-[rgb(var(--color-primary))] font-normal text-white active-menu`
+    : `font-light text-white/90 md:transition-all md:duration-200 hover:md:ml-2`;
 }
 
 function toggleMenu() {
@@ -98,10 +91,10 @@ function navigationPage(path, external) {
         v-if="item.header"
         class="text-left font-normal text-xs mx-6 mt-5 mb-2"
       >
-        <span class="uppercase text-primary dark:text-primary">
+        <span class="uppercase text-gray-400">
           {{ item.header ? item.header : "" }}
         </span>
-        <p class="text-gray-500 dark:text-gray-500">
+        <p class="text-gray-400">
           {{ item.description ? item.description : "" }}
         </p>
       </div>
@@ -130,7 +123,7 @@ function navigationPage(path, external) {
                 item2.child === undefined ||
                 (item2.child && item2.child.length === 0)
               "
-              class="flex items-center px-4 py-3 mx-3 rounded-lg cursor-pointer"
+              class="flex items-center px-6 py-3 cursor-pointer"
               @click="navigationPage(item2.path, item2.external)"
               :class="activeMenu(item2.path)"
             >
@@ -146,7 +139,7 @@ function navigationPage(path, external) {
             </NuxtLink>
             <a
               v-else
-              class="flex items-center px-4 py-3 mx-3 rounded-lg cursor-pointer"
+              class="flex items-center px-6 py-3 rounded-lg cursor-pointer"
               :class="activeMenu(item2.path)"
             >
               <Icon v-if="item2.icon" :name="item2.icon" size="18"></Icon>

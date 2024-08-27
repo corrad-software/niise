@@ -1,5 +1,6 @@
 <script setup>
 import { useUserStore } from "~/stores/user";
+import { RecaptchaV2 } from "vue3-recaptcha-v2";
 
 definePageMeta({
   title: "Login",
@@ -54,6 +55,19 @@ const login = async () => {
     console.log(e);
   }
 };
+
+const handleWidgetId = (widgetId) => {
+  console.log("Widget ID: ", widgetId);
+};
+const handleErrorCalback = () => {
+  console.log("Error callback");
+};
+const handleExpiredCallback = () => {
+  console.log("Expired callback");
+};
+const handleLoadCallback = (response) => {
+  console.log("Load callback", response);
+};
 </script>
 
 <template>
@@ -62,41 +76,53 @@ const login = async () => {
   >
     <div class="w-full md:w-3/4 lg:w-1/2 xl:w-2/6 relative">
       <rs-card class="h-screen md:h-auto px-10 md:px-16 py-12 md:py-20 mb-0">
-        <div
-          class="absolute -bottom-3 left-3 img-container flex justify-start items-center mb-5"
-        >
-          <img
-            src="@/assets/img/logo/logo-word-black.svg"
-            class="max-w-[90px]"
-          />
+        <div class="img-container flex justify-center items-center mb-5">
+          <img src="@/assets/img/logo/niise-logo.svg" class="max-w-[60px]" />
+          <img src="@/assets/img/logo/niise-text.svg" class="max-w-[120px]" />
         </div>
-        <h3 class="mb-4">Login</h3>
-        <p class="text-slate-500 mb-6">
-          Welcome to Corrad. Please login to continue.
-        </p>
+        <p class="text-slate-500 text-lg mb-6">Log masuk ke akaun anda</p>
         <div class="grid grid-cols-2">
           <FormKit
             type="text"
-            label="Username"
             v-model="username"
             validation="required"
+            placeholder="Masukkan ID Pengguna"
             :classes="{
               outer: 'col-span-2',
               label: 'text-left',
               messages: 'text-left',
             }"
-          />
-          <FormKit
-            :type="togglePasswordVisibility ? 'text' : 'password'"
-            label="Password"
-            v-model="password"
-            validation="required"
-            :classes="{
-              outer: 'col-span-2',
-              label: 'text-left',
-              messages: 'text-left',
+            :validation-messages="{
+              required: 'ID Pengguna wajib diisi.',
             }"
           >
+            <template #prefixIcon>
+              <Icon
+                name="ph:user-fill"
+                class="!w-5 !h-5 ml-3 text-gray-500"
+              ></Icon>
+            </template>
+          </FormKit>
+          <FormKit
+            :type="togglePasswordVisibility ? 'text' : 'password'"
+            v-model="password"
+            validation="required"
+            placeholder="Masukkan Kata Laluan"
+            :classes="{
+              outer: 'col-span-2',
+              label: 'text-left',
+              messages: 'text-left',
+            }"
+            :validation-messages="{
+              required: 'Kata Laluan wajib diisi.',
+            }"
+          >
+            <template #prefixIcon>
+              <Icon
+                name="ph:lock-key-fill"
+                class="!w-5 !h-5 ml-3 text-gray-500"
+              ></Icon>
+            </template>
             <template #suffix>
               <div
                 class="bg-gray-100 hover:bg-slate-200 dark:bg-slate-700 hover:dark:bg-slate-900 h-full rounded-r-md p-3 flex justify-center items-center cursor-pointer"
@@ -111,29 +137,43 @@ const login = async () => {
               </div>
             </template>
           </FormKit>
-          <FormKit type="checkbox" label="Remember Me" />
+          <div class="col-span-2 mb-4">
+            <RecaptchaV2
+              @widget-id="handleWidgetId"
+              @error-callback="handleErrorCalback"
+              @expired-callback="handleExpiredCallback"
+              @load-callback="handleLoadCallback"
+            />
+          </div>
           <NuxtLink
-            class="flex items-center justify-end h-5 mt-1 text-primary hover:underline"
+            class="col-span-2 flex items-center justify-end h-5 mt-1 text-primary hover:underline mb-5"
             to="forgot-password"
-            >Forgot Password?</NuxtLink
           >
-          <!-- <NuxtLink to="/" class="col-span-2">
-          </NuxtLink> -->
+            Lupa Kata Laluan?
+          </NuxtLink>
           <FormKit
             type="button"
             input-class="w-full"
             outer-class="col-span-2"
             @click="login"
           >
-            Sign In
+            Log Masuk
+
+            <Icon name="ph:caret-circle-right" class="!w-5 !h-5 ml-1"></Icon>
           </FormKit>
         </div>
-        <p class="mt-3 text-center text-slate-500">
-          Don't have an account?
-          <NuxtLink to="/register" class="text-primary hover:underline"
-            >Sign Up</NuxtLink
-          >
-        </p>
+        <div class="flex justify-center items-center">
+          <hr class="w-full" />
+          <p class="w-full !text-gray-400">Tiada akaun?</p>
+          <hr class="w-full" />
+        </div>
+
+        <rs-button
+          @click="navigateTo('/register')"
+          class="w-full !bg-gray-100 !text-gray-600 border mt-5"
+        >
+          Daftar / Log masuk kali pertama
+        </rs-button>
       </rs-card>
     </div>
   </div>

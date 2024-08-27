@@ -1,9 +1,17 @@
 <script setup>
 definePageMeta({
-  title: "Forgot Password",
+  title: "Reset Password",
   layout: "empty",
   middleware: ["dashboard"],
 });
+
+const email = ref("");
+
+const changePassword = () => {
+  // Simulate password change request without API call
+  console.log("Password change requested for email:", email.value);
+  // Add your password change logic here
+};
 </script>
 
 <template>
@@ -12,31 +20,55 @@ definePageMeta({
   >
     <div class="w-full md:w-3/4 lg:w-1/2 xl:w-2/6 relative">
       <rs-card class="h-screen md:h-auto px-10 md:px-16 py-12 md:py-20 mb-0">
-        <div
-          class="absolute -bottom-3 left-3 img-container flex justify-start items-center mb-5"
-        >
-          <img
-            src="@/assets/img/logo/logo-word-black.svg"
-            class="max-w-[90px]"
-          />
+        <div class="text-center mb-8">
+          <div class="img-container flex justify-center items-center mb-5">
+            <img src="@/assets/img/logo/niise-logo.svg" class="max-w-[60px]" />
+            <img src="@/assets/img/logo/niise-text.svg" class="max-w-[120px]" />
+          </div>
+          <h2 class="mt-4 text-2xl font-bold text-gray-700">
+            Tukar kata laluan
+          </h2>
+          <p class="text-sm text-gray-500">
+            Kata laluan sementara akan dihantar ke emel anda.
+          </p>
         </div>
-        <h3 class="mb-4">Forgot Password</h3>
-        <p class="text-slate-500 mb-6">
-          Please input the correct email to reset the password.
-        </p>
-        <div class="grid grid-cols-1">
-          <FormKit label="Email" type="email" outer-class="text-left" />
-          <NuxtLink to="/reset-password">
-            <FormKit type="button" input-class="w-full">Validate Email</FormKit>
-          </NuxtLink>
-        </div>
-        <p class="mt-3 text-center text-slate-500">
-          Already have an account?
-          <NuxtLink to="/login" class="text-primary hover:underline"
-            >Login</NuxtLink
+
+        <FormKit type="form" :actions="false" @submit="changePassword">
+          <FormKit
+            type="email"
+            name="email"
+            placeholder="Sila masukkan emel anda"
+            validation="required|email"
+            :validation-messages="{
+              required: 'Emel wajib diisi',
+              email: 'Format emel tidak sah',
+            }"
           >
-        </p>
+            <template #prefix>
+              <Icon
+                name="ph:envelope"
+                class="!w-5 !h-5 ml-3 text-gray-500"
+              ></Icon>
+            </template>
+          </FormKit>
+        </FormKit>
+
+        <rs-button @click="navigateTo('reset-password')" class="w-full mt-6">
+          <Icon name="ph:lock-fill" class="mr-2" />
+          Tukar kata laluan
+        </rs-button>
+
+        <div class="mt-4">
+          Kembali ke
+          <nuxt-link to="/login" class="text-sm text-blue-500">
+            log masuk
+          </nuxt-link>
+        </div>
       </rs-card>
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Add any additional component-specific styles here */
+</style>

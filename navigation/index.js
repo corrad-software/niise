@@ -1,6 +1,6 @@
 export default [
   {
-    header: "",
+    header: "Utama",
     description: "",
     child: [
       {
@@ -10,11 +10,64 @@ export default [
         child: [],
         meta: {},
       },
+      {
+        title: "Carian",
+        path: "/carian",
+        icon: "ph:magnifying-glass",
+        child: [],
+        meta: {},
+      },
+      {
+        title: "Laporan",
+        path: "/laporan",
+        icon: "ph:chart-bar-fill",
+        child: [],
+        meta: {},
+      },
     ],
+    meta: {},
+  },
+  {
+    header: "Fungsi",
+    description: "",
+    child: [
+      {
+        title: "Komponen",
+        icon: "ph:gear-fine",
+        child: [
+          {
+            title: "Butang",
+            path: "/komponen/butang",
+            child: [],
+            meta: {},
+          },
+          {
+            title: "Modal",
+            path: "/komponen/modal",
+            child: [],
+            meta: {},
+          },
+          {
+            title: "Data Table",
+            path: "/komponen/datatable",
+            child: [],
+            meta: {},
+          },
+        ],
+      },
+      {
+        title: "Ikon",
+        path: "/ikon",
+        icon: "iconamoon:slightly-smiling-face",
+        child: [],
+        meta: {},
+      },
+    ],
+    meta: {},
   },
   {
     header: "Administration",
-    description: "Manage your application",
+    description: "",
     child: [
       {
         title: "Configuration",
@@ -70,29 +123,6 @@ export default [
         path: "/devtool/api-editor",
         icon: "material-symbols:api-rounded",
         child: [],
-      },
-    ],
-    meta: {
-      auth: {
-        role: ["Developer"],
-      },
-    },
-  },
-  {
-    header: "Help",
-    description: "Help and documentation",
-    child: [
-      {
-        title: "Documentation",
-        icon: "solar:book-bookmark-minimalistic-bold",
-        path: "https://mawar-cms-docs.vercel.app",
-        external: true,
-      },
-      {
-        title: "UI Components",
-        icon: "material-symbols:settings-input-component-outline-rounded",
-        path: "https://corradui.datasc.dev",
-        external: true,
       },
     ],
     meta: {

@@ -1,12 +1,34 @@
 <script setup>
+import { ref } from "vue";
+import { RecaptchaV2 } from "vue3-recaptcha-v2";
+
 definePageMeta({
   title: "Register",
   layout: "empty",
   middleware: ["dashboard"],
 });
 
-const togglePasswordVisibility = ref(false);
-const togglePasswordVisibility2 = ref(false);
+const formData = ref({
+  fullName: "",
+  idNumber: "",
+  phoneNumber: "",
+  password: "",
+  confirmPassword: "",
+  email: "",
+  confirmEmail: "",
+  subscribeNewsletter: false,
+  agreeTerms: false,
+});
+
+const register = () => {
+  // Simulate registration without API call
+  console.log("Registration attempted with:", formData.value);
+  // Add your registration logic here
+};
+
+const handleRecaptcha = (response) => {
+  console.log("reCAPTCHA response:", response);
+};
 </script>
 
 <template>
@@ -15,81 +37,181 @@ const togglePasswordVisibility2 = ref(false);
   >
     <div class="w-full md:w-3/4 lg:w-1/2 xl:w-2/6 relative">
       <rs-card class="h-screen md:h-auto px-10 md:px-16 py-12 md:py-20 mb-0">
-        <div
-          class="absolute -bottom-3 left-3 img-container flex justify-start items-center mb-5"
-        >
-          <img
-            src="@/assets/img/logo/logo-word-black.svg"
-            class="max-w-[90px]"
-          />
+        <div class="text-center mb-8">
+          <div class="img-container flex justify-center items-center mb-5">
+            <img src="@/assets/img/logo/niise-logo.svg" class="max-w-[60px]" />
+            <img src="@/assets/img/logo/niise-text.svg" class="max-w-[120px]" />
+          </div>
+          <h2 class="mt-4 text-2xl font-bold text-gray-700">Daftar Akaun</h2>
+          <p class="text-sm text-gray-500">Semua medan adalah wajib</p>
         </div>
-        <h3 class="mb-4">Sign Up</h3>
-        <p class="text-slate-500 mb-6 col-sp">
-          Please fill in the form to create an account.
-        </p>
-        <FormKit label="Username" type="text" label-class="text-left" />
-        <FormKit label="Email" type="email" label-class="text-left" />
-        <FormKit
-          :type="togglePasswordVisibility ? 'text' : 'password'"
-          label="Password"
-          type="password"
-          label-class="text-left"
-        >
-          <template #suffix>
-            <div
-              class="bg-gray-100 hover:bg-slate-200 dark:bg-slate-700 hover:dark:bg-slate-900 h-full rounded-r-md p-3 flex justify-center items-center cursor-pointer"
-              @click="togglePasswordVisibility = !togglePasswordVisibility"
-            >
-              <Icon
-                v-if="!togglePasswordVisibility"
-                name="ion:eye-outline"
-                size="19"
-              ></Icon>
-              <Icon v-else name="ion:eye-off-outline" size="19"></Icon>
-            </div>
-          </template>
-        </FormKit>
-        <FormKit
-          :type="togglePasswordVisibility2 ? 'text' : 'password'"
-          label="Re-enter Password"
-          type="password"
-          label-class="text-left"
-        >
-          <template #suffix>
-            <div
-              class="bg-gray-100 hover:bg-slate-200 dark:bg-slate-700 hover:dark:bg-slate-900 h-full rounded-r-md p-3 flex justify-center items-center cursor-pointer"
-              @click="togglePasswordVisibility2 = !togglePasswordVisibility2"
-            >
-              <Icon
-                v-if="!togglePasswordVisibility2"
-                name="ion:eye-outline"
-                size="19"
-              ></Icon>
-              <Icon v-else name="ion:eye-off-outline" size="19"></Icon>
-            </div>
-          </template>
-        </FormKit>
-        <FormKit
-          type="checkbox"
-          label="agreement"
-          outer-class="col-span-1 md:col-span-2"
-        >
-          <template #label
-            >I agree to the
-            <a class="text-primary hover:underline ml-1">Term and Services</a>
-          </template>
-        </FormKit>
 
-        <NuxtLink to="/" class="col-span-1 md:col-span-2">
-          <FormKit type="button" input-class="w-full">Sign up</FormKit>
-        </NuxtLink>
-
-        <p class="mt-3 text-center text-slate-500">
-          Already have an account?
-          <NuxtLink to="/login" class="text-primary hover:underline"
-            >Login</NuxtLink
+        <FormKit type="form" :actions="false" @submit="register">
+          <FormKit
+            type="text"
+            name="fullName"
+            placeholder="Nama Penuh"
+            validation="required"
+            :validation-messages="{
+              required: 'Nama Penuh wajib diisi',
+            }"
           >
-        </p>
+            <template #prefixIcon>
+              <Icon
+                name="ph:user-fill"
+                class="!w-5 !h-5 ml-3 text-gray-500"
+              ></Icon>
+            </template>
+          </FormKit>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-4">
+            <FormKit
+              type="text"
+              name="idNumber"
+              placeholder="Nombor Mykad / Nombor Pasport"
+              validation="required"
+              :validation-messages="{
+                required: 'Nombor Mykad / Nombor Pasport wajib diisi',
+              }"
+            >
+              <template #prefixIcon>
+                <Icon
+                  name="ph:identification-card-fill"
+                  class="!w-5 !h-5 ml-3 text-gray-500"
+                ></Icon>
+              </template>
+            </FormKit>
+            <FormKit
+              type="tel"
+              name="phoneNumber"
+              placeholder="Nombor Telefon"
+              validation="required"
+              :validation-messages="{
+                required: 'Nombor Telefon wajib diisi',
+              }"
+            >
+              <template #prefixIcon>
+                <Icon
+                  name="ph:device-mobile-camera-fill"
+                  class="!w-5 !h-5 ml-3 text-gray-500"
+                ></Icon>
+              </template>
+            </FormKit>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-4">
+            <FormKit
+              type="password"
+              name="password"
+              placeholder="Kata Laluan"
+              validation="required"
+              :validation-messages="{
+                required: 'Kata Laluan wajib diisi',
+              }"
+            >
+              <template #prefixIcon>
+                <Icon
+                  name="ph:lock-key-fill"
+                  class="!w-5 !h-5 ml-3 text-gray-500"
+                ></Icon>
+              </template>
+            </FormKit>
+            <FormKit
+              type="password"
+              name="confirmPassword"
+              placeholder="Pengesahan Kata Laluan"
+              validation="required|confirm"
+              :validation-messages="{
+                required: 'Pengesahan Kata Laluan wajib diisi',
+                confirm: 'Kata Laluan tidak sepadan',
+              }"
+              :validation-rules="{
+                confirm: (value) => value === value.password,
+              }"
+            >
+              <template #prefixIcon>
+                <Icon
+                  name="ph:lock-key-fill"
+                  class="!w-5 !h-5 ml-3 text-gray-500"
+                ></Icon>
+              </template>
+            </FormKit>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-4">
+            <FormKit
+              type="email"
+              name="email"
+              placeholder="Emel"
+              validation="required|email"
+              :validation-messages="{
+                required: 'Emel wajib diisi',
+                email: 'Format emel tidak sah',
+              }"
+            >
+              <template #prefixIcon>
+                <Icon
+                  name="ph:envelope-fill"
+                  class="!w-5 !h-5 ml-3 text-gray-500"
+                ></Icon>
+              </template>
+            </FormKit>
+            <FormKit
+              type="email"
+              name="confirmEmail"
+              placeholder="Pengesahan Emel"
+              validation="required|confirm"
+              :validation-messages="{
+                required: 'Pengesahan Emel wajib diisi',
+                confirm: 'Emel tidak sepadan',
+              }"
+              :validation-rules="{
+                confirm: (value) => value === value.email,
+              }"
+            >
+              <template #prefixIcon>
+                <Icon
+                  name="ph:envelope-fill"
+                  class="!w-5 !h-5 ml-3 text-gray-500"
+                ></Icon>
+              </template>
+            </FormKit>
+          </div>
+
+          <div class="flex justify-start mb-4 mt-2">
+            <RecaptchaV2 @verify="handleRecaptcha" />
+          </div>
+
+          <FormKit
+            type="checkbox"
+            name="subscribeNewsletter"
+            label="Melanggan ke newsletter bulanan"
+          />
+
+          <FormKit
+            type="checkbox"
+            name="agreeTerms"
+            label="Setuju dengan terma perkhidmatan"
+            validation="accepted"
+            :validation-messages="{
+              accepted: 'Anda mesti bersetuju dengan terma perkhidmatan',
+            }"
+          >
+            <template #label>
+              Setuju dengan
+              <a href="#" class="text-blue-600 ml-1">terma perkhidmatan</a>
+            </template>
+          </FormKit>
+
+          <rs-button btn-type="submit" class="w-full"> Daftar Akaun </rs-button>
+        </FormKit>
+
+        <div class="text-center mt-4">
+          <p class="text-sm text-gray-500">
+            Sudah mempunyai akaun?
+            <nuxt-link to="/login" class="text-blue-600">Log Masuk</nuxt-link>
+          </p>
+        </div>
       </rs-card>
     </div>
   </div>
