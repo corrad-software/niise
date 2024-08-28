@@ -4,6 +4,10 @@ const props = defineProps({
     type: String,
     default: "primary",
   },
+  icon: {
+    type: String,
+    default: null,
+  },
   dismissible: {
     type: Boolean,
     default: false,
@@ -51,7 +55,10 @@ onMounted(() => {
         'alert-danger': variant === 'danger',
       }"
     >
-      <slot />
+      <div class="flex items-center gap-2">
+        <Icon v-if="icon" :name="icon" />
+        <slot />
+      </div>
       <button @click="showComponent = false">
         <Icon name="ic:baseline-close" size="14"></Icon>
       </button>

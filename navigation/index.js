@@ -36,8 +36,32 @@ export default [
         icon: "ph:gear-fine",
         child: [
           {
+            title: "Amaran",
+            path: "/komponen/amaran",
+            child: [],
+            meta: {},
+          },
+          {
             title: "Butang",
             path: "/komponen/butang",
+            child: [],
+            meta: {},
+          },
+          {
+            title: "Lencana",
+            path: "/komponen/lencana",
+            child: [],
+            meta: {},
+          },
+          {
+            title: "Collapse",
+            path: "/komponen/collapse",
+            child: [],
+            meta: {},
+          },
+          {
+            title: "Dropdown",
+            path: "/komponen/dropdown",
             child: [],
             meta: {},
           },
@@ -48,12 +72,31 @@ export default [
             meta: {},
           },
           {
-            title: "Data Table",
-            path: "/komponen/datatable",
+            title: "Progress Bar",
+            path: "/komponen/progress-bar",
+            child: [],
+            meta: {},
+          },
+          {
+            title: "Tab",
+            path: "/komponen/tab",
             child: [],
             meta: {},
           },
         ],
+      },
+      {
+        title: "Datatable",
+        path: "/datatable",
+        icon: "ph:table",
+        child: [],
+        meta: {},
+      },
+      {
+        title: "Borang",
+        path: "/borang",
+        icon: "ph:clipboard-text",
+        child: [],
       },
       {
         title: "Ikon",

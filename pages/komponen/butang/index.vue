@@ -14,19 +14,29 @@ const showCode2 = ref(false);
 const showCode3 = ref(false);
 const showCode4 = ref(false);
 
+const tooltips = ref({});
+
 const copyCode = (codeId) => {
   const codeElement = document.getElementById(codeId);
   if (codeElement) {
     navigator.clipboard
       .writeText(codeElement.textContent)
       .then(() => {
-        // You can add a notification here if you want to inform the user that the code was copied
-        console.log("Code copied to clipboard");
+        console.log("Kod disalin ke papan klip");
+        showTooltip(codeId, "Kod disalin!");
       })
       .catch((err) => {
-        console.error("Failed to copy code: ", err);
+        console.error("Gagal menyalin kod: ", err);
+        showTooltip(codeId, "Gagal menyalin kod");
       });
   }
+};
+
+const showTooltip = (codeId, message) => {
+  tooltips.value[codeId] = message;
+  setTimeout(() => {
+    tooltips.value[codeId] = null;
+  }, 2000); // Hide tooltip after 2 seconds
 };
 </script>
 
@@ -36,16 +46,18 @@ const copyCode = (codeId) => {
     <rs-card>
       <template #header> Default </template>
       <template #body>
-        <p class="mb-4">Use the <code>rs-button</code> to show badges.</p>
+        <p class="mb-4">
+          Gunakan <code>rs-button</code> untuk menunjukkan lencana.
+        </p>
         <div class="flex flex-wrap items-center justify-start gap-x-6">
-          <rs-button> Button </rs-button>
+          <rs-button> Butang </rs-button>
         </div>
         <div class="flex justify-end">
           <button
             class="text-sm border border-slate-200 py-1 px-3 rounded-lg my-2"
             @click="showCode1 ? (showCode1 = false) : (showCode1 = true)"
           >
-            Show Code
+            Tunjukkan Kod
           </button>
         </div>
         <ClientOnly>
@@ -56,19 +68,27 @@ const copyCode = (codeId) => {
                   @click="copyCode('code1')"
                   class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-300 py-1 px-3 rounded z-10"
                 >
-                  Copy
+                  Salin Kod
                 </button>
+                <transition name="tooltip">
+                  <span
+                    v-if="tooltips['code1']"
+                    class="absolute top-0 right-0 mt-12 mr-2 bg-black text-white text-xs rounded py-1 px-2 z-10"
+                  >
+                    {{ tooltips["code1"] }}
+                  </span>
+                </transition>
 
                 <NuxtScrollbar style="max-height: 300px">
-                  <pre class="language-html shadow-none">
-            <code id="code1">
-              &lt;template&gt; 
-                &lt;rs-button&gt;Button&lt;/rs-button&gt;
-              &lt;/template&gt;
-
-              &lt;script setup&gt;&lt;/script&gt;
-            </code>
-          </pre>
+                  <pre id="code1" class="language-html shadow-none">
+                    <code>
+                      &lt;template&gt; 
+                        &lt;rs-button&gt;Butang&lt;/rs-button&gt;
+                      &lt;/template&gt;
+                    
+                      &lt;script setup&gt;&lt;/script&gt;
+                    </code>
+                  </pre>
                 </NuxtScrollbar>
               </div>
             </div>
@@ -78,12 +98,12 @@ const copyCode = (codeId) => {
     </rs-card>
 
     <rs-card>
-      <template #header> Variant </template>
+      <template #header> Variasi </template>
       <template #body>
         <p class="mb-4">
-          Button variant uses props <code>variant</code> to change the color of
-          the button. There are 6 variants: <code>primary</code>,
-          <code>info</code>, <code>success</code>, <code>warning</code> and
+          Variasi butang menggunakan prop <code>variant</code> untuk menukar
+          warna butang. Terdapat 6 variasi: <code>primary</code>,
+          <code>info</code>, <code>success</code>, <code>warning</code> dan
           <code>danger</code>.
         </p>
 
@@ -101,28 +121,45 @@ const copyCode = (codeId) => {
             class="text-sm border border-slate-200 py-1 px-3 rounded-lg my-2"
             @click="showCode2 ? (showCode2 = false) : (showCode2 = true)"
           >
-            Show Code
+            Tunjukkan Kod
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
             <div v-show="showCode2" v-highlight>
-              <NuxtScrollbar style="max-height: 300px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;rs-button variant="primary"&gt;Primary&lt;/rs-button&gt;
-                &lt;rs-button variant="secondary"&gt;Secondary&lt;/rs-button&gt;
-                &lt;rs-button variant="info"&gt;Info&lt;/rs-button&gt;
-                &lt;rs-button variant="success"&gt;Success&lt;/rs-button&gt;
-                &lt;rs-button variant="warning"&gt;Warning&lt;/rs-button&gt;
-                &lt;rs-button variant="danger"&gt;Danger&lt;/rs-button&gt;
-              &lt;/template&gt;
+              <div class="relative">
+                <button
+                  @click="copyCode('code2')"
+                  class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-300 py-1 px-3 rounded z-10"
+                >
+                  Salin Kod
+                </button>
+                <transition name="tooltip">
+                  <span
+                    v-if="tooltips['code2']"
+                    class="absolute top-0 right-0 mt-12 mr-2 bg-black text-white text-xs rounded py-1 px-2 z-10"
+                  >
+                    {{ tooltips["code2"] }}
+                  </span>
+                </transition>
 
-              &lt;script setup&gt;&lt;/script&gt;
-            </code>
-          </pre>
-              </NuxtScrollbar>
+                <NuxtScrollbar style="max-height: 300px">
+                  <pre id="code2" class="language-html shadow-none">
+                    <code>
+                      &lt;template&gt; 
+                        &lt;rs-button variant="primary"&gt;Primary&lt;/rs-button&gt;
+                        &lt;rs-button variant="secondary"&gt;Secondary&lt;/rs-button&gt;
+                        &lt;rs-button variant="info"&gt;Info&lt;/rs-button&gt;
+                        &lt;rs-button variant="success"&gt;Success&lt;/rs-button&gt;
+                        &lt;rs-button variant="warning"&gt;Warning&lt;/rs-button&gt;
+                        &lt;rs-button variant="danger"&gt;Danger&lt;/rs-button&gt;
+                      &lt;/template&gt;
+                    
+                      &lt;script setup&gt;&lt;/script&gt;
+                    </code>
+                  </pre>
+                </NuxtScrollbar>
+              </div>
             </div>
           </transition>
         </ClientOnly>
@@ -130,15 +167,15 @@ const copyCode = (codeId) => {
     </rs-card>
 
     <rs-card>
-      <template #header> Variant Type </template>
+      <template #header> Jenis Variasi </template>
       <template #body>
         <p class="mb-4">
-          Button variant type uses props <code>variant</code> to change the
-          shape of the button. There are 3 variant types: <code>fill</code>,
-          <code>outline</code> and <code>text</code>. <code>fill</code> is the
-          default. <code>outline</code> is used to create a button with a
-          border. <code>text</code> is used to create a button with no border
-          and no background.
+          Jenis variasi butang menggunakan prop <code>variant</code> untuk
+          menukar bentuk butang. Terdapat 3 jenis variasi: <code>fill</code>,
+          <code>outline</code> dan <code>text</code>. <code>fill</code> adalah
+          default. <code>outline</code> digunakan untuk membuat butang dengan
+          sempadan. <code>text</code> digunakan untuk membuat butang tanpa
+          sempadan dan latar belakang.
         </p>
 
         <!-- Fill Button -->
@@ -197,45 +234,62 @@ const copyCode = (codeId) => {
             class="text-sm border border-slate-200 py-1 px-3 rounded-lg my-2"
             @click="showCode3 ? (showCode3 = false) : (showCode3 = true)"
           >
-            Show Code
+            Tunjukkan Kod
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
             <div v-show="showCode3" v-highlight>
-              <NuxtScrollbar style="max-height: 300px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;!-- Fill Button --&gt;
-                &lt;rs-button variant="primary"&gt;Primary&lt;/rs-button&gt;
-                &lt;rs-button variant="secondary"&gt;Secondary&lt;/rs-button&gt;
-                &lt;rs-button variant="info"&gt;Info&lt;/rs-button&gt;
-                &lt;rs-button variant="success"&gt;Success&lt;/rs-button&gt;
-                &lt;rs-button variant="warning"&gt;Warning&lt;/rs-button&gt;
-                &lt;rs-button variant="danger"&gt;Danger&lt;/rs-button&gt;
+              <div class="relative">
+                <button
+                  @click="copyCode('code3')"
+                  class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-300 py-1 px-3 rounded z-10"
+                >
+                  Salin Kod
+                </button>
+                <transition name="tooltip">
+                  <span
+                    v-if="tooltips['code3']"
+                    class="absolute top-0 right-0 mt-12 mr-2 bg-black text-white text-xs rounded py-1 px-2 z-10"
+                  >
+                    {{ tooltips["code3"] }}
+                  </span>
+                </transition>
 
-                &lt;!-- Outline Button --&gt;
-                &lt;rs-button variant="primary-outline"&gt;Primary&lt;/rs-button&gt;
-                &lt;rs-button variant="secondary-outline"&gt;Secondary&lt;/rs-button&gt;
-                &lt;rs-button variant="info-outline"&gt;Info&lt;/rs-button&gt;
-                &lt;rs-button variant="success-outline"&gt;Success&lt;/rs-button&gt;
-                &lt;rs-button variant="warning-outline"&gt;Warning&lt;/rs-button&gt;
-                &lt;rs-button variant="danger-outline"&gt;Danger&lt;/rs-button&gt;
-
-                &lt;!-- Text Button --&gt;
-                &lt;rs-button variant="primary-text"&gt;Primary&lt;/rs-button&gt;
-                &lt;rs-button variant="secondary-text"&gt;Secondary&lt;/rs-button&gt;
-                &lt;rs-button variant="info-text"&gt;Info&lt;/rs-button&gt;
-                &lt;rs-button variant="success-text"&gt;Success&lt;/rs-button&gt;
-                &lt;rs-button variant="warning-text"&gt;Warning&lt;/rs-button&gt;
-                &lt;rs-button variant="danger-text"&gt;Danger&lt;/rs-button&gt;
-              &lt;/template&gt;
-
-              &lt;script setup&gt;&lt;/script&gt;
-            </code>
-          </pre>
-              </NuxtScrollbar>
+                <NuxtScrollbar style="max-height: 300px">
+                  <pre id="code3" class="language-html shadow-none">
+                    <code>
+                      &lt;template&gt; 
+                        &lt;!-- Fill Button --&gt;
+                        &lt;rs-button variant="primary"&gt;Primary&lt;/rs-button&gt;
+                        &lt;rs-button variant="secondary"&gt;Secondary&lt;/rs-button&gt;
+                        &lt;rs-button variant="info"&gt;Info&lt;/rs-button&gt;
+                        &lt;rs-button variant="success"&gt;Success&lt;/rs-button&gt;
+                        &lt;rs-button variant="warning"&gt;Warning&lt;/rs-button&gt;
+                        &lt;rs-button variant="danger"&gt;Danger&lt;/rs-button&gt;
+                    
+                        &lt;!-- Outline Button --&gt;
+                        &lt;rs-button variant="primary-outline"&gt;Primary&lt;/rs-button&gt;
+                        &lt;rs-button variant="secondary-outline"&gt;Secondary&lt;/rs-button&gt;
+                        &lt;rs-button variant="info-outline"&gt;Info&lt;/rs-button&gt;
+                        &lt;rs-button variant="success-outline"&gt;Success&lt;/rs-button&gt;
+                        &lt;rs-button variant="warning-outline"&gt;Warning&lt;/rs-button&gt;
+                        &lt;rs-button variant="danger-outline"&gt;Danger&lt;/rs-button&gt;
+                    
+                        &lt;!-- Text Button --&gt;
+                        &lt;rs-button variant="primary-text"&gt;Primary&lt;/rs-button&gt;
+                        &lt;rs-button variant="secondary-text"&gt;Secondary&lt;/rs-button&gt;
+                        &lt;rs-button variant="info-text"&gt;Info&lt;/rs-button&gt;
+                        &lt;rs-button variant="success-text"&gt;Success&lt;/rs-button&gt;
+                        &lt;rs-button variant="warning-text"&gt;Warning&lt;/rs-button&gt;
+                        &lt;rs-button variant="danger-text"&gt;Danger&lt;/rs-button&gt;
+                      &lt;/template&gt;
+                    
+                      &lt;script setup&gt;&lt;/script&gt;
+                    </code>
+                  </pre>
+                </NuxtScrollbar>
+              </div>
             </div>
           </transition>
         </ClientOnly>
@@ -243,43 +297,60 @@ const copyCode = (codeId) => {
     </rs-card>
 
     <rs-card>
-      <template #header> Size </template>
+      <template #header> Saiz </template>
       <template #body>
         <p class="mb-4">
-          Button size uses props <code>size</code> to change the size of button.
-          There are 3 sizes: <code>small</code>, <code>medium</code> and
+          Saiz butang menggunakan prop <code>size</code> untuk menukar saiz
+          butang. Terdapat 3 saiz: <code>small</code>, <code>medium</code> dan
           <code>large</code>.
         </p>
 
         <div class="flex flex-wrap items-center justify-start gap-x-6">
-          <rs-button size="sm"> Small </rs-button>
-          <rs-button size="md"> Medium </rs-button>
-          <rs-button size="lg"> Large </rs-button>
+          <rs-button size="sm"> Kecil </rs-button>
+          <rs-button size="md"> Sederhana </rs-button>
+          <rs-button size="lg"> Besar </rs-button>
         </div>
         <div class="flex justify-end">
           <button
             class="text-sm border border-slate-200 py-1 px-3 rounded-lg my-2"
             @click="showCode4 ? (showCode4 = false) : (showCode4 = true)"
           >
-            Show Code
+            Tunjukkan Kod
           </button>
         </div>
         <ClientOnly>
           <transition name="fade">
             <div v-show="showCode4" v-highlight>
-              <NuxtScrollbar style="max-height: 300px">
-                <pre class="language-html shadow-none">
-            <code>
-              &lt;template&gt; 
-                &lt;rs-button size="sm"&gt;Small&lt;/rs-button&gt;
-                &lt;rs-button size="md"&gt;Medium&lt;/rs-button&gt;
-                &lt;rs-button size="lg"&gt;Large&lt;/rs-button&gt;
-              &lt;/template&gt;
+              <div class="relative">
+                <button
+                  @click="copyCode('code4')"
+                  class="absolute top-4 right-2 text-sm bg-gray-300 hover:bg-gray-300 py-1 px-3 rounded z-10"
+                >
+                  Salin Kod
+                </button>
+                <transition name="tooltip">
+                  <span
+                    v-if="tooltips['code4']"
+                    class="absolute top-0 right-0 mt-12 mr-2 bg-black text-white text-xs rounded py-1 px-2 z-10"
+                  >
+                    {{ tooltips["code4"] }}
+                  </span>
+                </transition>
 
-              &lt;script setup&gt;&lt;/script&gt;
-            </code>
-          </pre>
-              </NuxtScrollbar>
+                <NuxtScrollbar style="max-height: 300px">
+                  <pre id="code4" class="language-html shadow-none">
+                    <code>
+                      &lt;template&gt; 
+                        &lt;rs-button size="sm"&gt;Kecil&lt;/rs-button&gt;
+                        &lt;rs-button size="md"&gt;Sederhana&lt;/rs-button&gt;
+                        &lt;rs-button size="lg"&gt;Besar&lt;/rs-button&gt;
+                      &lt;/template&gt;
+                    
+                      &lt;script setup&gt;&lt;/script&gt;
+                    </code>
+                  </pre>
+                </NuxtScrollbar>
+              </div>
             </div>
           </transition>
         </ClientOnly>
@@ -287,3 +358,15 @@ const copyCode = (codeId) => {
     </rs-card>
   </div>
 </template>
+
+<style scoped>
+.tooltip-enter-active,
+.tooltip-leave-active {
+  transition: opacity 0.3s, transform 0.3s;
+}
+.tooltip-enter-from,
+.tooltip-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+</style>

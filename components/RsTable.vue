@@ -623,7 +623,7 @@ watch(
                   options.variant === 'warning' && options.striped,
                 'border-danger/20 odd:bg-white even:bg-danger/5':
                   options.variant === 'danger' && options.striped,
-                'cursor-pointer hover:bg-[rgb(var(--text-color))]':
+                'cursor-pointer hover:bg-slate-300':
                   options.hover && options.variant === 'default',
                 'cursor-pointer hover:bg-primary/5':
                   options.hover && options.variant === 'primary',

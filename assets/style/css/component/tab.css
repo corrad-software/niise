@@ -274,7 +274,6 @@
 }
 
 .tab .tab-content {
-  @apply rounded-lg;
   background-color: rgb(var(--bg-2));
 }
 

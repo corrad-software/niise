@@ -1,7 +1,3 @@
-.formkit-outer-text {
-  @apply block mb-2 font-semibold text-sm formkit-invalid:text-red-500 dark:formkit-invalid:text-danger;
-}
-
 .formkit-inner-text {
   @apply flex
     items-center

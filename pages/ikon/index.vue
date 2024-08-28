@@ -14,13 +14,16 @@ definePageMeta({
 });
 
 const copyToClipboard = (text) => {
-  let tagHtml = '<i class="icon-' + text + '"></i>';
-  navigator.clipboard.writeText(tagHtml);
+  let tagHtml = '<Icon name="' + text + '" />';
+  navigator.clipboard.writeText(tagHtml).then(() => {
+    showTooltip(text, "Kod disalin!");
+  });
 };
 
 const searchQuery = ref("");
 const displayedIcons = ref([]);
 const containerRef = ref(null);
+const tooltips = reactive({});
 const batchSize = 50;
 let currentIndex = 0;
 
@@ -44,6 +47,13 @@ const resetIconDisplay = () => {
   displayedIcons.value = [];
   currentIndex = 0;
   loadMoreIcons();
+};
+
+const showTooltip = (iconName, message) => {
+  tooltips[iconName] = message;
+  setTimeout(() => {
+    tooltips[iconName] = null;
+  }, 2000);
 };
 
 watch(searchQuery, () => {
@@ -93,18 +103,28 @@ const handleScroll = () => {
           <div
             v-for="icon in displayedIcons"
             :key="icon.name"
-            class="flex items-center"
+            class="flex items-center relative"
           >
             <Icon :name="icon.name" class="!w-10 !h-10 mr-4"></Icon>
             <div class="flex flex-col">
               <div class="text-sm">{{ icon.name }}</div>
-              <rs-button
-                @click="copyToClipboard(icon.name)"
-                class="!text-xs !py-1 !px-2 !mt-1"
-              >
-                <Icon name="ph:copy" class="!w-4 !h-4 mr-1"></Icon>
-                Copy
-              </rs-button>
+              <div class="relative">
+                <rs-button
+                  @click="copyToClipboard(icon.name)"
+                  class="!text-xs !py-1 !px-2 !mt-1 relative"
+                >
+                  <Icon name="ph:copy" class="!w-4 !h-4 mr-1"></Icon>
+                  Salin Kod
+                </rs-button>
+                <transition name="fade">
+                  <span
+                    v-if="tooltips[icon.name]"
+                    class="absolute top-4 left-0 mt-4 bg-black text-white text-xs rounded py-1 px-2 z-10"
+                  >
+                    {{ tooltips[icon.name] }}
+                  </span>
+                </transition>
+              </div>
             </div>
           </div>
         </div>

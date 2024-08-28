@@ -2,6 +2,10 @@
   @apply relative;
 }
 
+.formkit-label {
+  @apply block mb-2 font-semibold text-sm formkit-invalid:text-red-500 dark:formkit-invalid:text-danger;
+}
+
 .formkit-fieldset-box {
   @apply max-w-md border border-[rgb(var(--fk-border-color))]  rounded-lg px-4 py-2;
 }
