@@ -78,8 +78,8 @@ const saveAddAPI = async () => {
 
   if (data.value.statusCode === 200) {
     nuxtApp.$swal.fire({
-      title: "Success",
-      text: "The code has been saved successfully.",
+      title: "Berjaya",
+      text: "Kod telah berjaya disimpan.",
       icon: "success",
       confirmButtonText: "Ok",
       timer: 1000,
@@ -105,8 +105,8 @@ const saveEditAPI = async () => {
 
   if (data.value.statusCode === 200) {
     nuxtApp.$swal.fire({
-      title: "Success",
-      text: "The code has been saved successfully.",
+      title: "Berjaya",
+      text: "Kod telah berjaya disimpan.",
       icon: "success",
       confirmButtonText: "Ok",
       timer: 1000,
@@ -122,13 +122,14 @@ const saveEditAPI = async () => {
 const deleteAPI = async (apiURL) => {
   nuxtApp.$swal
     .fire({
-      title: "Are you sure to delete this API?",
-      text: "You won't be able to revert this!",
+      title: "Adakah anda pasti untuk memadam API ini?",
+      text: "Anda tidak akan dapat memulihkan ini!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: "Ya, padamkan!",
+      cancelButtonText: "Batal",
     })
     .then(async (result) => {
       if (result.isConfirmed) {
@@ -143,8 +144,8 @@ const deleteAPI = async (apiURL) => {
 
         if (data.value.statusCode === 200) {
           nuxtApp.$swal.fire({
-            title: "Success",
-            text: "The code has been saved successfully.",
+            title: "Berjaya",
+            text: "Kod telah berjaya disimpan.",
             icon: "success",
             confirmButtonText: "Ok",
             timer: 1000,
@@ -164,13 +165,13 @@ const deleteAPI = async (apiURL) => {
       <template #header>
         <div class="flex">
           <Icon class="mr-2 flex justify-center" name="ic:outline-info"></Icon
-          >Info
+          >Maklumat
         </div>
       </template>
       <template #body>
         <p class="mb-4">
-          This page is used to edit the api for the server side. You can edit
-          the api by choosing the api to edit from the card list below.
+          Halaman ini digunakan untuk mengedit API untuk bahagian pelayan. Anda boleh mengedit
+          API dengan memilih API untuk diedit dari senarai kad di bawah.
         </p>
       </template>
     </rs-card>
@@ -180,14 +181,14 @@ const deleteAPI = async (apiURL) => {
         <div class="flex justify-end items-center mb-4">
           <rs-button @click="openModalAdd">
             <Icon name="material-symbols:add" class="mr-1"></Icon>
-            Add API
+            Tambah API
           </rs-button>
         </div>
 
         <!-- Search Button -->
         <FormKit
           v-model="searchText"
-          placeholder="Search Title..."
+          placeholder="Cari Tajuk..."
           type="search"
           class="mb-4"
         />
@@ -214,7 +215,7 @@ const deleteAPI = async (apiURL) => {
                       name="material-symbols:code-blocks-outline-rounded"
                       class="mr-2"
                     />
-                    Code Editor
+                    Editor Kod
                   </rs-button>
                   <div class="flex gap-2">
                     <rs-button @click="openModalEdit(api.url)">
@@ -233,9 +234,9 @@ const deleteAPI = async (apiURL) => {
     </rs-card>
 
     <rs-modal
-      title="Add API"
+      title="Tambah API"
       v-model="showModalAdd"
-      ok-title="Save"
+      ok-title="Simpan"
       :ok-callback="saveAddAPI"
     >
       <FormKit type="text" label="Url" v-model="showModalAddForm.apiURL">
@@ -248,9 +249,9 @@ const deleteAPI = async (apiURL) => {
     </rs-modal>
 
     <rs-modal
-      title="Add API"
+      title="Edit API"
       v-model="showModalEdit"
-      ok-title="Save"
+      ok-title="Simpan"
       :ok-callback="saveEditAPI"
     >
       <FormKit type="text" label="Url" v-model="showModalEditForm.apiURL">

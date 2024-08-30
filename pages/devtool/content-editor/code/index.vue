@@ -1,6 +1,6 @@
 <script setup>
 definePageMeta({
-  title: "Code Editor",
+  title: "Penyunting Kod",
   middleware: ["auth"],
   requiresAuth: true,
 });
@@ -28,8 +28,8 @@ const page = router.getRoutes().find((page) => {
 if (!route.query.page || !page) {
   $swal
     .fire({
-      title: "Error",
-      text: "The page you are trying to edit is not found. Please choose a page to edit.",
+      title: "Ralat",
+      text: "Halaman yang anda cuba sunting tidak dijumpai. Sila pilih halaman untuk disunting.",
       icon: "error",
       confirmButtonText: "Ok",
     })
@@ -62,8 +62,8 @@ if (data.value.statusCode === 200) {
   if (data.value?.mode == "index") page.path = page.path + "/index";
 } else {
   $swal.fire({
-    title: "Error",
-    text: "The page you are trying to edit is not found. Please choose a page to edit. You will be redirected to the content editor page.",
+    title: "Ralat",
+    text: "Halaman yang anda cuba sunting tidak dijumpai. Sila pilih halaman untuk disunting. Anda akan dialihkan ke halaman penyunting kandungan.",
     icon: "error",
     confirmButtonText: "Ok",
     timer: 3000,
@@ -132,8 +132,8 @@ const saveCode = async () => {
 
   if (linterError.value) {
     $swal.fire({
-      title: "Error",
-      text: "There is an error in your code. Please fix it before saving.",
+      title: "Ralat",
+      text: "Terdapat ralat dalam kod anda. Sila betulkannya sebelum menyimpan.",
       icon: "error",
       confirmButtonText: "Ok",
     });
@@ -150,8 +150,8 @@ const saveCode = async () => {
   });
   if (data.value.statusCode === 200) {
     $swal.fire({
-      title: "Success",
-      text: "The code has been saved successfully.",
+      title: "Berjaya",
+      text: "Kod telah berjaya disimpan.",
       icon: "success",
       confirmButtonText: "Ok",
       timer: 1000,
@@ -175,7 +175,7 @@ const saveCode = async () => {
         <div class="flex justify-end gap-2 mb-4">
           <rs-button class="!p-2" @click="formatCode">
             <Icon name="simple-icons:prettier" size="20px" class="mr-1" />
-            Format Code</rs-button
+            Format Kod</rs-button
           >
           <rs-button class="!p-2" @click="saveCode">
             <Icon
@@ -183,7 +183,7 @@ const saveCode = async () => {
               size="20px"
               class="mr-1"
             />
-            Save Code
+            Simpan Kod
           </rs-button>
         </div>
         <Transition>
@@ -191,12 +191,12 @@ const saveCode = async () => {
             <div class="flex gap-2">
               <Icon name="material-symbols:error-outline-rounded" size="20px" />
               <div>
-                <div class="font-bold">ESLint Error</div>
+                <div class="font-bold">Ralat ESLint</div>
                 <div class="text-sm">
                   {{ linterErrorText }}
                 </div>
                 <div class="text-xs mt-2">
-                  Line: {{ linterErrorLine }} Column: {{ linterErrorColumn }}
+                  Baris: {{ linterErrorLine }} Lajur: {{ linterErrorColumn }}
                 </div>
               </div>
             </div>

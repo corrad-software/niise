@@ -3,7 +3,7 @@
 import { useThemeStore } from "~/stores/theme";
 
 definePageMeta({
-  title: "API Code Editor",
+  title: "Penyunting Kod API",
   middleware: ["auth"],
   requiresAuth: true,
 });
@@ -63,8 +63,8 @@ if (data.value.statusCode === 200) {
 } else {
   $swal
     .fire({
-      title: "Error",
-      text: "The API you are trying to edit is not found. Please choose a API to edit.",
+      title: "Ralat",
+      text: "API yang anda cuba sunting tidak dijumpai. Sila pilih API untuk disunting.",
       icon: "error",
       confirmButtonText: "Ok",
     })
@@ -134,8 +134,8 @@ const saveCode = async () => {
 
   if (linterError.value) {
     $swal.fire({
-      title: "Error",
-      text: "There is an error in your code. Please fix it before saving.",
+      title: "Ralat",
+      text: "Terdapat ralat dalam kod anda. Sila betulkannya sebelum menyimpan.",
       icon: "error",
       confirmButtonText: "Ok",
     });
@@ -153,8 +153,8 @@ const saveCode = async () => {
   });
   if (data.value.statusCode === 200) {
     $swal.fire({
-      title: "Success",
-      text: "The code has been saved successfully.",
+      title: "Berjaya",
+      text: "Kod telah berjaya disimpan.",
       icon: "success",
       confirmButtonText: "Ok",
       timer: 1000,
@@ -175,11 +175,11 @@ const saveCode = async () => {
     }}</rs-alert>
     <rs-card>
       <rs-tab fill>
-        <rs-tab-item title="Editor">
+        <rs-tab-item title="Penyunting">
           <div class="flex justify-end gap-2 mb-4">
             <rs-button class="!p-2" @click="formatCode">
               <Icon name="simple-icons:prettier" size="20px" class="mr-1" />
-              Format Code</rs-button
+              Format Kod</rs-button
             >
             <rs-button class="!p-2" @click="saveCode">
               <Icon
@@ -187,7 +187,7 @@ const saveCode = async () => {
                 size="20px"
                 class="mr-1"
               />
-              Save API
+              Simpan API
             </rs-button>
           </div>
           <Transition>
@@ -198,12 +198,12 @@ const saveCode = async () => {
                   size="20px"
                 />
                 <div>
-                  <div class="font-bold">ESLint Error</div>
+                  <div class="font-bold">Ralat ESLint</div>
                   <div class="text-sm">
                     {{ linterErrorText }}
                   </div>
                   <div class="text-xs mt-2">
-                    Line: {{ linterErrorLine }} Column: {{ linterErrorColumn }}
+                    Baris: {{ linterErrorLine }} Lajur: {{ linterErrorColumn }}
                   </div>
                 </div>
               </div>
@@ -216,7 +216,7 @@ const saveCode = async () => {
             mode="javascript"
           />
         </rs-tab-item>
-        <rs-tab-item title="API Tester">
+        <rs-tab-item title="Penguji API">
           <rs-api-tester :url="route.query?.path" />
         </rs-tab-item>
       </rs-tab>

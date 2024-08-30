@@ -408,14 +408,14 @@ const addMenuFromList = () => {
       <template #header>
         <div class="flex">
           <Icon class="mr-2 flex justify-center" name="ic:outline-info"></Icon
-          >Info
+          >Maklumat
         </div>
       </template>
       <template #body>
         <p class="mb-4">
-          This page is used to edit the menu of the website. You can add, edit,
-          and delete menu items. You can also change the order of the menu items
-          by dragging and dropping them.
+          Halaman ini digunakan untuk mengedit menu laman web. Anda boleh
+          menambah, mengedit, dan memadam item menu. Anda juga boleh mengubah
+          susunan item menu dengan menyeret dan melepaskannya.
         </p>
       </template>
     </rs-card>
@@ -423,11 +423,11 @@ const addMenuFromList = () => {
     <rs-card>
       <div class="pt-2">
         <rs-tab fill>
-          <rs-tab-item title="All Menu">
+          <rs-tab-item title="Semua Menu">
             <div class="flex justify-end items-center mb-4">
               <rs-button @click="openModalAdd">
                 <Icon name="material-symbols:add" class="mr-1"></Icon>
-                Add Menu
+                Tambah Menu
               </rs-button>
             </div>
             <!-- Table All Menu -->
@@ -491,18 +491,18 @@ const addMenuFromList = () => {
               </template>
             </rs-table>
           </rs-tab-item>
-          <rs-tab-item title="Manage Side Menu">
+          <rs-tab-item title="Urus Menu Sisi">
             <div class="flex justify-end items-center mb-4">
               <rs-button
                 class="mr-2"
                 @click="showCode ? (showCode = false) : (showCode = true)"
               >
                 <Icon name="ic:baseline-code" class="mr-2"></Icon>
-                {{ showCode ? "Hide" : "Show" }} JSON Code
+                {{ showCode ? "Sembunyikan" : "Tunjukkan" }} Kod JSON
               </rs-button>
               <rs-button @click="overwriteJsonFileLocal(sideMenuList)">
                 <Icon name="mdi:content-save-outline" class="mr-2"></Icon>
-                Save Menu
+                Simpan Menu
               </rs-button>
             </div>
 
@@ -510,7 +510,7 @@ const addMenuFromList = () => {
               <div>
                 <FormKit
                   type="search"
-                  placeholder="Search Menu..."
+                  placeholder="Cari Menu..."
                   outer-class="mb-5"
                   v-model="searchInput"
                 />
@@ -526,7 +526,9 @@ const addMenuFromList = () => {
                     :sort="false"
                   >
                     <template #item="{ element }">
-                      <rs-card class="p-4 mb-4 border-2 border-[rgb(var(--border-color))] !shadow-none">
+                      <rs-card
+                        class="p-4 mb-4 border-2 border-[rgb(var(--border-color))] !shadow-none"
+                      >
                         <div class="flex justify-between items-center">
                           <p>
                             {{ kebabtoTitle(element.name) }} (

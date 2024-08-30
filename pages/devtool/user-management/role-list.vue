@@ -1,6 +1,6 @@
 <script setup>
 definePageMeta({
-  title: "Role List",
+  title: "Senarai Peranan",
   middleware: ["auth"],
   requiresAuth: true,
 });
@@ -38,8 +38,8 @@ const showModalDeleteForm = ref({
 });
 
 const statusDropdown = ref([
-  { label: "Active", value: "ACTIVE" },
-  { label: "Inactive", value: "INACTIVE" },
+  { label: "Aktif", value: "ACTIVE" },
+  { label: "Tidak Aktif", value: "INACTIVE" },
 ]);
 
 const roleListbyUser = ref([]);
@@ -199,8 +199,8 @@ const saveUser = async () => {
   if (data.value.statusCode === 200) {
     $swal.fire({
       icon: "success",
-      title: "Success",
-      text: "User has been added successfully",
+      title: "Berjaya",
+      text: "Pengguna telah berjaya ditambah",
     });
 
     await getUserList();
@@ -209,7 +209,7 @@ const saveUser = async () => {
   } else {
     $swal.fire({
       icon: "error",
-      title: "Error",
+      title: "Ralat",
       text: data.value.message,
     });
   }
@@ -227,8 +227,8 @@ const saveRole = async () => {
       $swal.fire({
         position: "center",
         icon: "success",
-        title: "Success",
-        text: "Role has been updated successfully",
+        title: "Berjaya",
+        text: "Peranan telah berjaya dikemas kini",
         timer: 1000,
         showConfirmButton: false,
       });
@@ -242,7 +242,7 @@ const saveRole = async () => {
     } else {
       $swal.fire({
         icon: "error",
-        title: "Error",
+        title: "Ralat",
         text: data.value.message,
       });
     }
@@ -257,8 +257,8 @@ const saveRole = async () => {
       $swal.fire({
         position: "center",
         icon: "success",
-        title: "Success",
-        text: "Role has been added",
+        title: "Berjaya",
+        text: "Peranan telah ditambah",
         timer: 1000,
         showConfirmButton: false,
       });
@@ -272,7 +272,7 @@ const saveRole = async () => {
     } else {
       $swal.fire({
         icon: "error",
-        title: "Error",
+        title: "Ralat",
         text: data.value.message,
       });
     }
@@ -290,8 +290,8 @@ const deleteRole = async () => {
     $swal.fire({
       position: "center",
       icon: "success",
-      title: "Success",
-      text: "User has been deleted",
+      title: "Berjaya",
+      text: "Pengguna telah dipadam",
       timer: 1000,
       showConfirmButton: false,
     });
@@ -304,7 +304,7 @@ const deleteRole = async () => {
     $swal.fire({
       position: "center",
       icon: "error",
-      title: "Error",
+      title: "Ralat",
       text: data.value.message,
     });
   }
@@ -331,13 +331,13 @@ function groupRoleByUser() {
       <template #header>
         <div class="flex">
           <Icon class="mr-2 flex justify-center" name="ic:outline-info"></Icon
-          >Info
+          >Maklumat
         </div>
       </template>
       <template #body>
         <p class="mb-4">
-          This page is only accessible by admin users. You can manage users
-          here. You can also add new users. You can also change user roles.
+          Halaman ini hanya boleh diakses oleh pengguna admin. Anda boleh menguruskan pengguna
+          di sini. Anda juga boleh menambah pengguna baru. Anda juga boleh menukar peranan pengguna.
         </p>
       </template>
     </rs-card>
@@ -345,11 +345,11 @@ function groupRoleByUser() {
     <rs-card>
       <div class="pt-2">
         <rs-tab fill>
-          <rs-tab-item title="All Role">
+          <rs-tab-item title="Semua Peranan">
             <div class="flex justify-end items-center mb-4">
               <rs-button @click="openModal(null, 'add')">
                 <Icon name="material-symbols:add" class="mr-1"></Icon>
-                Add Role
+                Tambah Peranan
               </rs-button>
             </div>
             <rs-table
@@ -397,31 +397,31 @@ function groupRoleByUser() {
     </rs-card>
 
     <rs-modal
-      :title="modalType == 'edit' ? 'Edit Role' : 'Add Role'"
-      ok-title="Save"
+      :title="modalType == 'edit' ? 'Sunting Peranan' : 'Tambah Peranan'"
+      ok-title="Simpan"
       :ok-callback="saveRole"
       v-model="showModal"
     >
       <FormKit
         type="text"
         v-model="showModalForm.name"
-        label="Name"
+        label="Nama"
         validation="required"
         validation-visibility="live"
       />
       <FormKit
         type="textarea"
         v-model="showModalForm.description"
-        label="Description"
+        label="Penerangan"
       />
       <div class="flex justify-between items-center mb-2">
         <label
           class="formkit-label font-semibold text-gray-700 dark:text-gray-200 blockfont-semibold text-sm formkit-invalid:text-red-500 dark:formkit-invalid:text-danger"
           for="input_4"
         >
-          Users
+          Pengguna
         </label>
-        <rs-button size="sm" @click="openModalUser"> Add User </rs-button>
+        <rs-button size="sm" @click="openModalUser"> Tambah Pengguna </rs-button>
       </div>
       <v-select
         class="formkit-vselect"
@@ -432,7 +432,7 @@ function groupRoleByUser() {
       <FormKit
         type="checkbox"
         v-model="checkAllUser"
-        label="All Users"
+        label="Semua Pengguna"
         input-class="icon-check"
       />
       <FormKit
@@ -446,9 +446,9 @@ function groupRoleByUser() {
 
     <!-- Modal Role -->
     <rs-modal
-      title="Add User"
-      ok-title="Save"
-      cancel-title="Back"
+      title="Tambah Pengguna"
+      ok-title="Simpan"
+      cancel-title="Kembali"
       :cancel-callback="closeModalUser"
       :ok-callback="saveUser"
       v-model="showModalUser"
@@ -457,19 +457,19 @@ function groupRoleByUser() {
         type="text"
         v-model="showModalUserForm.username"
         name="username"
-        label="Username"
+        label="Nama Pengguna"
       />
       <FormKit
         type="text"
         v-model="showModalUserForm.fullname"
         name="fullname"
-        label="Fullname"
+        label="Nama Penuh"
       />
       <FormKit
         type="text"
         v-model="showModalUserForm.email"
         name="email"
-        label="Email"
+        label="E-mel"
         validation="email"
         validation-visibility="dirty"
       />
@@ -477,7 +477,7 @@ function groupRoleByUser() {
         type="mask"
         v-model="showModalUserForm.phone"
         name="phone"
-        label="Phone"
+        label="Telefon"
         mask="###########"
       />
 
@@ -492,14 +492,14 @@ function groupRoleByUser() {
 
     <!-- Modal Delete Confirmation -->
     <rs-modal
-      title="Delete Confirmation"
-      ok-title="Yes"
-      cancel-title="No"
+      title="Pengesahan Padam"
+      ok-title="Ya"
+      cancel-title="Tidak"
       :ok-callback="deleteRole"
       v-model="showModalDelete"
     >
       <p>
-        Are you sure want to delete this role ({{ showModalDeleteForm.name }})?
+        Adakah anda pasti mahu memadam peranan ini ({{ showModalDeleteForm.name }})?
       </p>
     </rs-modal>
   </div>

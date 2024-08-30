@@ -1,6 +1,6 @@
 <script setup>
 useHead({
-  title: "Niise | Innovative solutions for captivating content",
+  title: "Niise",
   description: "Home page",
   htmlAttrs: {
     lang: "en",

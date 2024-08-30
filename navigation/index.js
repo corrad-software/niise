@@ -105,42 +105,78 @@ export default [
         child: [],
         meta: {},
       },
+      {
+        title: "Tipografi",
+        path: "/tipografi",
+        icon: "ph:text-aa",
+        child: [],
+        meta: {},
+      },
+      {
+        title: "Senarai Mesej",
+        path: "/senarai-mesej",
+        icon: "ic:outline-mail",
+        child: [],
+        meta: {},
+      },
     ],
     meta: {},
   },
   {
-    header: "Administration",
+    header: "Prototaip Forensik",
     description: "",
     child: [
       {
-        title: "Configuration",
+        title: "FOR-01",
+        icon: "ph:number-circle-one-fill",
+        child: [
+          {
+            title: "Permohonan",
+            path: "/prototype/for-01/permohonan",
+            child: [],
+          },
+          {
+            title: "Kemaskini Daftar",
+            path: "/prototype/for-01/kemaskini-daftar",
+            child: [],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    header: "Pengurusan",
+    description: "",
+    child: [
+      {
+        title: "Konfigurasi",
         icon: "ic:outline-settings",
         child: [
           {
-            title: "Environment",
+            title: "Persekitaran",
             path: "/devtool/config/environment",
           },
         ],
       },
       {
-        title: "Menu Editor",
+        title: "Penyelia Menu",
         icon: "ci:menu-alt-03",
         path: "/devtool/menu-editor",
         child: [],
       },
       {
-        title: "Manage Users",
+        title: "Penyelia Pengguna",
         path: "/devtool/user-management",
         icon: "ph:user-circle-gear",
         child: [
           {
-            title: "User List",
+            title: "Pengguna",
             path: "/devtool/user-management/user-list",
             icon: "",
             child: [],
           },
           {
-            title: "Role List",
+            title: "Peranan",
             path: "/devtool/user-management/role-list",
             icon: "",
             child: [],
@@ -148,21 +184,21 @@ export default [
         ],
       },
       {
-        title: "Content",
+        title: "Kandungan",
         icon: "mdi:pencil-ruler",
         child: [
           {
-            title: "Editor",
+            title: "Penyelia Kandungan",
             path: "/devtool/content-editor",
           },
           {
-            title: "Template",
+            title: "Templat",
             path: "/devtool/content-editor/template",
           },
         ],
       },
       {
-        title: "API Editor",
+        title: "Penyelia API",
         path: "/devtool/api-editor",
         icon: "material-symbols:api-rounded",
         child: [],

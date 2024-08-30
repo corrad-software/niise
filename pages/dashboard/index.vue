@@ -11,475 +11,328 @@ definePageMeta({
   ],
 });
 
-const data1 = ref([]);
-const data2 = ref([]);
-const data3 = ref([]);
-const data4 = ref([]);
-var sparkline1Data = [47, 45, 54, 38, 56, 24, 65];
-var sparkline2Data = [61, 35, 66, 41, 59, 25, 32];
-var sparkline3Data = [25, 18, 36, 41, 43, 35, 14];
-var sparkline4Data = [8, 16, 22, 41, 43, 35, 14];
-
-const changeKey = ref(0);
-
-const customers = [
+// Data baru untuk lapangan terbang teratas
+const topAirports = ref([
   {
-    name: "Iqmal",
-    age: "25",
-    city: "Kuala Lumpur",
-    country: "Malaysia",
-    totalPurchase: 1524,
-    purchase: 23,
+    rank: 1,
+    name: "Lapangan Terbang Antarabangsa Kuala Lumpur (KLIA)",
+    visitors: 62000000,
   },
   {
-    name: "Adi",
-    age: "45",
-    city: "Pulau Pinang",
-    country: "Malaysia",
-    totalPurchase: 643,
-    purchase: 14,
+    rank: 2,
+    name: "Lapangan Terbang Antarabangsa Kota Kinabalu",
+    visitors: 9000000,
   },
+  { rank: 3, name: "Lapangan Terbang Antarabangsa Penang", visitors: 8000000 },
+  { rank: 4, name: "Lapangan Terbang Antarabangsa Kuching", visitors: 5500000 },
   {
-    name: "Raziq",
-    age: "21",
-    city: "Kelantan",
-    country: "Malaysia",
-    totalPurchase: 543,
-    purchase: 12,
-  },
-  {
-    name: "Haqeem",
-    age: "19",
-    city: "Negeri Sembilan",
-    country: "Malaysia",
-    totalPurchase: 258,
-    purchase: 6,
-  },
-];
-
-const randomizeArray = function (arg) {
-  var array = arg.slice();
-  var currentIndex = array.length,
-    temporaryValue,
-    randomIndex;
-
-  while (0 !== currentIndex) {
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
-
-    temporaryValue = array[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    array[randomIndex] = temporaryValue;
-  }
-
-  return array;
-};
-
-data1.value.push({
-  name: "Revenues",
-  data: randomizeArray(sparkline1Data),
-});
-
-data2.value.push({
-  name: "Users",
-  data: randomizeArray(sparkline2Data),
-});
-
-data3.value.push({
-  name: "Products",
-  data: randomizeArray(sparkline3Data),
-});
-
-data4.value.push({
-  name: "Viewers",
-  data: randomizeArray(sparkline4Data),
-});
-
-const chartOptions = computed(() => ({
-  chart: {
-    type: "area",
-    sparkline: {
-      enabled: true,
-    },
-  },
-  stroke: {
-    curve: "smooth",
-  },
-  fill: {
-    opacity: 1,
-  },
-  labels: [...Array(7).keys()].map((n) => `2022-06-0${n + 1}`),
-  xaxis: {
-    type: "datetime",
-  },
-}));
-
-// Radial Chart
-
-const radialData = ref([44, 55, 67, 83]);
-
-const chartOptionsRadial = computed(() => ({
-  chart: {
-    height: 350,
-    type: "radialBar",
-  },
-  plotOptions: {
-    radialBar: {
-      dataLabels: {
-        style: {
-          colors: "#9CA3AF",
-        },
-        name: {
-          offsetY: 30,
-          fontSize: "18px",
-        },
-        value: {
-          offsetY: -15,
-          fontSize: "30px",
-        },
-        total: {
-          show: true,
-          label: "Total",
-          formatter: function (w) {
-            // By default this function returns the average of all series. The below is just an example to show the use of custom formatter function
-            return 249;
-          },
-        },
-      },
-    },
-  },
-  labels: ["Product A", "Product B", "Product C", "Product D"],
-  stroke: {
-    lineCap: "round",
-  },
-}));
-
-// Transaction Graph
-const transactionData = ref([
-  {
-    name: "Bill A",
-    data: [...Array(12).keys()].map((n) => Math.round(Math.random() * 100)),
-  },
-  {
-    name: "Bill B",
-    data: [...Array(12).keys()].map((n) => Math.round(Math.random() * 100)),
+    rank: 5,
+    name: "Lapangan Terbang Antarabangsa Langkawi",
+    visitors: 3000000,
   },
 ]);
 
-const chartOptionsTransaction = computed(() => ({
-  chart: {
-    height: 350,
-    type: "area",
-    toolbar: {
-      show: false,
-    },
+// Data baru untuk kad ringkasan pantas
+const quickSummary = ref([
+  { title: "Jumlah Pelawat", value: "10.5 Juta", icon: "ic:outline-people" },
+  {
+    title: "Pendapatan Pelancongan",
+    value: "RM 86.14 Bilion",
+    icon: "ic:outline-attach-money",
   },
-  dataLabels: {
-    enabled: false,
+  {
+    title: "Tempoh Penginapan Purata",
+    value: "6.1 Hari",
+    icon: "ic:outline-hotel",
   },
-  stroke: {
-    curve: "smooth",
+  {
+    title: "Kepuasan Pelancong",
+    value: "92%",
+    icon: "ic:outline-sentiment-satisfied",
   },
-  colors: ["#6366F1", "#F97316"],
-  yaxis: {
-    labels: {
-      style: {
-        colors: "#9CA3AF",
-        fontSize: "12px",
+]);
+
+// Data Pelawat Malaysia
+const visitorData = ref([
+  {
+    name: "Pelawat Tempatan",
+    data: [5000000, 5500000, 6000000, 6500000, 7000000, 7500000],
+  },
+  {
+    name: "Pelawat Asing",
+    data: [3000000, 3500000, 4000000, 4500000, 5000000, 5500000],
+  },
+]);
+
+// Data Pelawat Asing mengikut Negeri
+const foreignVisitorsByState = ref([
+  { state: "Selangor", visitors: 1500000 },
+  { state: "Pulau Pinang", visitors: 1200000 },
+  { state: "Johor", visitors: 1000000 },
+  { state: "Sabah", visitors: 800000 },
+  { state: "Sarawak", visitors: 600000 },
+  { state: "Melaka", visitors: 500000 },
+  { state: "Kedah", visitors: 400000 },
+  { state: "Negeri Sembilan", visitors: 300000 },
+  { state: "Perak", visitors: 250000 },
+  { state: "Terengganu", visitors: 200000 },
+  { state: "Kelantan", visitors: 150000 },
+  { state: "Pahang", visitors: 100000 },
+  { state: "Perlis", visitors: 50000 },
+]);
+
+// Lapangan Terbang Keberangkatan Teratas
+const departureData = ref([
+  { airport: "JFK", departures: 1500 },
+  { airport: "LHR", departures: 1200 },
+  { airport: "CDG", departures: 1000 },
+  { airport: "DXB", departures: 800 },
+  { airport: "SIN", departures: 600 },
+]);
+
+// Data Pelancong Berulang
+const repeatVisitorsData = ref([
+  { category: "1-2 kali", percentage: 45 },
+  { category: "3-5 kali", percentage: 30 },
+  { category: "6-10 kali", percentage: 15 },
+  { category: ">10 kali", percentage: 10 },
+]);
+
+// Data Negara Asal Pelancong Asing Teratas
+const topVisitorCountries = ref([
+  { country: "Singapura", visitors: 1500000 },
+  { country: "Indonesia", visitors: 1200000 },
+  { country: "China", visitors: 1000000 },
+  { country: "Thailand", visitors: 800000 },
+  { country: "India", visitors: 600000 },
+]);
+
+const chartOptionsVisitors = computed(() => ({
+  chart: { height: 350, type: "line" },
+  stroke: { curve: "smooth", width: 2 },
+  xaxis: { categories: ["2018", "2019", "2020", "2021", "2022", "2023"] },
+  yaxis: { title: { text: "Bilangan Pelawat" } },
+}));
+
+const chartOptionsForeignVisitors = computed(() => ({
+  chart: { type: "bar" },
+  plotOptions: { bar: { horizontal: true } },
+  xaxis: { categories: foreignVisitorsByState.value.map((item) => item.state) },
+}));
+
+const chartOptionsDeparture = computed(() => ({
+  chart: { type: "bar" },
+  plotOptions: { bar: { horizontal: true } },
+  xaxis: { categories: departureData.value.map((item) => item.airport) },
+}));
+
+const chartOptionsRepeatVisitors = computed(() => ({
+  chart: { type: "pie" },
+  labels: repeatVisitorsData.value.map((item) => item.category),
+  responsive: [
+    {
+      breakpoint: 480,
+      options: {
+        chart: {
+          width: 200,
+        },
+        legend: {
+          position: "bottom",
+        },
       },
     },
+  ],
+}));
+
+const chartOptionsTopCountries = computed(() => ({
+  chart: { type: "bar" },
+  plotOptions: {
+    bar: { horizontal: false, columnWidth: "55%", endingShape: "rounded" },
   },
-  xaxis: {
-    type: "datetime",
-    categories: [
-      "2022-01-01",
-      "2022-02-01",
-      "2022-03-01",
-      "2022-04-01",
-      "2022-05-01",
-      "2022-06-01",
-      "2022-07-01",
-      "2022-08-01",
-      "2022-09-01",
-      "2022-10-01",
-      "2022-11-01",
-      "2022-12-01",
-    ],
-    labels: {
-      style: {
-        colors: "#9CA3AF",
-        fontSize: "14px",
-        fontWeight: 400,
-      },
-      datetimeFormatter: {
-        month: "MMM",
-      },
-    },
-  },
-  legend: {
-    position: "top",
-    horizontalAlign: "left",
-    labels: {
-      colors: "#9CA3AF",
-      useSeriesColors: false,
-    },
-  },
+  dataLabels: { enabled: false },
+  stroke: { show: true, width: 2, colors: ["transparent"] },
+  xaxis: { categories: topVisitorCountries.value.map((item) => item.country) },
+  yaxis: { title: { text: "Bilangan Pelawat" } },
+  fill: { opacity: 1 },
   tooltip: {
-    x: {
-      format: "MMMM",
+    y: {
+      formatter: function (val) {
+        return val.toLocaleString() + " pelawat";
+      },
     },
   },
 }));
 
 onMounted(() => {
-  setTimeout(() => {
-    changeKey.value++;
-  }, 500);
+  // Sebarang logik yang diperlukan semasa pemasangan
 });
 </script>
 
 <template>
   <div>
     <LayoutsBreadcrumb />
-    <!-- First Row -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-x-6">
-      <!-- Summary Card #1 -->
-      <rs-card>
-        <div class="summary-1 pt-5 pb-3 px-5 flex items-center gap-4">
+    <!-- Kad Ringkasan Pantas -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+      <rs-card
+        v-for="(item, index) in quickSummary"
+        :key="index"
+        class="transition-all duration-300 hover:shadow-lg"
+      >
+        <div class="pt-5 pb-3 px-5 flex items-center gap-4">
           <div
-            class="p-5 flex justify-center items-center bg-primary/20 rounded-2xl"
+            class="p-5 flex justify-center items-center bg-primary/20 rounded-2xl transition-all duration-300 hover:bg-primary/30"
           >
-            <Icon class="text-primary" name="ic:outline-attach-money"></Icon>
+            <Icon class="text-primary text-3xl" :name="item.icon"></Icon>
           </div>
           <div class="flex-1 truncate">
-            <span class="block font-semibold text-xl leading-tight">
-              RM 100,000</span
-            >
-            <span class="text-base font-semibold text-gray-500"
-              >Total Revenues</span
-            >
+            <span class="block font-bold text-2xl leading-tight text-primary">
+              {{ item.value }}
+            </span>
+            <span class="text-sm font-medium text-gray-600">
+              {{ item.title }}
+            </span>
           </div>
         </div>
-        <client-only>
-          <VueApexCharts
-            :key="changeKey"
-            width="100%"
-            height="53"
-            :options="{
-              ...chartOptions,
-              colors: ['#F43F5E'],
-              yaxis: {
-                min: 0,
-                max: Math.max(...data1[0].data) + 10,
-              },
-            }"
-            :series="data1"
-          ></VueApexCharts>
-        </client-only>
-      </rs-card>
-      <!-- Summary Card #2 -->
-      <rs-card>
-        <div class="summary-2 pt-5 pb-3 px-5 flex items-center gap-4">
-          <div
-            class="p-5 flex justify-center items-center bg-indigo-100 rounded-2xl"
-          >
-            <Icon
-              class="text-indigo-500"
-              name="ic:outline-account-circle"
-            ></Icon>
-          </div>
-          <div class="flex-1 truncate">
-            <span class="block font-semibold text-xl leading-tight"> 512</span>
-            <span class="text-base font-semibold text-gray-500"
-              >Total Users</span
-            >
-          </div>
-        </div>
-        <client-only>
-          <VueApexCharts
-            :key="changeKey"
-            width="100%"
-            height="53"
-            :options="{
-              ...chartOptions,
-              colors: ['#6366F1'],
-              yaxis: {
-                min: 0,
-                max: Math.max(...data2[0].data) + 10,
-              },
-            }"
-            :series="data2"
-          ></VueApexCharts>
-        </client-only>
-      </rs-card>
-      <!-- Summary Card #3 -->
-      <rs-card>
-        <div class="summary-3 pt-5 pb-3 px-5 flex items-center gap-4">
-          <div
-            class="p-5 flex justify-center items-center bg-orange-100 rounded-2xl"
-          >
-            <Icon class="text-orange-500" name="ic:outline-shopping-bag"></Icon>
-          </div>
-          <div class="flex-1 truncate">
-            <span class="block font-semibold text-xl leading-tight"> 20</span>
-            <span class="text-base font-semibold text-gray-500"
-              >Total Products</span
-            >
-          </div>
-        </div>
-        <client-only>
-          <VueApexCharts
-            :key="changeKey"
-            width="100%"
-            height="53"
-            :options="{
-              ...chartOptions,
-              colors: ['#F97316'],
-              yaxis: {
-                min: 0,
-                max: Math.max(...data3[0].data) + 10,
-              },
-            }"
-            :series="data3"
-          ></VueApexCharts>
-        </client-only>
-      </rs-card>
-      <!-- Summary Card #4 -->
-      <rs-card>
-        <div class="summary-4 pt-5 pb-3 px-5 flex items-center gap-4">
-          <div
-            class="p-5 flex justify-center items-center bg-blue-100 rounded-2xl"
-          >
-            <Icon class="text-blue-500" name="ic:outline-remove-red-eye"></Icon>
-          </div>
-          <div class="flex-1 truncate">
-            <span class="block font-semibold text-xl leading-tight">
-              2,452</span
-            >
-            <span class="text-base font-semibold text-gray-500"
-              >Total Viewers</span
-            >
-          </div>
-        </div>
-        <client-only>
-          <VueApexCharts
-            :key="changeKey"
-            width="100%"
-            height="53"
-            :options="{
-              ...chartOptions,
-              colors: ['#3B82F6'],
-              yaxis: {
-                min: 0,
-                max: Math.max(...data4[0].data) + 10,
-              },
-            }"
-            :series="data4"
-          ></VueApexCharts>
-        </client-only>
       </rs-card>
     </div>
 
-    <div class="flex flex-col md:flex-row gap-x-6">
-      <div class="w-12/2 md:w-8/12 flex flex-col">
-        <!-- Graph -->
-        <rs-card class="flex-1">
-          <template #header> Transaction </template>
-          <template #body>
-            <client-only>
-              <VueApexCharts
-                :key="changeKey"
-                width="100%"
-                height="300"
-                name="area"
-                :options="chartOptionsTransaction"
-                :series="transactionData"
-              ></VueApexCharts
-            ></client-only>
-          </template>
-        </rs-card>
-        <rs-card class="flex-1">
-          <template #header> Referral</template>
-          <template #body>
-            <div
-              v-for="(val, index) in customers"
-              :key="index"
-              class="flex justify-between items-center rounded-lg bg-[rgb(var(--bg-1))] p-5 first:mt-0 mt-3"
-            >
-              <div class="flex items-center gap-x-4">
-                <img
-                  src="@/assets/img/avatar/user.webp"
-                  class="h-10 w-10 rounded-lg"
-                />
-                <div class="flex-1">
-                  <div class="flex flex-col">
-                    <span
-                      class="text-gray-900 dark:text-white font-semibold text-lg"
-                    >
-                      {{ val.name }}
-                    </span>
-                    <span class="text-gray-600 dark:text-gray-50 text-sm">
-                      RM{{ parseFloat(val.totalPurchase).toFixed(2) }} |
-                      {{ val.purchase }} sold
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <button
-                  class="flex items-center p-4 rounded-full bg-[rgb(var(--bg-2))] hover:bg-[rgb(var(--bg-2))]/10 shadow-md"
-                >
-                  <Icon size="20px" name="ic:baseline-mail-outline"></Icon>
-                </button>
-              </div>
-            </div>
-          </template>
-        </rs-card>
-      </div>
-      <div class="w-12/2 md:w-4/12 flex flex-col">
-        <!-- Monthly Target Radial -->
-        <rs-card class="flex-1">
-          <template #header> Monthly Target </template>
-          <template #body>
-            <client-only>
-              <VueApexCharts
-                :key="changeKey"
-                width="100%"
-                height="300"
-                name="radialBar"
-                :options="chartOptionsRadial"
-                :series="radialData"
-              ></VueApexCharts>
-            </client-only>
-            <hr class="my-4" />
-            <p class="text-xl py-5 font-medium">Products</p>
-            <div
-              class="flex item-center gap-x-4"
-              :class="{
-                'mt-0': index === 0,
-                'mt-3': index !== 0,
-              }"
-              v-for="(val, index) in ['A', 'B', 'C', 'D', 'E']"
-              :key="index"
-            >
-              <img
-                src="@/assets/img/default-thumbnail.jpg"
-                class="h-20 w-20 object-cover rounded-lg"
-              />
-              <div class="flex-1 flex items-center">
-                <div>
-                  <span class="font-semibold text-lg leading-tight"
-                    >Product {{ val }}</span
-                  >
-                  <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </template>
-        </rs-card>
-      </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <!-- Gambaran Keseluruhan Pelawat Malaysia -->
+      <rs-card class="col-span-1 lg:col-span-2">
+        <template #header>
+          <h2 class="text-xl font-bold text-primary">
+            Gambaran Keseluruhan Pelawat
+          </h2>
+        </template>
+        <template #body>
+          <client-only>
+            <VueApexCharts
+              width="100%"
+              height="350"
+              type="line"
+              :options="chartOptionsVisitors"
+              :series="visitorData"
+            ></VueApexCharts>
+          </client-only>
+        </template>
+      </rs-card>
+
+      <!-- Pelawat Asing mengikut Negeri -->
+      <rs-card>
+        <template #header>
+          <h2 class="text-lg font-semibold text-primary">
+            Pelawat Asing mengikut Negeri
+          </h2>
+        </template>
+        <template #body>
+          <client-only>
+            <VueApexCharts
+              width="100%"
+              height="300"
+              type="bar"
+              :options="chartOptionsForeignVisitors"
+              :series="[
+                { data: foreignVisitorsByState.map((item) => item.visitors) },
+              ]"
+            ></VueApexCharts>
+          </client-only>
+        </template>
+      </rs-card>
+
+      <!-- Pelancong Berulang -->
+      <rs-card>
+        <template #header>
+          <h2 class="text-lg font-semibold text-primary">
+            Kekerapan Lawatan Pelancong
+          </h2>
+        </template>
+        <template #body>
+          <client-only>
+            <VueApexCharts
+              width="100%"
+              height="300"
+              type="pie"
+              :options="chartOptionsRepeatVisitors"
+              :series="repeatVisitorsData.map((item) => item.percentage)"
+            ></VueApexCharts>
+          </client-only>
+        </template>
+      </rs-card>
     </div>
+
+    <!-- Negara Asal Pelancong Asing Teratas -->
+    <rs-card class="mb-6">
+      <template #header>
+        <h2 class="text-xl font-bold text-primary">
+          Negara Asal Pelancong Asing Teratas
+        </h2>
+      </template>
+      <template #body>
+        <client-only>
+          <VueApexCharts
+            width="100%"
+            height="350"
+            type="bar"
+            :options="chartOptionsTopCountries"
+            :series="[
+              {
+                name: 'Pelawat',
+                data: topVisitorCountries.map((item) => item.visitors),
+              },
+            ]"
+          ></VueApexCharts>
+        </client-only>
+      </template>
+    </rs-card>
+
+    <rs-card class="mb-6">
+      <template #header>
+        <h2 class="text-xl font-bold text-primary">
+          Lapangan Terbang Teratas dengan Pelawat Terbanyak
+        </h2>
+      </template>
+      <template #body>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Kedudukan
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Nama Lapangan Terbang
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Jumlah Pelawat
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr
+                v-for="airport in topAirports"
+                :key="airport.rank"
+                class="hover:bg-gray-50 transition-colors duration-200"
+              >
+                <td class="px-6 py-4 whitespace-nowrap font-medium">
+                  {{ airport.rank }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ airport.name }}</td>
+                <td
+                  class="px-6 py-4 whitespace-nowrap font-semibold text-primary"
+                >
+                  {{ airport.visitors.toLocaleString() }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </template>
+    </rs-card>
   </div>
 </template>

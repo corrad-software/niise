@@ -1,6 +1,6 @@
 <script setup>
 definePageMeta({
-  title: "Template Viewer",
+  title: "Pelihat Templat",
   middleware: ["auth"],
   requiresAuth: true,
 });

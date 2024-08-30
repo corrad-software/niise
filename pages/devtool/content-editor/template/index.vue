@@ -1,6 +1,6 @@
 <script setup>
 definePageMeta({
-  title: "Template Editor",
+  title: "Penyunting Templat",
   middleware: ["auth"],
   requiresAuth: true,
 });
@@ -31,14 +31,14 @@ const searchTemplate = () => {
       <template #header>
         <div class="flex">
           <Icon class="mr-2 flex justify-center" name="ic:outline-info"></Icon
-          >Info
+          >Maklumat
         </div>
       </template>
       <template #body>
         <p class="mb-4">
-          This webpage serves as a platform for template management, enabling
-          users to select and utilize templates for rendering pages according to
-          their chosen design.
+          Laman web ini berfungsi sebagai platform untuk pengurusan templat, membolehkan
+          pengguna memilih dan menggunakan templat untuk memaparkan halaman mengikut
+          reka bentuk pilihan mereka.
         </p>
       </template>
     </rs-card>
@@ -48,7 +48,7 @@ const searchTemplate = () => {
         <!-- Search Button -->
         <FormKit
           v-model="searchText"
-          placeholder="Search Title..."
+          placeholder="Cari Tajuk..."
           type="search"
         />
 
@@ -60,7 +60,7 @@ const searchTemplate = () => {
             class="page border-2 border-gray-400 border-dashed rounded-lg"
             style="min-height: 250px"
           >
-            Add New Page
+            Tambah Halaman Baru
           </div> -->
           <div
             v-for="val in searchTemplate()"
