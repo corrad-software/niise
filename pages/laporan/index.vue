@@ -1,9 +1,9 @@
 <script setup>
 definePageMeta({
-  title: "Laporan",
+  title: "Laporan Penerbangan",
   breadcrumb: [
     {
-      name: "Laporan",
+      name: "Laporan Penerbangan",
       type: "current",
     },
   ],
@@ -11,199 +11,159 @@ definePageMeta({
 
 const data = ref([
   {
-    kriteriaPertama: "Aura",
-    kedua: "Hard",
-    ketiga: "Business Services Sales Representative",
-    keempat: "1969-04-19",
-    status: "Digantung",
-    tindakan: "...",
+    namaDepan: "Ahmad",
+    namaBelakang: "Abdullah",
+    lapangan: "KLIA",
+    jenisPenerbangan: "Ketibaan",
+    tarikhMasa: "2023-06-15 08:30",
+    status: "Tiba",
   },
   {
-    kriteriaPertama: "Chantal",
-    kedua: "Nailor",
-    ketiga: "Technical Services Librarian",
-    keempat: "1980-01-10",
-    status: "Tidak Aktif",
-    tindakan: "...",
+    namaDepan: "Siti",
+    namaBelakang: "Aminah",
+    lapangan: "Lapangan Terbang Antarabangsa Bayan Lepas",
+    jenisPenerbangan: "Berlepas",
+    tarikhMasa: "2023-06-16 14:45",
+    status: "Masih dalam penerbangan",
   },
   {
-    kriteriaPertama: "Cicely",
-    kedua: "Sigler",
-    ketiga: "Senior Research Officer",
-    keempat: "1960-03-15",
-    status: "Menunggu",
-    tindakan: "...",
+    namaDepan: "Mohd",
+    namaBelakang: "Razak",
+    lapangan: "Lapangan Terbang Sultan Abdul Aziz Shah",
+    jenisPenerbangan: "Ketibaan",
+    tarikhMasa: "2023-06-17 10:15",
+    status: "Terlepas",
   },
   {
-    kriteriaPertama: "Coy",
-    kedua: "Wollard",
-    ketiga: "Customer Service Operator",
-    keempat: "1982-10-12",
-    status: "Aktif",
-    tindakan: "...",
+    namaDepan: "Nurul",
+    namaBelakang: "Huda",
+    lapangan: "Lapangan Terbang Antarabangsa Kota Kinabalu",
+    jenisPenerbangan: "Berlepas",
+    tarikhMasa: "2023-06-18 16:20",
+    status: "Dibatalkan",
   },
   {
-    kriteriaPertama: "Delma",
-    kedua: "Bonds",
-    ketiga: "Lead Brand Manager",
-    keempat: "1968-12-21",
-    status: "Menunggu",
-    tindakan: "...",
+    namaDepan: "Tan",
+    namaBelakang: "Wei Ling",
+    lapangan: "Lapangan Terbang Antarabangsa Kuching",
+    jenisPenerbangan: "Ketibaan",
+    tarikhMasa: "2023-06-19 09:00",
+    status: "Tiba",
   },
   {
-    kriteriaPertama: "Lorin",
-    kedua: "Forbes",
-    ketiga: "Product Marketing Manager",
-    keempat: "1974-05-08",
-    status: "Aktif",
-    tindakan: "...",
+    namaDepan: "Amir",
+    namaBelakang: "Hassan",
+    lapangan: "KLIA",
+    jenisPenerbangan: "Berlepas",
+    tarikhMasa: "2023-06-20 11:30",
+    status: "Masih dalam penerbangan",
   },
   {
-    kriteriaPertama: "Eldon",
-    kedua: "Marcellus",
-    ketiga: "Software Developer",
-    keempat: "1987-11-30",
-    status: "Menunggu",
-    tindakan: "...",
+    namaDepan: "Farah",
+    namaBelakang: "Lim",
+    lapangan: "Lapangan Terbang Antarabangsa Penang",
+    jenisPenerbangan: "Ketibaan",
+    tarikhMasa: "2023-06-21 13:45",
+    status: "Tiba",
   },
   {
-    kriteriaPertama: "Allie",
-    kedua: "Cordell",
-    ketiga: "UX Designer",
-    keempat: "1992-07-19",
-    status: "Digantung",
-    tindakan: "...",
+    namaDepan: "Zain",
+    namaBelakang: "Ismail",
+    lapangan: "Lapangan Terbang Antarabangsa Langkawi",
+    jenisPenerbangan: "Berlepas",
+    tarikhMasa: "2023-06-22 07:15",
+    status: "Terlepas",
   },
   {
-    kriteriaPertama: "Sheridan",
-    kedua: "Caldwell",
-    ketiga: "HR Manager",
-    keempat: "1970-03-22",
-    status: "Tidak Aktif",
-    tindakan: "...",
+    namaDepan: "Lily",
+    namaBelakang: "Wong",
+    lapangan: "Lapangan Terbang Antarabangsa Senai",
+    jenisPenerbangan: "Ketibaan",
+    tarikhMasa: "2023-06-23 18:00",
+    status: "Tiba",
   },
   {
-    kriteriaPertama: "Rowan",
-    kedua: "Douglas",
-    ketiga: "Financial Analyst",
-    keempat: "1983-08-13",
-    status: "Aktif",
-    tindakan: "...",
+    namaDepan: "Ravi",
+    namaBelakang: "Kumar",
+    lapangan: "KLIA",
+    jenisPenerbangan: "Berlepas",
+    tarikhMasa: "2023-06-24 10:30",
+    status: "Dibatalkan",
   },
   {
-    kriteriaPertama: "Elvin",
-    kedua: "Temple",
-    ketiga: "Operations Manager",
-    keempat: "1976-01-11",
-    status: "Menunggu",
-    tindakan: "...",
+    namaDepan: "Aishah",
+    namaBelakang: "Yusof",
+    lapangan: "Lapangan Terbang Sultan Abdul Halim",
+    jenisPenerbangan: "Ketibaan",
+    tarikhMasa: "2023-06-25 12:45",
+    status: "Tiba",
   },
   {
-    kriteriaPertama: "Gisele",
-    kedua: "Erickson",
-    ketiga: "Public Relations Specialist",
-    keempat: "1989-09-30",
-    status: "Tidak Aktif",
-    tindakan: "...",
+    namaDepan: "Chong",
+    namaBelakang: "Wei Ming",
+    lapangan: "Lapangan Terbang Antarabangsa Kota Kinabalu",
+    jenisPenerbangan: "Berlepas",
+    tarikhMasa: "2023-06-26 15:20",
+    status: "Masih dalam penerbangan",
   },
   {
-    kriteriaPertama: "Taryn",
-    kedua: "Ridgeway",
-    ketiga: "Content Strategist",
-    keempat: "1978-12-17",
-    status: "Digantung",
-    tindakan: "...",
+    namaDepan: "Salmah",
+    namaBelakang: "Othman",
+    lapangan: "Lapangan Terbang Antarabangsa Kuching",
+    jenisPenerbangan: "Ketibaan",
+    tarikhMasa: "2023-06-27 09:10",
+    status: "Terlepas",
   },
   {
-    kriteriaPertama: "Armand",
-    kedua: "Copeland",
-    ketiga: "Legal Advisor",
-    keempat: "1965-04-02",
-    status: "Menunggu",
-    tindakan: "...",
+    namaDepan: "Raj",
+    namaBelakang: "Muthu",
+    lapangan: "KLIA",
+    jenisPenerbangan: "Berlepas",
+    tarikhMasa: "2023-06-28 14:00",
+    status: "Masih dalam penerbangan",
   },
   {
-    kriteriaPertama: "Tisha",
-    kedua: "Gillespie",
-    ketiga: "IT Support Specialist",
-    keempat: "1985-06-25",
-    status: "Aktif",
-    tindakan: "...",
-  },
-  {
-    kriteriaPertama: "Brenton",
-    kedua: "Thornton",
-    ketiga: "Digital Marketing Specialist",
-    keempat: "1991-02-14",
-    status: "Digantung",
-    tindakan: "...",
-  },
-  {
-    kriteriaPertama: "Annis",
-    kedua: "Hobson",
-    ketiga: "Project Coordinator",
-    keempat: "1981-05-07",
-    status: "Menunggu",
-    tindakan: "...",
-  },
-  {
-    kriteriaPertama: "Dylan",
-    kedua: "Hudson",
-    ketiga: "Account Manager",
-    keempat: "1990-09-15",
-    status: "Tidak Aktif",
-    tindakan: "...",
-  },
-  {
-    kriteriaPertama: "Kendall",
-    kedua: "Browning",
-    ketiga: "Supply Chain Manager",
-    keempat: "1973-07-03",
-    status: "Aktif",
-    tindakan: "...",
-  },
-  {
-    kriteriaPertama: "Maris",
-    kedua: "Woodard",
-    ketiga: "Customer Relations Specialist",
-    keempat: "1962-11-20",
-    status: "Menunggu",
-    tindakan: "...",
+    namaDepan: "Noor",
+    namaBelakang: "Aziz",
+    lapangan: "Lapangan Terbang Antarabangsa Bayan Lepas",
+    jenisPenerbangan: "Ketibaan",
+    tarikhMasa: "2023-06-29 17:30",
+    status: "Tiba",
   },
 ]);
 
 const criteria = ref([
   {
-    label: "Kriteria 1",
-    options: ["Aura", "Chantal", "Cicely", "Coy", "Delma"],
+    label: "Nama Depan",
+    options: ["Ahmad", "Siti", "Mohd", "Nurul", "Tan"],
   },
   {
-    label: "Kriteria 2",
-    options: ["Hard", "Nailor", "Sigler", "Wollard", "Bonds"],
+    label: "Nama Belakang",
+    options: ["Abdullah", "Aminah", "Razak", "Huda", "Wei Ling"],
   },
   {
-    label: "Kriteria 3",
+    label: "Lapangan Terbang",
     options: [
-      "Business Services Sales Representative",
-      "Technical Services Librarian",
-      "Senior Research Officer",
-      "Customer Service Operator",
-      "Lead Brand Manager",
+      "KLIA",
+      "Lapangan Terbang Antarabangsa Bayan Lepas",
+      "Lapangan Terbang Sultan Abdul Aziz Shah",
+      "Lapangan Terbang Antarabangsa Kota Kinabalu",
+      "Lapangan Terbang Antarabangsa Kuching",
     ],
   },
   {
-    label: "Kriteria 4",
+    label: "Tarikh",
     options: [
-      "1969-04-19",
-      "1980-01-10",
-      "1960-03-15",
-      "1982-10-12",
-      "1968-12-21",
+      "2023-06-15",
+      "2023-06-16",
+      "2023-06-17",
+      "2023-06-18",
+      "2023-06-19",
     ],
   },
   {
-    label: "Kriteria 5",
-    options: ["Digantung", "Tidak Aktif", "Menunggu", "Aktif"],
+    label: "Status",
+    options: ["Tiba", "Masih dalam penerbangan", "Terlepas", "Dibatalkan"],
   },
 ]);
 
@@ -221,13 +181,13 @@ const performSearch = () => {
   filteredData.value = data.value.filter((item) => {
     return (
       (!selectedCriteria.value.kriteria1 ||
-        item.kriteriaPertama.includes(selectedCriteria.value.kriteria1)) &&
+        item.namaDepan.includes(selectedCriteria.value.kriteria1)) &&
       (!selectedCriteria.value.kriteria2 ||
-        item.kedua.includes(selectedCriteria.value.kriteria2)) &&
+        item.namaBelakang.includes(selectedCriteria.value.kriteria2)) &&
       (!selectedCriteria.value.kriteria3 ||
-        item.ketiga.includes(selectedCriteria.value.kriteria3)) &&
+        item.lapangan.includes(selectedCriteria.value.kriteria3)) &&
       (!selectedCriteria.value.kriteria4 ||
-        item.keempat.includes(selectedCriteria.value.kriteria4)) &&
+        item.tarikhMasa.includes(selectedCriteria.value.kriteria4)) &&
       (!selectedCriteria.value.kriteria5 ||
         item.status.includes(selectedCriteria.value.kriteria5))
     );
@@ -250,7 +210,7 @@ const resetFilter = () => {
     <LayoutsBreadcrumb />
 
     <rs-card>
-      <template #header> Laporan</template>
+      <template #header> Laporan Penerbangan</template>
       <template #body>
         <FormKit type="form" :actions="false">
           <div class="grid grid-cols-2 gap-4 mb-4">
@@ -297,7 +257,7 @@ const resetFilter = () => {
 
           <div class="flex justify-end items-center gap-2">
             <rs-button @click="resetFilter" variant="primary-outline"
-              >Reset</rs-button
+              >Tetapkan Semula</rs-button
             >
             <rs-button type="submit" @click="performSearch">
               Hantar Laporan
@@ -314,14 +274,14 @@ const resetFilter = () => {
           <template v-slot:status="data">
             <rs-badge
               :variant="
-                data.text === 'Aktif'
+                data.text === 'Tiba'
                   ? 'success'
-                  : data.text === 'Menunggu'
+                  : data.text === 'Masih dalam penerbangan'
                   ? 'warning'
-                  : data.text === 'Tidak Aktif'
-                  ? 'disabled'
-                  : data.text === 'Digantung'
+                  : data.text === 'Terlepas'
                   ? 'danger'
+                  : data.text === 'Dibatalkan'
+                  ? 'disabled'
                   : 'default'
               "
             >
