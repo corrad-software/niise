@@ -131,14 +131,16 @@ export default [
         icon: "ph:number-circle-one-fill",
         child: [
           {
-            title: "Permohonan",
-            path: "/prototype/for-01/permohonan",
+            title: "Permohonan Online",
+            path: "/permohonan-online/senarai",
             child: [],
+            meta: {},
           },
           {
             title: "Kemaskini Daftar",
-            path: "/prototype/for-01/kemaskini-daftar",
+            path: "/kemaskini-daftar/senarai",
             child: [],
+            meta: {},
           },
         ],
       },
