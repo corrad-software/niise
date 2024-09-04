@@ -4,19 +4,21 @@
     <rs-card class="p-6">
       <div class="flex justify-between items-center">
         <h3 class="text-lg font-semibold">Status Semakan</h3>
-        <rs-badge
-          :variant="statusSemakan === 'Selesai' ? 'success' : 'warning'"
-        >
+        <rs-badge :variant="statusSemakan === 'Selesai' ? 'success' : 'warning'">
           {{ statusSemakan }}
         </rs-badge>
       </div>
       <div class="flex justify-between items-center mt-4">
         <h3 class="text-lg font-semibold">Status Penerimaan</h3>
-        <rs-badge
-          :variant="statusPenerimaan === 'Diterima' ? 'success' : 'danger'"
-        >
+        <rs-badge :variant="statusPenerimaan === 'Diterima' ? 'success' : 'danger'">
           {{ statusPenerimaan }}
         </rs-badge>
+      </div>
+
+      <div class="flex gap-2 justify-end mt-5">
+        <rs-button @click="openSemakModal">Semak</rs-button>
+        <rs-button @click="openTerimaModal">Terima</rs-button>
+        <rs-button @click="openTolakModal">Tolak</rs-button>
       </div>
     </rs-card>
 
@@ -68,17 +70,13 @@
         <template v-slot:tindakan="data">
           <div class="flex gap-2">
             <rs-button
-              @click="openEditModal(data.value)"
+              @click="openEditModal(data.text, data.index)"
               variant="info"
               size="sm"
             >
               <Icon name="ic:baseline-edit" size="1.2rem" />
             </rs-button>
-            <rs-button
-              @click="confirmDelete(data.value)"
-              variant="danger"
-              size="sm"
-            >
+            <rs-button @click="confirmDelete(data.text)" variant="danger" size="sm">
               <Icon name="ic:baseline-delete" size="1.2rem" />
             </rs-button>
           </div>
@@ -131,13 +129,14 @@
         <template v-slot:kuantiti="data">
           {{ data.text }}
         </template>
-        <template v-slot:action="data" v-if="!isKetuaJabatan">
+        <template v-slot:tindakan="data">
           <rs-button
-            @click="generateReport(data.value)"
-            variant="primary"
+            @click="generateReport(data.text)"
+            variant="ghost"
             size="sm"
+            class="text-primary hover:text-primary-dark"
           >
-            Jana Laporan
+            <Icon name="mdi:file-report-outline" size="1.5rem" />
           </rs-button>
         </template>
       </rs-table>
@@ -151,63 +150,220 @@
         </h3>
       </template>
       <template #body>
-        <FormKit
-          type="form"
-          :actions="false"
-          @submit="handleSubmit"
-          :value="pegawaiForm"
-        >
+        <FormKit type="form" :actions="false" @submit="handleSubmit">
           <FormKit
-            v-if="!editMode"
             type="select"
             name="id"
             label="Pilih Pegawai"
-            :options="pegawaiList.map(p => ({ value: p.id, label: `${p.pangkat} ${p.nama} (${p.noPegawai})` }))"
+            :options="pegawaiOption"
+            v-model="selectedPegawai"
             validation="required"
             :validation-messages="{
               required: 'Sila pilih pegawai',
             }"
           />
-          <template v-else>
-            <FormKit
-              type="text"
-              name="pangkat"
-              label="Pangkat"
-              validation="required"
-              :validation-messages="{
-                required: 'Pangkat diperlukan',
-              }"
-            />
-            <FormKit
-              type="text"
-              name="nama"
-              label="Nama"
-              validation="required"
-              :validation-messages="{
-                required: 'Nama diperlukan',
-              }"
-            />
-            <FormKit
-              type="text"
-              name="noPegawai"
-              label="No Pegawai"
-              validation="required|unique:noPegawai"
-              :validation-messages="{
-                required: 'No Pegawai diperlukan',
-                unique: 'No Pegawai sudah wujud',
-              }"
-            />
-          </template>
 
           <div class="flex justify-end gap-2">
             <rs-button variant="secondary" @click="closeModal">Tutup</rs-button>
-            <rs-button variant="primary" btn-type="submit">
-              Simpan
-            </rs-button>
+            <rs-button variant="primary" btn-type="submit"> Simpan </rs-button>
           </div>
         </FormKit>
       </template>
       <template #footer> </template>
+    </rs-modal>
+
+    <!-- Semak Modal -->
+    <rs-modal v-model="showSemakModal" @close="closeSemakModal">
+      <template #header>
+        <h3>Semak Maklumat</h3>
+      </template>
+      <template #body>
+        <FormKit
+          v-if="userRole === 'Pegawai Kaunter'"
+          type="form"
+          :actions="false"
+          @submit="handleSemakSubmit"
+        >
+          <!-- Existing form for kaunter role -->
+          <FormKit
+            type="radio"
+            name="peralatanBaik"
+            label="Peralatan dalam keadaan baik"
+            :options="['Ya', 'Tidak']"
+            validation="required"
+          />
+          <FormKit
+            type="radio"
+            name="pegawaiBerkelayakan"
+            label="Pegawai berkelayakan"
+            :options="['Ya', 'Tidak']"
+            validation="required"
+          />
+          <FormKit
+            type="radio"
+            name="kaedahDapatDilakukan"
+            label="Kaedah dapat dilakukan"
+            :options="['Ya', 'Tidak']"
+            validation="required"
+          />
+          <FormKit
+            type="radio"
+            name="subkontrakDiperlukan"
+            label="Subkontrak diperlukan"
+            :options="['Ya', 'Tidak']"
+            validation="required"
+          />
+          <FormKit
+            type="radio"
+            name="tugasanDiterima"
+            label="Tugasan diterima"
+            :options="['Ya', 'Tidak']"
+            validation="required"
+          />
+          <FormKit
+            type="textarea"
+            name="ulasanPegawaiKaunter"
+            label="Ulasan pegawai kaunter"
+            validation="required"
+          />
+          <div class="flex justify-end gap-2 mt-4">
+            <rs-button variant="danger" @click="closeSemakModal">Batal</rs-button>
+            <rs-button variant="primary" type="submit">Hantar</rs-button>
+          </div>
+        </FormKit>
+
+        <FormKit
+          v-else-if="userRole === 'Ketua Bahagian'"
+          type="form"
+          :actions="false"
+          @submit="handleSemakSubmit"
+        >
+          <FormKit
+            type="radio"
+            name="kelulusanKetuaBahagian"
+            label="Kelulusan ketua bahagian"
+            :options="['Diterima', 'Ditolak']"
+            validation="required"
+          />
+          <FormKit
+            type="textarea"
+            name="ulasanKetuaBahagian"
+            label="Ulasan"
+            validation="required"
+            :validation-messages="{
+              required: 'Sila masukkan ulasan',
+            }"
+          />
+          <div class="flex justify-end gap-2 mt-4">
+            <rs-button variant="danger" @click="closeSemakModal">Batal</rs-button>
+            <rs-button variant="primary" type="submit">Hantar</rs-button>
+          </div>
+        </FormKit>
+      </template>
+      <template #footer>
+        <div></div>
+      </template>
+    </rs-modal>
+
+    <!-- Terima Modal -->
+    <rs-modal v-model="showTerimaModal" @close="closeTerimaModal">
+      <template #header>
+        <h3>Terima Permohonan</h3>
+      </template>
+      <template #body>
+        <FormKit type="form" :actions="false" @submit="handleTerimaSubmit">
+          <FormKit
+            type="radio"
+            name="peralatanBaik"
+            label="Peralatan dalam keadaan baik"
+            :options="['Ya', 'Tidak']"
+            validation="required"
+          />
+          <FormKit
+            type="radio"
+            name="pegawaiBerkelayakan"
+            label="Pegawai berkelayakan"
+            :options="['Ya', 'Tidak']"
+            validation="required"
+          />
+          <FormKit
+            type="radio"
+            name="kaedahDapatDilakukan"
+            label="Kaedah dapat dilakukan"
+            :options="['Ya', 'Tidak']"
+            validation="required"
+          />
+          <FormKit
+            type="radio"
+            name="subkontrakDiperlukan"
+            label="Subkontrak diperlukan"
+            :options="['Ya', 'Tidak']"
+            validation="required"
+          />
+          <FormKit
+            type="radio"
+            name="tugasanDiterima"
+            label="Tugasan diterima"
+            :options="['Ya', 'Tidak']"
+            validation="required"
+          />
+          <FormKit
+            type="textarea"
+            name="ulasanPegawaiKaunter"
+            label="Ulasan pegawai kaunter"
+            validation="required"
+          />
+          <div class="flex justify-end gap-2 mt-4">
+            <rs-button variant="danger" @click="closeTerimaModal">Batal</rs-button>
+            <rs-button variant="primary" type="submit">Hantar</rs-button>
+          </div>
+        </FormKit>
+      </template>
+      <template #footer>
+        <div></div>
+      </template>
+    </rs-modal>
+
+    <!-- Tolak Modal -->
+    <rs-modal v-model="showTolakModal" @close="closeTolakModal">
+      <template #header>
+        <h3>Tolak Permohonan</h3>
+      </template>
+      <template #body>
+        <FormKit type="form" :actions="false" @submit="handleTolakSubmit">
+          <FormKit
+            type="select"
+            name="sebabPenolakan"
+            label="Sebab penolakan permohonan"
+            :options="[
+              'Dokumen tidak lengkap',
+              'Maklumat tidak tepat',
+              'Tidak memenuhi syarat',
+              'Lain-lain',
+            ]"
+            validation="required"
+            :validation-messages="{
+              required: 'Sila pilih sebab penolakan',
+            }"
+          />
+          <FormKit
+            type="textarea"
+            name="lainLainSebab"
+            label="Lain-lain sebab"
+            validation="required_if:sebabPenolakan,Lain-lain"
+            :validation-messages="{
+              required_if: 'Sila nyatakan sebab lain',
+            }"
+          />
+          <div class="flex justify-end gap-2 mt-4">
+            <rs-button variant="secondary" @click="closeTolakModal">Batal</rs-button>
+            <rs-button variant="danger" type="submit">Hantar</rs-button>
+          </div>
+        </FormKit>
+      </template>
+      <template #footer>
+        <div></div>
+      </template>
     </rs-modal>
   </div>
 </template>
@@ -226,22 +382,7 @@ const statusSemakan = ref("Selesai");
 const statusPenerimaan = ref("Diterima");
 
 // Forensic Officers Data
-const forensicOfficers = ref([
-  {
-    id: 1,
-    pangkat: "Inspektor",
-    nama: "Ali bin Abu",
-    noPegawai: "PG12345",
-    tindakan: 1,
-  },
-  {
-    id: 2,
-    pangkat: "Sarjan",
-    nama: "Siti binti Ahmad",
-    noPegawai: "PG54321",
-    tindakan: 2,
-  },
-]);
+const forensicOfficers = ref([]);
 
 // Evidence Data
 const evidences = ref([
@@ -270,50 +411,83 @@ const isKetuaJabatan = ref(false);
 // Modal Controls
 const showModal = ref(false);
 const editMode = ref(false);
-const pegawaiForm = ref({ id: "", pangkat: "", nama: "", noPegawai: "" });
+const selectedPegawai = ref(null);
 
 // Sample pegawai listing (simulating API response)
 const pegawaiList = ref([]);
+const pegawaiOption = ref([
+  {
+    value: null,
+    label: "Pilih Pegawai",
+  },
+]);
 
 // Fetch pegawai list (simulated API call)
 const fetchPegawaiList = () => {
   // In a real scenario, this would be an API call
   pegawaiList.value = [
-    { id: 'PG001', nama: 'Ahmad bin Ali', pangkat: 'Inspektor', noPegawai: 'PG12345' },
-    { id: 'PG002', nama: 'Siti binti Omar', pangkat: 'Sarjan', noPegawai: 'PG67890' },
-    { id: 'PG003', nama: 'Muthu a/l Rajan', pangkat: 'Koperal', noPegawai: 'PG24680' },
+    {
+      id: "PG001",
+      nama: "Ahmad bin Ali",
+      pangkat: "Inspektor",
+      noPegawai: "PG12345",
+      tindakan: 1,
+    },
+    {
+      id: "PG002",
+      nama: "Siti binti Omar",
+      pangkat: "Sarjan",
+      noPegawai: "PG67890",
+      tindakan: 2,
+    },
+    {
+      id: "PG003",
+      nama: "Muthu a/l Rajan",
+      pangkat: "Koperal",
+      noPegawai: "PG24680",
+      tindakan: 3,
+    },
   ];
 };
 
 onMounted(() => {
   fetchPegawaiList();
+
+  for (let index = 0; index < pegawaiList.value.length; index++) {
+    pegawaiOption.value.push({
+      value: pegawaiList.value[index].tindakan,
+      label: `${pegawaiList.value[index].pangkat} ${pegawaiList.value[index].nama} (${pegawaiList.value[index].noPegawai})`,
+    });
+  }
 });
 
 // Computed property for form validation
 const isFormValid = computed(() => {
   return (
-    pegawaiForm.value.pangkat &&
-    pegawaiForm.value.nama &&
-    pegawaiForm.value.noPegawai
+    // filter pegawaiList based on selectedPegawai
+    pegawaiList.value.filter((p) => p.tindakan === selectedPegawai.value)
   );
 });
 
 // Actions
 const openAddModal = () => {
   editMode.value = false;
-  pegawaiForm.value = { id: "" }; // Only store the selected pegawai id
+  selectedPegawai.value = null;
   showModal.value = true;
 };
 
-const openEditModal = (pegawai) => {
+const openEditModal = (pegawai, index) => {
   editMode.value = true;
-  pegawaiForm.value = { ...pegawai };
+  selectedPegawai.value = pegawai;
+
+  console.log(selectedPegawai.value);
+  console.log("index", index);
   showModal.value = true;
 };
 
 const closeModal = () => {
   showModal.value = false;
-  pegawaiForm.value = { id: "", pangkat: "", nama: "", noPegawai: "" };
+  selectedPegawai.value = null;
 };
 
 const handleSubmit = () => {
@@ -325,10 +499,16 @@ const handleSubmit = () => {
 };
 
 const addNewPegawai = () => {
-  if (pegawaiForm.value.id) {
-    const selectedPegawai = pegawaiList.value.find(p => p.id === pegawaiForm.value.id);
-    if (selectedPegawai) {
-      const newPegawai = { ...selectedPegawai, tindakan: uuidv4() };
+  console.log(selectedPegawai.value);
+  if (selectedPegawai.value) {
+    const selectedPegawai_ = pegawaiList.value.find(
+      (p) => p.tindakan === selectedPegawai.value
+    );
+    if (selectedPegawai_) {
+      const newPegawai = {
+        ...selectedPegawai_,
+        tindakan: selectedPegawai_.tindakan,
+      };
       forensicOfficers.value.push(newPegawai);
       $swal.fire("Berjaya", "Pegawai baru telah ditambah", "success");
       closeModal();
@@ -341,19 +521,33 @@ const addNewPegawai = () => {
 };
 
 const updatePegawai = () => {
-  if (isFormValid.value) {
-    const index = forensicOfficers.value.findIndex(
-      (officer) => officer.id === pegawaiForm.value.id
+  console.log("masuk uodate");
+  if (selectedPegawai.value) {
+    console.log(selectedPegawai.value);
+    const selectedPegawai_ = pegawaiList.value.find(
+      (p) => p.tindakan == selectedPegawai.value
     );
-    if (index !== -1) {
-      forensicOfficers.value[index] = { ...pegawaiForm.value };
-      $swal.fire("Berjaya", "Maklumat pegawai telah dikemaskini", "success");
-      closeModal();
+    console.log("selectedPegawai_", selectedPegawai_);
+    if (selectedPegawai_) {
+      const pegawaiFromSelectedPegawais = forensicOfficers.value.findIndex(
+        (officer) => officer.tindakan === selectedPegawai.value
+      );
+      console.log("pegawaiFromSelectedPegawais", pegawaiFromSelectedPegawais);
+      if (pegawai_ !== -1) {
+        forensicOfficers.value[pegawai_] = {
+          ...selectedPegawai_,
+          tindakan: selectedPegawai_.tindakan,
+        };
+        $swal.fire("Berjaya", "Maklumat pegawai telah dikemaskini", "success");
+        closeModal();
+      } else {
+        $swal.fire("Ralat", "Pegawai tidak dijumpai", "error");
+      }
     } else {
       $swal.fire("Ralat", "Pegawai tidak dijumpai", "error");
     }
   } else {
-    $swal.fire("Ralat", "Sila isi semua maklumat yang diperlukan", "error");
+    $swal.fire("Ralat", "Sila pilih pegawai", "error");
   }
 };
 
@@ -371,14 +565,14 @@ const confirmDelete = (pegawai) => {
     })
     .then((result) => {
       if (result.isConfirmed) {
-        deletePegawai(pegawai.id);
+        deletePegawai(pegawai);
       }
     });
 };
 
-const deletePegawai = (id) => {
+const deletePegawai = (pegawai) => {
   const index = forensicOfficers.value.findIndex(
-    (officer) => officer.id === id
+    (officer) => officer.tindakan === pegawai
   );
   if (index !== -1) {
     forensicOfficers.value.splice(index, 1);
@@ -390,6 +584,99 @@ const deletePegawai = (id) => {
 
 const generateReport = (bahanBukti) => {
   console.log("Generate Report for:", bahanBukti);
+
+  navigateTo(`/kemaskini-daftar/laporan/${bahanBukti}`);
+};
+
+// Semak Modal Controls
+const showSemakModal = ref(false);
+
+const openSemakModal = () => {
+  showSemakModal.value = true;
+};
+
+const closeSemakModal = () => {
+  showSemakModal.value = false;
+};
+
+// User role (you might want to fetch this from your auth system)
+const userRole = ref("Pegawai Kaunter"); // Change this to 'ketuaBahagian' to test the other form
+
+// For ketua bahagian form
+const kelulusanKetuaBahagian = ref(null);
+
+const handleSemakSubmit = (formData) => {
+  console.log("Semak form submitted:", formData);
+  // Here you would typically send the data to your API
+  let successMessage = "";
+  if (userRole.value === "Pegawai Kaunter") {
+    successMessage = "Maklumat semakan telah disimpan";
+  } else if (userRole.value === "Ketua Bahagian") {
+    const decision =
+      formData.kelulusanKetuaBahagian === "Diterima" ? "diterima" : "ditolak";
+    successMessage = `Permohonan telah ${decision}. Ulasan: ${formData.ulasanKetuaBahagian}`;
+  }
+  $swal.fire("Berjaya", successMessage, "success");
+  closeSemakModal();
+};
+
+// Terima Modal Controls
+const showTerimaModal = ref(false);
+
+const openTerimaModal = () => {
+  showTerimaModal.value = true;
+};
+
+const closeTerimaModal = () => {
+  showTerimaModal.value = false;
+};
+
+const handleTerimaSubmit = (formData) => {
+  console.log("Terima form submitted:", formData);
+  // Here you would typically send the data to your API
+  let successMessage = "Permohonan telah diterima.";
+
+  // Check if any of the radio button answers are 'Tidak'
+  const hasNegativeResponse = [
+    "peralatanBaik",
+    "pegawaiBerkelayakan",
+    "kaedahDapatDilakukan",
+    "tugasanDiterima",
+  ].some((field) => formData[field] === "Tidak");
+
+  if (hasNegativeResponse) {
+    successMessage += " Namun, terdapat beberapa perkara yang perlu diberi perhatian.";
+  }
+
+  successMessage += ` Ulasan: ${formData.ulasanPegawaiKaunter}`;
+
+  $swal.fire("Berjaya", successMessage, "success");
+  closeTerimaModal();
+};
+
+// Tolak Modal Controls
+const showTolakModal = ref(false);
+
+const openTolakModal = () => {
+  showTolakModal.value = true;
+};
+
+const closeTolakModal = () => {
+  showTolakModal.value = false;
+};
+
+const handleTolakSubmit = (formData) => {
+  console.log("Tolak form submitted:", formData);
+  // Here you would typically send the data to your API
+  let rejectionReason = formData.sebabPenolakan;
+  if (rejectionReason === "Lain-lain") {
+    rejectionReason += `: ${formData.lainLainSebab}`;
+  }
+
+  const successMessage = `Permohonan telah ditolak. Sebab: ${rejectionReason}`;
+
+  $swal.fire("Berjaya", successMessage, "success");
+  closeTolakModal();
 };
 </script>
 
