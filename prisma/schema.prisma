@@ -17,36 +17,40 @@ model audit {
 }
 
 model document {
-  documentID                    Int                             @id @default(autoincrement())
-  userID                        Int?
-  documentName                  String?                         @db.VarChar(255)
-  documentURL                   String?                         @db.VarChar(255)
-  documentType                  String?                         @db.VarChar(255)
-  documentExtension             String?                         @db.VarChar(255)
-  imageMIMEType                 String?                         @db.VarChar(255)
-  documentSize                  Int?
-  documentStatus                String?                         @default("ACTIVE") @db.VarChar(255)
-  documentCreatedDate           String?                         @db.VarChar(255)
-  documentModifiedDate          String?                         @db.VarChar(255)
-  user                          user?                           @relation(fields: [userID], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "document_ibfk_1")
-  permohonan_report             permohonan_report[]
-  permohonan_report_doc_support permohonan_report_doc_support[]
+  documentID                   Int                            @id @default(autoincrement())
+  userID                       Int?
+  documentName                 String?                        @db.VarChar(255)
+  documentURL                  String?                        @db.VarChar(255)
+  documentType                 String?                        @db.VarChar(255)
+  documentExtension            String?                        @db.VarChar(255)
+  imageMIMEType                String?                        @db.VarChar(255)
+  documentSize                 Int?
+  documentStatus               String?                        @default("ACTIVE") @db.VarChar(255)
+  documentCreatedDate          String?                        @db.VarChar(255)
+  documentModifiedDate         String?                        @db.VarChar(255)
+  user                         user?                          @relation(fields: [userID], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "document_ibfk_1")
+  permohonan_forensik_checking permohonan_forensik_checking[]
+  report                       report[]
+  report_doc_support           report_doc_support[]
 
   @@index([userID], map: "userID")
 }
 
 model lookup {
-  lookupID             Int                    @id @default(autoincrement())
-  lookupOrder          Int?
-  lookupTitle          String?                @db.VarChar(255)
-  lookupRefCode        String?                @db.VarChar(255)
-  lookupValue          String?                @db.VarChar(255)
-  lookupType           String?                @db.VarChar(255)
-  lookupStatus         String?                @db.VarChar(255)
-  lookupCreatedDate    DateTime?              @db.DateTime(0)
-  lookupModifiedDate   DateTime?              @db.DateTime(0)
-  permohonan           permohonan[]
-  permohonan_penolakan permohonan_penolakan[]
+  lookupID                           Int                       @id @default(autoincrement())
+  lookupOrder                        Int?
+  lookupTitle                        String?                   @db.VarChar(255)
+  lookupRefCode                      String?                   @db.VarChar(255)
+  lookupValue                        String?                   @db.VarChar(255)
+  lookupType                         String?                   @db.VarChar(255)
+  lookupStatus                       String?                   @db.VarChar(255)
+  lookupCreatedDate                  DateTime?                 @db.DateTime(0)
+  lookupModifiedDate                 DateTime?                 @db.DateTime(0)
+  permohonan                         permohonan[]
+  permohonan_jenis_barang            permohonan_jenis_barang[]
+  permohonan_penolakan               permohonan_penolakan[]
+  report_report_dapatanTolookup      report[]                  @relation("report_dapatanTolookup")
+  report_report_jenis_barangTolookup report[]                  @relation("report_jenis_barangTolookup")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -78,30 +82,30 @@ model penghantar {
 }
 
 model permohonan {
-  id                             Int                             @id @default(autoincrement())
-  no_siri                        String                          @unique(map: "Permohonan_no_siri_key") @db.VarChar(255)
+  id                             Int                          @id @default(autoincrement())
+  no_siri                        String                       @unique(map: "Permohonan_no_siri_key") @db.VarChar(255)
   pemohonID                      Int?
   penghantar_sama_dengan_pemohon Int?
   penghantarID                   Int?
-  status_permohonan              String                          @db.VarChar(255)
-  ringkasan_kenyataan_kes        String?                         @db.Text
-  bilangan                       String?                         @db.VarChar(255)
+  status_permohonan              String                       @db.VarChar(255)
+  ringkasan_kenyataan_kes        String?                      @db.Text
+  bilangan                       String?                      @db.VarChar(255)
   jenis_barang                   Int?
-  tanda_barang                   String?                         @db.VarChar(255)
-  keadaan_barang                 String?                         @db.VarChar(255)
+  tanda_barang                   String?                      @db.VarChar(255)
+  keadaan_barang                 String?                      @db.VarChar(255)
   kuantiti_barang                Int?
-  jenis_barang_details           String?                         @db.Text
-  no_laporan_polis               String?                         @db.VarChar(255)
-  tarikh_temujanji               DateTime?                       @db.DateTime(0)
-  create_at                      DateTime                        @db.DateTime(0)
-  penghantar                     penghantar?                     @relation(fields: [penghantarID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_ibfk_1")
-  pemohon                        pemohon?                        @relation(fields: [pemohonID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_ibfk_2")
-  lookup                         lookup?                         @relation(fields: [jenis_barang], references: [lookupID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_ibfk_3")
+  jenis_barang_details           String?                      @db.Text
+  no_laporan_polis               String?                      @db.VarChar(255)
+  tarikh_temujanji               DateTime?                    @db.DateTime(0)
+  create_at                      DateTime                     @db.DateTime(0)
+  penghantar                     penghantar?                  @relation(fields: [penghantarID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_ibfk_1")
+  pemohon                        pemohon?                     @relation(fields: [pemohonID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_ibfk_2")
+  lookup                         lookup?                      @relation(fields: [jenis_barang], references: [lookupID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_ibfk_3")
   permohonan_assign_forensik     permohonan_assign_forensik[]
+  permohonan_jenis_barang        permohonan_jenis_barang[]
   permohonan_penerimaan          permohonan_penerimaan[]
-  permohonan_report              permohonan_report[]
-  permohonan_report_doc_support  permohonan_report_doc_support[]
   permohonan_semakan             permohonan_semakan[]
+  report                         report[]
 
   @@index([pemohonID], map: "idx_pemohon")
   @@index([penghantarID], map: "idx_penghantar")
@@ -109,11 +113,12 @@ model permohonan {
 }
 
 model permohonan_assign_forensik {
-  assignID           Int        @id @default(autoincrement())
-  permohonanID       Int
-  pegawai_forensikID Int
-  permohonan         permohonan @relation(fields: [permohonanID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_assign_forensik_ibfk_2")
-  user               user       @relation(fields: [pegawai_forensikID], references: [userID], onUpdate: Restrict, map: "permohonan_assign_forensik_ibfk_3")
+  assignID                     Int                            @id @default(autoincrement())
+  permohonanID                 Int
+  pegawai_forensikID           Int
+  permohonan                   permohonan                     @relation(fields: [permohonanID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_assign_forensik_ibfk_2")
+  user                         user                           @relation(fields: [pegawai_forensikID], references: [userID], onUpdate: Restrict, map: "permohonan_assign_forensik_ibfk_3")
+  permohonan_forensik_checking permohonan_forensik_checking[]
 
   @@index([pegawai_forensikID], map: "pegawai_forensikID")
   @@index([permohonanID], map: "permohonanID")
@@ -149,35 +154,6 @@ model permohonan_penolakan {
 
   @@index([ditolak_oleh], map: "ditolak_oleh")
   @@index([sebab_penolakan], map: "sebab_penolakan")
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model permohonan_report {
-  reportID        Int        @id @default(autoincrement())
-  permohonanID    Int
-  peralatan       String     @db.VarChar(255)
-  langkah_langkah Int
-  gambarID        Int?
-  ulasan          String?    @db.Text
-  dapatan         String     @db.VarChar(255)
-  create_at       DateTime?  @db.DateTime(0)
-  create_by       Int
-  permohonan      permohonan @relation(fields: [permohonanID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_report_ibfk_1")
-  document        document?  @relation(fields: [gambarID], references: [documentID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_report_ibfk_2")
-
-  @@index([gambarID], map: "gambarID")
-  @@index([permohonanID], map: "permohonanID")
-}
-
-model permohonan_report_doc_support {
-  report_attachID Int        @id @default(autoincrement())
-  permohonanID    Int
-  documentID      Int
-  document        document   @relation(fields: [documentID], references: [documentID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_report_doc_support_ibfk_1")
-  permohonan      permohonan @relation(fields: [permohonanID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_report_doc_support_ibfk_2")
-
-  @@index([documentID], map: "documentID")
-  @@index([permohonanID], map: "permohonanID")
 }
 
 model permohonan_semakan {
@@ -226,6 +202,7 @@ model user {
   userModifiedDate           DateTime?                    @db.DateTime(0)
   document                   document[]
   pemohon                    pemohon[]
+  permohonan_approval        permohonan_approval[]
   permohonan_assign_forensik permohonan_assign_forensik[]
   permohonan_penerimaan      permohonan_penerimaan[]
   permohonan_penolakan       permohonan_penolakan[]
@@ -243,4 +220,84 @@ model userrole {
 
   @@index([userRoleRoleID], map: "FK_userrole_role")
   @@index([userRoleUserID], map: "FK_userrole_user")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model permohonan_approval {
+  approvalID      Int      @id @default(autoincrement())
+  permohonanID    Int
+  approve_by      Int
+  approval_status Int
+  ulasan          String?  @db.Text
+  approval_date   DateTime @db.DateTime(0)
+  user            user     @relation(fields: [approve_by], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_approval_ibfk_1")
+
+  @@index([approve_by], map: "userID")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model permohonan_forensik_checking {
+  checkingID                 Int                        @id @default(autoincrement())
+  assignID                   Int
+  gambar                     Int?
+  ulasan                     String?                    @db.Text
+  dapatan                    String                     @db.VarChar(255)
+  create_at                  DateTime                   @db.DateTime(0)
+  permohonan_assign_forensik permohonan_assign_forensik @relation(fields: [assignID], references: [assignID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_forensik_checking_ibfk_1")
+  document                   document?                  @relation(fields: [gambar], references: [documentID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_forensik_checking_ibfk_2")
+
+  @@index([assignID], map: "assignID")
+  @@index([gambar], map: "gambar")
+}
+
+model permohonan_jenis_barang {
+  barangID      Int        @id @default(autoincrement())
+  permohonanID  Int
+  jenis_barang  Int
+  barang_status String     @default("ACTIVE") @db.VarChar(255)
+  lookup        lookup     @relation(fields: [jenis_barang], references: [lookupID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_jenis_barang_ibfk_1")
+  permohonan    permohonan @relation(fields: [permohonanID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_jenis_barang_ibfk_2")
+
+  @@index([jenis_barang], map: "jenis_barang")
+  @@index([permohonanID], map: "permohonanID")
+}
+
+model permohonan_tanda_barang {
+  tandaID      Int    @id @default(autoincrement())
+  tanda_name   String @db.VarChar(255)
+  tanda_status String @default("ACTIVE") @db.VarChar(255)
+}
+
+model report {
+  reportID                           Int                  @id @default(autoincrement())
+  permohonanID                       Int
+  jenis_barang                       Int
+  peralatan                          String?              @db.VarChar(255)
+  langkah_langkah                    Int?
+  gambarID                           Int?
+  ulasan                             String?              @db.Text
+  dapatan                            Int?
+  create_at                          DateTime?            @db.DateTime(0)
+  create_by                          Int
+  permohonan                         permohonan           @relation(fields: [permohonanID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_1")
+  document                           document?            @relation(fields: [gambarID], references: [documentID], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_2")
+  lookup_report_dapatanTolookup      lookup?              @relation("report_dapatanTolookup", fields: [dapatan], references: [lookupID], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_3")
+  lookup_report_jenis_barangTolookup lookup               @relation("report_jenis_barangTolookup", fields: [jenis_barang], references: [lookupID], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_4")
+  report_doc_support                 report_doc_support[]
+
+  @@index([dapatan], map: "dapatan")
+  @@index([gambarID], map: "gambarID")
+  @@index([jenis_barang], map: "jenis_barang")
+  @@index([permohonanID], map: "permohonanID")
+}
+
+model report_doc_support {
+  report_attachID Int      @id @default(autoincrement())
+  reportID        Int
+  documentID      Int
+  document        document @relation(fields: [documentID], references: [documentID], onDelete: NoAction, onUpdate: NoAction, map: "report_doc_support_ibfk_1")
+  report          report   @relation(fields: [reportID], references: [reportID], onDelete: NoAction, onUpdate: NoAction, map: "report_doc_support_ibfk_2")
+
+  @@index([documentID], map: "documentID")
+  @@index([reportID], map: "reportID")
 }

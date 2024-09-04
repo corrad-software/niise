@@ -426,26 +426,35 @@ const isFormValid = () => {
   );
 };
 
-const simpan = () => {
-  $swal
-    .fire({
-      title: "Adakah anda pasti?",
-      text: "Borang boleh dikemaskini selepas di simpan.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Ya, Hantar",
-      cancelButtonText: "Batal",
-    })
-    .then((result) => {
-      if (result.isConfirmed) {
-        // Handle form submission
-        console.log({
+const simpan = async () => {
+  const isDraft = true; // Simpan means saving as draft
+  await submitData(isDraft);
+};
+
+const submitForm = async () => {
+  const isDraft = false; // Submit means final submission
+  await submitData(isDraft);
+};
+
+// Helper function to send the data to the API
+const submitData = async (isDraft) => {
+  if (isFormValid()) {
+    try {
+      const response = await $fetch("/api/permohonan/create", {
+        method: "POST",
+        body: {
           namaPemohon: namaPemohon.value,
           pangkatPemohon: pangkatPemohon.value,
           noPegawaiPemohon: noPegawaiPemohon.value,
-          namaPenghantar: namaPenghantar.value,
-          pangkatPenghantar: pangkatPenghantar.value,
-          noPegawaiPenghantar: noPegawaiPenghantar.value,
+          namaPenghantar: isPenghantarSameAsPemohon.value
+            ? null
+            : namaPenghantar.value,
+          pangkatPenghantar: isPenghantarSameAsPemohon.value
+            ? null
+            : pangkatPenghantar.value,
+          noPegawaiPenghantar: isPenghantarSameAsPemohon.value
+            ? null
+            : noPegawaiPenghantar.value,
           ringkasanKenyataanKes: ringkasanKenyataanKes.value,
           bilangan: bilangan.value,
           barangList: barangList.value,
@@ -453,67 +462,37 @@ const simpan = () => {
           noLaporanPolis: noLaporanPolis.value,
           tarikhTemujanji: tarikhTemujanji.value,
           slotMasa: slotMasa.value,
-        });
+          isDraft: isDraft,
+        },
+      });
 
-        // Show success message
-        $swal.fire({
-          title: "Berjaya!",
-          text: "Borang telah berjaya disimpan.",
-          icon: "success",
-          confirmButtonText: "OK",
-        });
+      $swal.fire({
+        title: "Berjaya!",
+        text: response.message,
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+
+      // Redirect user based on action (draft or submission)
+      if (!isDraft) {
+        router.push("/permohonan-temujanji/success");
       }
+    } catch (error) {
+      $swal.fire({
+        title: "Ralat!",
+        text: error.message || "Something went wrong, please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
+  } else {
+    $swal.fire({
+      title: "Ralat!",
+      text: "Sila isi semua medan yang diperlukan dan tambah sekurang-kurangnya satu barang.",
+      icon: "error",
+      confirmButtonText: "OK",
     });
-};
-
-const submitForm = () => {
-  $swal
-    .fire({
-      title: "Adakah anda pasti?",
-      text: "Anda tidak boleh mengubah maklumat selepas borang dihantar.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Ya, Hantar",
-      cancelButtonText: "Batal",
-    })
-    .then((result) => {
-      if (result.isConfirmed) {
-        if (isFormValid()) {
-          // Handle form submission
-          console.log({
-            namaPemohon: namaPemohon.value,
-            pangkatPemohon: pangkatPemohon.value,
-            noPegawaiPemohon: noPegawaiPemohon.value,
-            namaPenghantar: namaPenghantar.value,
-            pangkatPenghantar: pangkatPenghantar.value,
-            noPegawaiPenghantar: noPegawaiPenghantar.value,
-            ringkasanKenyataanKes: ringkasanKenyataanKes.value,
-            bilangan: bilangan.value,
-            barangList: barangList.value,
-            noKertasSiasatan: noKertasSiasatan.value,
-            noLaporanPolis: noLaporanPolis.value,
-            tarikhTemujanji: tarikhTemujanji.value,
-            slotMasa: slotMasa.value,
-          });
-
-          // Show success message
-          $swal.fire({
-            title: "Berjaya!",
-            text: "Borang telah berjaya dihantar.",
-            icon: "success",
-            confirmButtonText: "OK",
-          });
-        } else {
-          // Show error message
-          $swal.fire({
-            title: "Ralat!",
-            text: "Sila isi semua medan yang diperlukan dan tambah sekurang-kurangnya satu barang.",
-            icon: "error",
-            confirmButtonText: "OK",
-          });
-        }
-      }
-    });
+  }
 };
 
 const { $swal } = useNuxtApp();
