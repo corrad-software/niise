@@ -6,72 +6,113 @@
 
     <rs-card class="mt-4 p-4">
       <FormKit type="form" :actions="false" @submit="submitForm">
+        <!-- Nama Pemohon Input -->
         <FormKit
           type="text"
           label="Nama Pemohon"
           v-model="namaPemohon"
           validation="required"
         />
+
+        <!-- Pangkat Pemohon Input -->
         <FormKit
           type="text"
           label="Pangkat Pemohon"
           v-model="pangkatPemohon"
           validation="required"
         />
+
+        <!-- No Pegawai Pemohon Input -->
         <FormKit
           type="text"
           label="No Pegawai Pemohon"
           v-model="noPegawaiPemohon"
           validation="required"
         />
+
+        <!-- Checkbox: Apply Pemohon info to Penghantar -->
         <FormKit
+          type="checkbox"
+          label="Sama seperti Pemohon"
+          v-model="isPenghantarSameAsPemohon"
+        />
+
+        <!-- Conditionally render Nama Penghantar field if checkbox is not checked -->
+        <FormKit
+          v-if="!isPenghantarSameAsPemohon"
           type="text"
           label="Nama Penghantar"
           v-model="namaPenghantar"
           validation="required"
         />
+
+        <!-- Conditionally render Pangkat Penghantar field if checkbox is not checked -->
         <FormKit
+          v-if="!isPenghantarSameAsPemohon"
           type="text"
           label="Pangkat Penghantar"
           v-model="pangkatPenghantar"
           validation="required"
         />
+
+        <!-- Conditionally render No Pegawai Penghantar field if checkbox is not checked -->
+        <FormKit
+          v-if="!isPenghantarSameAsPemohon"
+          type="text"
+          label="No Pegawai Penghantar"
+          v-model="noPegawaiPenghantar"
+          validation="required"
+        />
+
+        <!-- Ringkasan Kenyataan Kes Input -->
         <FormKit
           type="textarea"
           label="Ringkasan Kenyataan Kes"
           v-model="ringkasanKenyataanKes"
           validation="required"
         />
+
+        <!-- Bilangan Input -->
         <FormKit
           type="number"
           label="Bilangan"
           v-model="bilangan"
           validation="required|number"
         />
+
+        <!-- Jenis Barang Input -->
         <FormKit
           type="text"
           label="Jenis Barang"
           v-model="jenisBarang"
           validation="required"
         />
+
+        <!-- Tanda Barang Input -->
         <FormKit
           type="text"
           label="Tanda Barang"
           v-model="tandaBarang"
           validation="required"
         />
+
+        <!-- Keadaan Barang Input -->
         <FormKit
           type="text"
           label="Keadaan Barang"
           v-model="keadaanBarang"
           validation="required"
         />
+
+        <!-- Kuantiti Barang Input -->
         <FormKit
           type="number"
           label="Kuantiti Barang"
           v-model="kuantitiBarang"
           validation="required|number"
         />
+
+        <!-- Jenis Barang Detail Select Input -->
         <FormKit
           type="select"
           label="Jenis Barang"
@@ -79,6 +120,8 @@
           :options="jenisBarangDetailOptions"
           validation="required"
         />
+
+        <!-- Jenis Barang Siber Select Input -->
         <FormKit
           type="select"
           label="Jenis Barang Siber"
@@ -86,18 +129,38 @@
           :options="jenisBarangSiberOptions"
           validation="required"
         />
+
+        <!-- No Kertas Siasatan Input -->
         <FormKit
           type="text"
           label="No Kertas Siasatan"
           v-model="noKertasSiasatan"
           validation="required"
         />
+
+        <!-- No Laporan Polis Input -->
         <FormKit
           type="text"
           label="No Laporan Polis"
           v-model="noLaporanPolis"
           validation="required"
         />
+
+        <!-- Tarikh Temujanji Input -->
+        <FormKit
+          type="date"
+          label="Tarikh temujanji"
+          v-model="tarikhTemujanji"
+          validation="date|after:today"
+          :validation-messages="{
+            after: 'Tarikh temujanji mestilah selepas hari ini',
+          }"
+        />
+
+        <!-- Slot Masa Input -->
+        <FormKit type="time" label="Slot masa" v-model="slotMasa" />
+
+        <!-- Action Buttons -->
         <div class="flex justify-end gap-2 mt-4">
           <rs-button type="button" @click="navigateBack" variant="danger"
             >Kembali</rs-button
@@ -123,7 +186,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 
 const router = useRouter();
@@ -131,11 +194,13 @@ const route = useRoute();
 
 const noSiri = ref(route.params.noSiri);
 
+// Form data
 const namaPemohon = ref("");
 const pangkatPemohon = ref("");
 const noPegawaiPemohon = ref("");
 const namaPenghantar = ref("");
 const pangkatPenghantar = ref("");
+const noPegawaiPenghantar = ref("");
 const ringkasanKenyataanKes = ref("");
 const bilangan = ref(0);
 const jenisBarang = ref("");
@@ -146,6 +211,11 @@ const jenisBarangDetail = ref("");
 const jenisBarangSiber = ref("");
 const noKertasSiasatan = ref("");
 const noLaporanPolis = ref("");
+const tarikhTemujanji = ref("");
+const slotMasa = ref("");
+
+// State for single checkbox
+const isPenghantarSameAsPemohon = ref(false);
 
 const jenisBarangDetailOptions = [
   "PASPORT",
@@ -159,10 +229,26 @@ const jenisBarangDetailOptions = [
 
 const jenisBarangSiberOptions = ["SIBER", "TULISAN TANGAN"];
 
+// Watcher to update Penghantar fields when the checkbox is checked
+watch(isPenghantarSameAsPemohon, (newValue) => {
+  if (newValue) {
+    // Copy values from Pemohon fields to Penghantar fields
+    namaPenghantar.value = namaPemohon.value;
+    pangkatPenghantar.value = pangkatPemohon.value;
+    noPegawaiPenghantar.value = noPegawaiPemohon.value;
+  } else {
+    // Clear Penghantar fields when unchecked
+    namaPenghantar.value = "";
+    pangkatPenghantar.value = "";
+    noPegawaiPenghantar.value = "";
+  }
+});
+
 const navigateBack = () => {
   router.back();
 };
 
+// Validate the form
 const isFormValid = () => {
   const requiredFields = [
     namaPemohon,
@@ -170,6 +256,7 @@ const isFormValid = () => {
     noPegawaiPemohon,
     namaPenghantar,
     pangkatPenghantar,
+    noPegawaiPenghantar,
     ringkasanKenyataanKes,
     bilangan,
     jenisBarang,
@@ -180,6 +267,8 @@ const isFormValid = () => {
     jenisBarangSiber,
     noKertasSiasatan,
     noLaporanPolis,
+    tarikhTemujanji,
+    slotMasa,
   ];
 
   return requiredFields.every(
@@ -188,53 +277,106 @@ const isFormValid = () => {
 };
 
 const simpan = () => {
-  if (isFormValid()) {
-    // Save form data logic
-    console.log("Form data saved");
-  } else {
-    console.error("Please fill in all required fields.");
-  }
+  $swal
+    .fire({
+      title: "Adakah anda pasti?",
+      text: "Borang boleh dikemas kini selepas di simpan.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya, Hantar",
+      cancelButtonText: "Batal",
+    })
+    .then((result) => {
+      if (result.isConfirmed) {
+        // Handle form submission
+        console.log({
+          namaPemohon: namaPemohon.value,
+          pangkatPemohon: pangkatPemohon.value,
+          noPegawaiPemohon: noPegawaiPemohon.value,
+          namaPenghantar: namaPenghantar.value,
+          pangkatPenghantar: pangkatPenghantar.value,
+          noPegawaiPenghantar: noPegawaiPenghantar.value,
+          ringkasanKenyataanKes: ringkasanKenyataanKes.value,
+          bilangan: bilangan.value,
+          jenisBarang: jenisBarang.value,
+          tandaBarang: tandaBarang.value,
+          keadaanBarang: keadaanBarang.value,
+          kuantitiBarang: kuantitiBarang.value,
+          jenisBarangDetail: jenisBarangDetail.value,
+          jenisBarangSiber: jenisBarangSiber.value,
+          noKertasSiasatan: noKertasSiasatan.value,
+          noLaporanPolis: noLaporanPolis.value,
+          tarikhTemujanji: tarikhTemujanji.value,
+          slotMasa: slotMasa.value,
+        });
+
+        // Show success message
+        $swal.fire({
+          title: "Berjaya!",
+          text: "Borang telah berjaya disimpan.",
+          icon: "success",
+          confirmButtonText: "OK",
+        });
+      }
+    });
 };
 
 const submitForm = () => {
-  if (isFormValid()) {
-    // Handle form submission
-    console.log({
-      namaPemohon: namaPemohon.value,
-      pangkatPemohon: pangkatPemohon.value,
-      noPegawaiPemohon: noPegawaiPemohon.value,
-      namaPenghantar: namaPenghantar.value,
-      pangkatPenghantar: pangkatPenghantar.value,
-      ringkasanKenyataanKes: ringkasanKenyataanKes.value,
-      bilangan: bilangan.value,
-      jenisBarang: jenisBarang.value,
-      tandaBarang: tandaBarang.value,
-      keadaanBarang: keadaanBarang.value,
-      kuantitiBarang: kuantitiBarang.value,
-      jenisBarangDetail: jenisBarangDetail.value,
-      jenisBarangSiber: jenisBarangSiber.value,
-      noKertasSiasatan: noKertasSiasatan.value,
-      noLaporanPolis: noLaporanPolis.value,
-    });
+  $swal
+    .fire({
+      title: "Adakah anda pasti?",
+      text: "Borang boleh dikemaskini selepas di simpan.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya, Hantar",
+      cancelButtonText: "Batal",
+    })
+    .then((result) => {
+      if (result.isConfirmed) {
+        if (isFormValid()) {
+          // Handle form submission
+          console.log({
+            namaPemohon: namaPemohon.value,
+            pangkatPemohon: pangkatPemohon.value,
+            noPegawaiPemohon: noPegawaiPemohon.value,
+            namaPenghantar: namaPenghantar.value,
+            pangkatPenghantar: pangkatPenghantar.value,
+            noPegawaiPenghantar: noPegawaiPenghantar.value,
+            ringkasanKenyataanKes: ringkasanKenyataanKes.value,
+            bilangan: bilangan.value,
+            jenisBarang: jenisBarang.value,
+            tandaBarang: tandaBarang.value,
+            keadaanBarang: keadaanBarang.value,
+            kuantitiBarang: kuantitiBarang.value,
+            jenisBarangDetail: jenisBarangDetail.value,
+            jenisBarangSiber: jenisBarangSiber.value,
+            noKertasSiasatan: noKertasSiasatan.value,
+            noLaporanPolis: noLaporanPolis.value,
+            tarikhTemujanji: tarikhTemujanji.value,
+            slotMasa: slotMasa.value,
+          });
 
-    // Show success message
-    $swal.fire({
-      title: "Berjaya!",
-      text: "Borang telah berjaya dihantar.",
-      icon: "success",
-      confirmButtonText: "OK",
+          // Show success message
+          $swal.fire({
+            title: "Berjaya!",
+            text: "Borang telah berjaya dihantar.",
+            icon: "success",
+            confirmButtonText: "OK",
+          });
+        } else {
+          // Show error message
+          $swal.fire({
+            title: "Ralat!",
+            text: "Sila isi semua medan yang diperlukan.",
+            icon: "error",
+            confirmButtonText: "OK",
+          });
+        }
+      }
     });
-  } else {
-    // Show error message
-    $swal.fire({
-      title: "Ralat!",
-      text: "Sila isi semua medan yang diperlukan.",
-      icon: "error",
-      confirmButtonText: "OK",
-    });
-  }
 };
 
+// Function to generate sample data
 function generateSampleData(noSiri) {
   const randomNumber = (min, max) =>
     Math.floor(Math.random() * (max - min + 1) + min);
@@ -275,6 +417,10 @@ function generateSampleData(noSiri) {
     jenisBarangSiber: randomChoice(jenisBarangSiberOptions),
     noKertasSiasatan: `KS-${randomNumber(10000, 99999)}`,
     noLaporanPolis: `RPT-${randomNumber(100000, 999999)}`,
+    tarikhTemujanji: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split("T")[0], // 7 days from now
+    slotMasa: `${randomNumber(9, 16)}:00`, // Random hour between 9 AM and 4 PM
   };
 }
 
@@ -296,6 +442,8 @@ onMounted(() => {
   jenisBarangSiber.value = sampleData.jenisBarangSiber;
   noKertasSiasatan.value = sampleData.noKertasSiasatan;
   noLaporanPolis.value = sampleData.noLaporanPolis;
+  tarikhTemujanji.value = sampleData.tarikhTemujanji;
+  slotMasa.value = sampleData.slotMasa;
 });
 
 const { $swal } = useNuxtApp();
