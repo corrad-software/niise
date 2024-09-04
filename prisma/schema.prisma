@@ -89,18 +89,21 @@ model permohonan {
   penghantarID                   Int?
   status_permohonan              String                       @db.VarChar(255)
   ringkasan_kenyataan_kes        String?                      @db.Text
-  bilangan                       String?                      @db.VarChar(255)
+  bilangan                       Int?
   jenis_barang                   Int?
   tanda_barang                   String?                      @db.VarChar(255)
   keadaan_barang                 String?                      @db.VarChar(255)
   kuantiti_barang                Int?
   jenis_barang_details           String?                      @db.Text
   no_laporan_polis               String?                      @db.VarChar(255)
+  no_kertas_siasatan             String?                      @db.VarChar(255)
   tarikh_temujanji               DateTime?                    @db.DateTime(0)
-  create_at                      DateTime                     @db.DateTime(0)
-  penghantar                     penghantar?                  @relation(fields: [penghantarID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_ibfk_1")
-  pemohon                        pemohon?                     @relation(fields: [pemohonID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_ibfk_2")
+  slot_masa                      DateTime?                    @db.Time(0)
+  create_at                      DateTime?                    @db.DateTime(0)
+  modified_at                    DateTime?                    @db.DateTime(0)
   lookup                         lookup?                      @relation(fields: [jenis_barang], references: [lookupID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_ibfk_3")
+  pemohon                        pemohon?                     @relation(fields: [pemohonID], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "permohonan_ibfk_2")
+  penghantar                     penghantar?                  @relation(fields: [penghantarID], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "permohonan_ibfk_1")
   permohonan_assign_forensik     permohonan_assign_forensik[]
   permohonan_jenis_barang        permohonan_jenis_barang[]
   permohonan_penerimaan          permohonan_penerimaan[]
@@ -279,10 +282,10 @@ model report {
   dapatan                            Int?
   create_at                          DateTime?            @db.DateTime(0)
   create_by                          Int
-  permohonan                         permohonan           @relation(fields: [permohonanID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_1")
   document                           document?            @relation(fields: [gambarID], references: [documentID], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_2")
   lookup_report_dapatanTolookup      lookup?              @relation("report_dapatanTolookup", fields: [dapatan], references: [lookupID], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_3")
   lookup_report_jenis_barangTolookup lookup               @relation("report_jenis_barangTolookup", fields: [jenis_barang], references: [lookupID], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_4")
+  permohonan                         permohonan           @relation(fields: [permohonanID], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "report_ibfk_1")
   report_doc_support                 report_doc_support[]
 
   @@index([dapatan], map: "dapatan")

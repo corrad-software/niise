@@ -1,6 +1,7 @@
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   const { userID } = event.context.user;
+  const { noSiri } = event.context.params; // Permohonan identifier from URL
 
   const {
     namaPemohon,
@@ -82,58 +83,64 @@ export default defineEventHandler(async (event) => {
     };
   }
 
-  // 5. Insert data into the database
-  const caseReferenceID = generateCaseReferenceID();
+  // 5. Update the permohonan in the database
   let permohonanStatus = isDraft ? "Permohonan Draf" : "Permohonan Dihantar";
 
   try {
-    // Insert into `permohonan` table
-    const newPermohonan = await prisma.permohonan.create({
+    // Update the existing `permohonan` record
+    const updatedPermohonan = await prisma.permohonan.update({
+      where: {
+        no_siri: noSiri,
+      },
       data: {
-        no_siri: caseReferenceID,
         status_permohonan: permohonanStatus,
         pemohon: {
-          create: {
-            userID: userID, // Assuming the user is authenticated, replace with actual user ID
+          update: {
+            userID: userID,
             pangkat_pemohon: pangkatPemohon,
             no_pegawai_pemohon: noPegawaiPemohon,
           },
         },
-        penghantar: {
-          create: {
-            nama_penghantar: namaPenghantar,
-            pangkat_penghantar: pangkatPenghantar,
-            no_pegawai_penghantar: noPegawaiPenghantar,
-          },
-        },
+        penghantar: isPenghantarSameAsPemohon
+          ? null
+          : {
+              update: {
+                nama_penghantar: namaPenghantar,
+                pangkat_penghantar: pangkatPenghantar,
+                no_pegawai_penghantar: noPegawaiPenghantar,
+              },
+            },
         ringkasan_kenyataan_kes: ringkasanKenyataanKes,
         bilangan: parseInt(bilangan),
         penghantar_sama_dengan_pemohon: isPenghantarSameAsPemohon ? 1 : 0,
         no_kertas_siasatan: noKertasSiasatan,
         no_laporan_polis: noLaporanPolis,
         tarikh_temujanji: new Date(tarikhTemujanji),
-        slot_masa: new Date(`1970-01-01T${slotMasa}`), // Convert slotMasa string to Time
-        create_at: new Date(),
+        slot_masa: new Date(`1970-01-01T${slotMasa}`),
+        modified_at: new Date(),
       },
     });
 
-    // Insert related `report` and `document` data
-    for (const barang of barangList) {
-      //   await prisma.report.create({
-      //     data: {
-      //       permohonanID: newPermohonan.id,
-      //       jenis_barang: barang.jenisBarangDetail,
-      //       kuantiti_barang: barang.kuantitiBarang,
-      //       tanda_barang: barang.tandaBarang,
-      //       keadaan_barang: barang.keadaanBarang,
-      //       create_by: userID,
-      //       create_at: new Date(),
-      //     },
-      //   });
+    // Delete old barang and create new ones
+    await prisma.report.deleteMany({
+      where: { permohonanID: updatedPermohonan.id },
+    });
 
+    for (const barang of barangList) {
+      // await prisma.report.create({
+      //   data: {
+      //     permohonanID: updatedPermohonan.id,
+      //     jenis_barang: barang.jenisBarangDetail,
+      //     kuantiti_barang: barang.kuantitiBarang,
+      //     tanda_barang: barang.tandaBarang,
+      //     keadaan_barang: barang.keadaanBarang,
+      //     create_by: userID,
+      //     create_at: new Date(),
+      //   },
+      // });
       await prisma.report.create({
         data: {
-          permohonanID: newPermohonan.id,
+          permohonanID: updatedPermohonan.id,
           jenis_barang: barang.jenisBarangDetail,
           create_by: userID,
           create_at: new Date(),
@@ -141,31 +148,31 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // 6. Send confirmation email
+    // 6. Send confirmation email if not a draft
     if (!isDraft) {
       await sendEmail({
         to: [
           /* pemohon, pegawai_kaunter, ketua_bahagian */
         ],
-        subject: `Permohonan Baru: ${caseReferenceID}`,
+        subject: `Kemaskini Permohonan: ${noSiri}`,
         body: `
-            Case ID: ${caseReferenceID}
-            Appointment Date: ${tarikhTemujanji}
-            Time Slot: ${slotMasa}
-            Barang: ${barangList
-              .map(
-                (barang) =>
-                  `${barang.tandaBarang} - ${barang.kuantitiBarang} units`
-              )
-              .join(", ")}
-            Pemohon Details: ${namaPemohon} (${pangkatPemohon})
-            ${
-              isPenghantarSameAsPemohon
-                ? ""
-                : `Penghantar Details: ${namaPenghantar} (${pangkatPenghantar})`
-            }
-            Ringkasan Kenyataan Kes: ${ringkasanKenyataanKes}
-          `,
+          Case ID: ${noSiri}
+          Appointment Date: ${tarikhTemujanji}
+          Time Slot: ${slotMasa}
+          Barang: ${barangList
+            .map(
+              (barang) =>
+                `${barang.tandaBarang} - ${barang.kuantitiBarang} units`
+            )
+            .join(", ")}
+          Pemohon Details: ${namaPemohon} (${pangkatPemohon})
+          ${
+            isPenghantarSameAsPemohon
+              ? ""
+              : `Penghantar Details: ${namaPenghantar} (${pangkatPenghantar})`
+          }
+          Ringkasan Kenyataan Kes: ${ringkasanKenyataanKes}
+        `,
       });
     }
 
@@ -173,7 +180,7 @@ export default defineEventHandler(async (event) => {
       statusCode: 200,
       message: isDraft
         ? "Rekod telah berjaya disimpan. (Status CMN-S001)"
-        : "Permohonan pemeriksaan forensik telah dihantar. (Status FOR-S001)",
+        : "Permohonan pemeriksaan forensik telah dikemaskini. (Status FOR-S001)",
     };
   } catch (error) {
     console.log(error);

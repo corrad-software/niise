@@ -782,7 +782,24 @@ watch(
       </div>
     </div>
   </div>
-  <div v-else class="table-wrapper p-4 text-center">
-    <p class="text-[rgb(var(--text-color))]">No data found</p>
+  <div v-else class="table-wrapper p-4">
+    <div
+      class="border border-[rgb(var(--border-color))] rounded-lg overflow-hidden"
+    >
+      <div
+        class="bg-[rgb(var(--bg-2))] p-4 border-b border-[rgb(var(--border-color))]"
+      >
+        <h3 class="text-lg font-semibold text-[rgb(var(--text-color))]"></h3>
+      </div>
+      <div class="p-8 text-center">
+        <Icon name="mdi:table-off" class="text-gray-300 mb-4" size="48px" />
+        <p class="text-[rgb(var(--text-color))] text-lg font-medium">
+          Tiada data
+        </p>
+        <p class="text-gray-500 mt-2">
+          Tiada entri untuk dipaparkan pada masa ini.
+        </p>
+      </div>
+    </div>
   </div>
 </template>

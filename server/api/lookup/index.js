@@ -21,9 +21,18 @@ export default defineEventHandler(async (event) => {
       },
     });
 
+    // Transform the lookups data to the required format
+    const transformedLookups = [
+      { label: "", value: null }, // Add an empty option as the first item
+      ...lookups.map((lookup) => ({
+        label: lookup.lookupValue,
+        value: lookup.lookupID,
+      })),
+    ];
+
     return {
       statusCode: 200,
-      data: lookups,
+      data: transformedLookups,
     };
   } catch (error) {
     return {

@@ -60,7 +60,13 @@
 
         <!-- Actions for each permohonan -->
         <template v-slot:butiran="data">
-          <div class="flex flex-wrap gap-2" v-if="data.value.status !== 'Sah'">
+          <div
+            class="flex flex-wrap gap-2"
+            v-if="
+              data.value.status !== 'Sah' &&
+              data.value.status !== 'Permohonan Dihantar'
+            "
+          >
             <!-- Button to navigate to the "Kemaskini" page for the selected permohonan -->
             <rs-button
               @click="kemaskini(data.value.noSiri)"
@@ -84,9 +90,13 @@
             </rs-button>
           </div>
 
-          <!-- If permohonan has been confirmed -->
+          <!-- If permohonan has been confirmed or submitted -->
           <div v-else>
-            <span>Permohonan telah disahkan</span>
+            <span>{{
+              data.value.status === "Sah"
+                ? "Permohonan telah disahkan"
+                : "Permohonan telah dihantar"
+            }}</span>
           </div>
         </template>
       </rs-table>
@@ -140,7 +150,6 @@ const hapus = async (noSiri) => {
 
   if (confirmation.isConfirmed) {
     try {
-      // Call API to delete the permohonan
       const response = await $fetch(`/api/permohonan/${noSiri}`, {
         method: "DELETE",
       });

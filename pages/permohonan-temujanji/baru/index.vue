@@ -81,6 +81,7 @@
         />
 
         <!-- Barang Section -->
+
         <div class="mb-4">
           <h3 class="mb-2">Senarai Barang</h3>
           <table
@@ -97,7 +98,7 @@
             <tbody>
               <tr v-for="(barang, index) in barangList" :key="index">
                 <td class="border border-gray-300 p-2">
-                  {{ barang.jenisBarang }}
+                  {{ getJenisBarangLabel(barang.jenisBarangDetail) }}
                 </td>
                 <td class="border border-gray-300 p-2">
                   {{ barang.kuantitiBarang }}
@@ -165,23 +166,11 @@
 
         <!-- Action Buttons -->
         <div class="flex justify-end gap-2 mt-4">
-          <rs-button type="button" @click="navigateBack" variant="danger"
-            >Kembali</rs-button
-          >
-          <rs-button
-            type="button"
-            btn-type="submit"
-            @click="simpan"
-            variant="primary"
+          <rs-button @click="navigateBack" variant="danger">Kembali</rs-button>
+          <rs-button @click.prevent="simpan" variant="primary"
             >Simpan</rs-button
           >
-          <rs-button
-            type="submit"
-            btn-type="submit"
-            :disabled="!isFormValid"
-            variant="success"
-            >Hantar</rs-button
-          >
+          <rs-button btn-type="submit" variant="success">Hantar</rs-button>
         </div>
       </FormKit>
     </rs-card>
@@ -203,10 +192,11 @@
           #default="{ state: formState }"
         >
           <FormKit
-            type="text"
-            name="jenisBarang"
+            type="select"
+            name="jenisBarangDetail"
             label="Jenis Barang"
-            v-model="currentBarang.jenisBarang"
+            v-model="currentBarang.jenisBarangDetail"
+            :options="jenisBarangDetailOptions"
             validation="required"
             :validation-messages="{
               required: 'Jenis Barang diperlukan',
@@ -250,18 +240,6 @@
 
           <FormKit
             type="select"
-            name="jenisBarangDetail"
-            label="Jenis Barang Detail"
-            v-model="currentBarang.jenisBarangDetail"
-            :options="jenisBarangDetailOptions"
-            validation="required"
-            :validation-messages="{
-              required: 'Jenis Barang Detail diperlukan',
-            }"
-          />
-
-          <FormKit
-            type="select"
             name="jenisBarangSiber"
             label="Jenis Barang Siber"
             v-model="currentBarang.jenisBarangSiber"
@@ -295,9 +273,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
-import { useRouter } from "vue-router";
-
+const { $swal } = useNuxtApp();
 const router = useRouter();
 
 const namaPemohon = ref("");
@@ -317,42 +293,48 @@ const slotMasa = ref("");
 // State for single checkbox
 const isPenghantarSameAsPemohon = ref(false);
 
-const isBarangModalOpen = ref(false);
-const editingBarangIndex = ref(null);
-const currentBarang = ref({
-  jenisBarang: "",
-  tandaBarang: "",
-  keadaanBarang: "",
-  kuantitiBarang: 1,
-  jenisBarangDetail: "",
-  jenisBarangSiber: "",
-});
-
-const jenisBarangDetailOptions = [
-  "PASPORT",
-  "MALPASS",
-  "CAP KESELAMATAN",
-  "CAP JARI",
-  "PEMERIKSAAN",
-  "I-KAD",
-  "LAIN-LAIN",
-];
-
-const jenisBarangSiberOptions = ["SIBER", "TULISAN TANGAN"];
-
-// Watcher to update Penghantar fields when the single checkbox is checked
 watch(isPenghantarSameAsPemohon, (newValue) => {
   if (newValue) {
-    // Copy values from Pemohon fields to Penghantar fields
     namaPenghantar.value = namaPemohon.value;
     pangkatPenghantar.value = pangkatPemohon.value;
     noPegawaiPenghantar.value = noPegawaiPemohon.value;
   } else {
-    // Clear Penghantar fields when unchecked
     namaPenghantar.value = "";
     pangkatPenghantar.value = "";
     noPegawaiPenghantar.value = "";
   }
+});
+
+const isBarangModalOpen = ref(false);
+const editingBarangIndex = ref(null);
+const currentBarang = ref({
+  jenisBarangDetail: "",
+  tandaBarang: "",
+  keadaanBarang: "",
+  kuantitiBarang: 1,
+  jenisBarangSiber: "",
+});
+
+const jenisBarangDetailOptions = ref([]);
+const jenisBarangSiberOptions = ref([]);
+
+// Fetch lookup data from API
+const fetchLookupData = async (type) => {
+  try {
+    const response = await $fetch(`/api/lookup?type=${type}`);
+    if (response.statusCode === 200) {
+      // Data return with value and label
+      return response.data;
+    }
+  } catch (error) {
+    console.error(`Error fetching ${type} lookup data:`, error);
+    return [];
+  }
+};
+
+onMounted(async () => {
+  jenisBarangDetailOptions.value = await fetchLookupData("jenis_barang");
+  jenisBarangSiberOptions.value = await fetchLookupData("jenis_barang_siber");
 });
 
 const navigateBack = () => {
@@ -362,11 +344,10 @@ const navigateBack = () => {
 const openBarangModal = () => {
   editingBarangIndex.value = null;
   currentBarang.value = {
-    jenisBarang: "",
+    jenisBarangDetail: "",
     tandaBarang: "",
     keadaanBarang: "",
     kuantitiBarang: 1,
-    jenisBarangDetail: "",
     jenisBarangSiber: "",
   };
   isBarangModalOpen.value = true;
@@ -415,15 +396,11 @@ const isFormValid = () => {
     (field) => field.value !== "" && field.value !== 0
   );
 
-  const areBarangFieldsValid = barangList.value.every((barang) =>
-    Object.values(barang).every((value) => value !== "" && value !== 0)
-  );
+  // const areBarangFieldsValid = barangList.value.every((barang) =>
+  //   Object.values(barang).every((value) => value !== "" && value !== 0)
+  // );
 
-  return (
-    areRequiredFieldsFilled &&
-    areBarangFieldsValid &&
-    barangList.value.length > 0
-  );
+  return areRequiredFieldsFilled && barangList.value.length > 0;
 };
 
 const simpan = async () => {
@@ -446,17 +423,12 @@ const submitData = async (isDraft) => {
           namaPemohon: namaPemohon.value,
           pangkatPemohon: pangkatPemohon.value,
           noPegawaiPemohon: noPegawaiPemohon.value,
-          namaPenghantar: isPenghantarSameAsPemohon.value
-            ? null
-            : namaPenghantar.value,
-          pangkatPenghantar: isPenghantarSameAsPemohon.value
-            ? null
-            : pangkatPenghantar.value,
-          noPegawaiPenghantar: isPenghantarSameAsPemohon.value
-            ? null
-            : noPegawaiPenghantar.value,
+          namaPenghantar: namaPenghantar.value,
+          pangkatPenghantar: pangkatPenghantar.value,
+          noPegawaiPenghantar: noPegawaiPenghantar.value,
+          isPenghantarSameAsPemohon: isPenghantarSameAsPemohon.value,
           ringkasanKenyataanKes: ringkasanKenyataanKes.value,
-          bilangan: bilangan.value,
+          bilangan: bilangan.value.toString(),
           barangList: barangList.value,
           noKertasSiasatan: noKertasSiasatan.value,
           noLaporanPolis: noLaporanPolis.value,
@@ -466,16 +438,25 @@ const submitData = async (isDraft) => {
         },
       });
 
-      $swal.fire({
-        title: "Berjaya!",
-        text: response.message,
-        icon: "success",
-        confirmButtonText: "OK",
-      });
-
-      // Redirect user based on action (draft or submission)
-      if (!isDraft) {
-        router.push("/permohonan-temujanji/success");
+      if (response.statusCode === 200) {
+        await $swal.fire({
+          title: "Berjaya!",
+          text: response.message,
+          icon: "success",
+          confirmButtonText: "OK",
+        });
+        
+        // Redirect to senarai page after successful submission
+        if (!isDraft) {
+          router.push('/permohonan-temujanji/senarai');
+        }
+      } else {
+        $swal.fire({
+          title: "Ralat!",
+          text: response.message,
+          icon: "error",
+          confirmButtonText: "OK",
+        });
       }
     } catch (error) {
       $swal.fire({
@@ -495,7 +476,12 @@ const submitData = async (isDraft) => {
   }
 };
 
-const { $swal } = useNuxtApp();
+const getJenisBarangLabel = (value) => {
+  const option = jenisBarangDetailOptions.value.find(
+    (opt) => opt.__original === value
+  );
+  return option ? option.label : value;
+};
 </script>
 
 <style lang="scss" scoped>
