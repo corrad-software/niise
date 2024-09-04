@@ -1,4 +1,3 @@
-@ -1,146 +0,0 @@
 <template>
   <div>
     <div class="flex justify-between items-center">
@@ -8,16 +7,16 @@
     <rs-card class="mt-4 py-2">
       <rs-table
         :data="tableData"
-        :options="{
-          variant: 'default',
+        :options='{
+          variant: "default",
           striped: true,
-          borderless: true,
-        }"
-        :options-advanced="{
+          borderless: true
+        }'
+        :options-advanced='{
           sortable: true,
           responsive: true,
-          filterable: false,
-        }"
+          filterable: false
+        }'
         advanced
       >
         <template v-slot:header>
@@ -45,6 +44,18 @@
         </template>
         <template v-slot:butiran="data">
           <div class="flex flex-wrap gap-2">
+            <!-- View Button -->
+            <rs-button
+              @click="lihat(data.value.noSiri)"
+              variant="info"
+              size="sm"
+              class="p-1"
+              title="Lihat"
+            >
+              <Icon name="ic:outline-visibility" size="1.2rem" />
+            </rs-button>
+
+            <!-- Edit Button -->
             <rs-button
               @click="kemaskini(data.value.noSiri)"
               variant="primary"
@@ -108,11 +119,16 @@ const tableData = ref([
 ]);
 
 const permohonanBaru = () => {
-  navigateTo("/permohonan-online/baru");
+  navigateTo("/permohonan-temujanji/baru");
 };
 
 const kemaskini = (item) => {
   navigateTo(`/kemaskini-daftar/kemaskini/${item}`);
+};
+
+const lihat = (item) => {
+  // Navigate to a detailed view page for the selected item
+  navigateTo(`/kemaskini-daftar/maklumat/${item}`);
 };
 
 const hapus = (item) => {
@@ -131,7 +147,7 @@ const hapus = (item) => {
       if (result.isConfirmed) {
         // Perform deletion logic here
         console.log("Deleting item:", item);
-        // For now, let's just remove the item from the tableData
+        // Remove the item from the tableData
         const index = tableData.value.findIndex((row) => row.noSiri === item);
         if (index !== -1) {
           tableData.value.splice(index, 1);
@@ -141,7 +157,3 @@ const hapus = (item) => {
     });
 };
 </script>
-
-<style lang="scss" scoped>
-/* Add any scoped styles here */
-</style>

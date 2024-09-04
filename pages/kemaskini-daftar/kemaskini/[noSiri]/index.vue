@@ -1,4 +1,3 @@
-
 <template>
   <div>
     <div class="flex justify-between items-center">
@@ -104,14 +103,12 @@
           type="text"
           label="No Kertas Siasatan"
           v-model="noKertasSiasatan"
-          validation="required"
           disabled
         />
         <FormKit
           type="text"
           label="No Laporan Polis"
           v-model="noLaporanPolis"
-          validation="required"
           disabled
         />
         <div class="flex justify-end gap-2 mt-4">

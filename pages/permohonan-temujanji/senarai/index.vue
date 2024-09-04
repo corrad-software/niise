@@ -1,4 +1,3 @@
-
 <template>
   <div>
     <div class="flex justify-between items-center">
@@ -42,12 +41,18 @@
           {{ data.text || "N/A" }}
         </template>
         <template v-slot:status="data">
-          <rs-badge :variant="data.text === 'Aktif' ? 'success' : 'danger'">
+          <rs-badge
+            :variant="
+              data.text === 'Aktif' || data.text === 'Sah'
+                ? 'success'
+                : 'danger'
+            "
+          >
             {{ data.text || "N/A" }}
           </rs-badge>
         </template>
         <template v-slot:butiran="data">
-          <div class="flex flex-wrap gap-2">
+          <div class="flex flex-wrap gap-2" v-if="data.value.status !== 'Sah'">
             <rs-button
               @click="kemaskini(data.value.noSiri)"
               variant="primary"
@@ -66,6 +71,9 @@
             >
               <Icon name="ic:baseline-delete" size="1.2rem" />
             </rs-button>
+          </div>
+          <div v-else>
+            <span>Permohonan telah disahkan</span>
           </div>
         </template>
       </rs-table>
@@ -86,7 +94,7 @@ const tableData = ref([
     no: 1,
     noSiri: "1234567890",
     tarikhMasa: "2024-01-01 12:00:00",
-    status: "Aktif",
+    status: "Sah",
     butiran: 1,
   },
   {
@@ -120,39 +128,37 @@ const tableData = ref([
 ]);
 
 const permohonanBaru = () => {
-  navigateTo("/permohonan-online/baru");
+  navigateTo("/permohonan-temujanji/baru");
 };
 
 const kemaskini = (item) => {
-  navigateTo(`/permohonan-online/kemaskini/${item}`);
+  navigateTo(`/permohonan-temujanji/kemaskini/${item}`);
 };
 
 const hapus = (item) => {
-  $swal.fire({
-    title: 'Anda pasti?',
-    text: "Anda tidak akan dapat memulihkan semula data ini!",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Ya, hapuskan!',
-    cancelButtonText: 'Batal'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // Perform deletion logic here
-      console.log("Deleting item:", item);
-      // For now, let's just remove the item from the tableData
-      const index = tableData.value.findIndex(row => row.noSiri === item);
-      if (index !== -1) {
-        tableData.value.splice(index, 1);
+  $swal
+    .fire({
+      title: "Anda pasti?",
+      text: "Anda tidak akan dapat memulihkan semula data ini!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Ya, hapuskan!",
+      cancelButtonText: "Batal",
+    })
+    .then((result) => {
+      if (result.isConfirmed) {
+        // Perform deletion logic here
+        console.log("Deleting item:", item);
+        // For now, let's just remove the item from the tableData
+        const index = tableData.value.findIndex((row) => row.noSiri === item);
+        if (index !== -1) {
+          tableData.value.splice(index, 1);
+        }
+        $swal.fire("Dihapuskan!", "Data telah dihapuskan.", "success");
       }
-      $swal.fire(
-        'Dihapuskan!',
-        'Data telah dihapuskan.',
-        'success'
-      )
-    }
-  })
+    });
 };
 </script>
 
