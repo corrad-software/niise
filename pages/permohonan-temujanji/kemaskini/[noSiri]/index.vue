@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="flex justify-between items-center">
-      <h1>Kemaskini Permohonan</h1>
+      <h1>Permohonan Baru</h1>
     </div>
 
     <rs-card class="mt-4 p-4">
@@ -80,55 +80,53 @@
           validation="required|number"
         />
 
-        <!-- Jenis Barang Input -->
-        <FormKit
-          type="text"
-          label="Jenis Barang"
-          v-model="jenisBarang"
-          validation="required"
-        />
-
-        <!-- Tanda Barang Input -->
-        <FormKit
-          type="text"
-          label="Tanda Barang"
-          v-model="tandaBarang"
-          validation="required"
-        />
-
-        <!-- Keadaan Barang Input -->
-        <FormKit
-          type="text"
-          label="Keadaan Barang"
-          v-model="keadaanBarang"
-          validation="required"
-        />
-
-        <!-- Kuantiti Barang Input -->
-        <FormKit
-          type="number"
-          label="Kuantiti Barang"
-          v-model="kuantitiBarang"
-          validation="required|number"
-        />
-
-        <!-- Jenis Barang Detail Select Input -->
-        <FormKit
-          type="select"
-          label="Jenis Barang"
-          v-model="jenisBarangDetail"
-          :options="jenisBarangDetailOptions"
-          validation="required"
-        />
-
-        <!-- Jenis Barang Siber Select Input -->
-        <FormKit
-          type="select"
-          label="Jenis Barang Siber"
-          v-model="jenisBarangSiber"
-          :options="jenisBarangSiberOptions"
-          validation="required"
-        />
+        <!-- Barang Section -->
+        <div class="mb-4">
+          <h3 class="mb-2">Senarai Barang</h3>
+          <table
+            v-if="barangList.length > 0"
+            class="w-full border-collapse border border-gray-300 mb-2"
+          >
+            <thead>
+              <tr class="bg-gray-100">
+                <th class="border border-gray-300 p-2">Jenis Barang</th>
+                <th class="border border-gray-300 p-2">Kuantiti</th>
+                <th class="border border-gray-300 p-2">Tindakan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(barang, index) in barangList" :key="index">
+                <td class="border border-gray-300 p-2">
+                  {{ barang.jenisBarang }}
+                </td>
+                <td class="border border-gray-300 p-2">
+                  {{ barang.kuantitiBarang }}
+                </td>
+                <td class="border border-gray-300 p-2">
+                  <rs-button
+                    type="button"
+                    @click="editBarang(index)"
+                    variant="secondary"
+                    class="mr-2"
+                  >
+                    Edit
+                  </rs-button>
+                  <rs-button
+                    type="button"
+                    @click="removeBarang(index)"
+                    variant="danger"
+                  >
+                    Buang
+                  </rs-button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div v-else class="text-gray-500 mb-2">Tiada barang ditambah</div>
+          <rs-button type="button" @click="openBarangModal" variant="primary">
+            Tambah Barang
+          </rs-button>
+        </div>
 
         <!-- No Kertas Siasatan Input -->
         <FormKit
@@ -182,6 +180,112 @@
         </div>
       </FormKit>
     </rs-card>
+
+    <!-- Barang Modal -->
+    <div
+      v-if="isBarangModalOpen"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+    >
+      <div class="bg-white p-6 rounded-lg w-full max-w-2xl">
+        <h2 class="text-2xl font-bold mb-4">
+          {{ editingBarangIndex === null ? "Tambah" : "Edit" }} Barang
+        </h2>
+
+        <FormKit
+          type="form"
+          :actions="false"
+          @submit="saveBarangModal"
+          #default="{ state: formState }"
+        >
+          <FormKit
+            type="text"
+            name="jenisBarang"
+            label="Jenis Barang"
+            v-model="currentBarang.jenisBarang"
+            validation="required"
+            :validation-messages="{
+              required: 'Jenis Barang diperlukan',
+            }"
+          />
+
+          <FormKit
+            type="text"
+            name="tandaBarang"
+            label="Tanda Barang"
+            v-model="currentBarang.tandaBarang"
+            validation="required"
+            :validation-messages="{
+              required: 'Tanda Barang diperlukan',
+            }"
+          />
+
+          <FormKit
+            type="text"
+            name="keadaanBarang"
+            label="Keadaan Barang"
+            v-model="currentBarang.keadaanBarang"
+            validation="required"
+            :validation-messages="{
+              required: 'Keadaan Barang diperlukan',
+            }"
+          />
+
+          <FormKit
+            type="number"
+            name="kuantitiBarang"
+            label="Kuantiti Barang"
+            v-model="currentBarang.kuantitiBarang"
+            validation="required|number|min:1"
+            :validation-messages="{
+              required: 'Kuantiti Barang diperlukan',
+              number: 'Kuantiti Barang mesti nombor',
+              min: 'Kuantiti Barang mesti sekurang-kurangnya 1',
+            }"
+          />
+
+          <FormKit
+            type="select"
+            name="jenisBarangDetail"
+            label="Jenis Barang Detail"
+            v-model="currentBarang.jenisBarangDetail"
+            :options="jenisBarangDetailOptions"
+            validation="required"
+            :validation-messages="{
+              required: 'Jenis Barang Detail diperlukan',
+            }"
+          />
+
+          <FormKit
+            type="select"
+            name="jenisBarangSiber"
+            label="Jenis Barang Siber"
+            v-model="currentBarang.jenisBarangSiber"
+            :options="jenisBarangSiberOptions"
+            validation="required"
+            :validation-messages="{
+              required: 'Jenis Barang Siber diperlukan',
+            }"
+          />
+
+          <div class="flex justify-end gap-2 mt-4">
+            <rs-button
+              type="button"
+              btn-type="reset"
+              @click="cancelBarangModal"
+              variant="danger"
+              >Batal</rs-button
+            >
+            <rs-button
+              type="submit"
+              btn-type="submit"
+              variant="success"
+              :disabled="!formState.valid"
+              >Simpan</rs-button
+            >
+          </div>
+        </FormKit>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -203,12 +307,7 @@ const pangkatPenghantar = ref("");
 const noPegawaiPenghantar = ref("");
 const ringkasanKenyataanKes = ref("");
 const bilangan = ref(0);
-const jenisBarang = ref("");
-const tandaBarang = ref("");
-const keadaanBarang = ref("");
-const kuantitiBarang = ref(0);
-const jenisBarangDetail = ref("");
-const jenisBarangSiber = ref("");
+const barangList = ref([]);
 const noKertasSiasatan = ref("");
 const noLaporanPolis = ref("");
 const tarikhTemujanji = ref("");
@@ -229,6 +328,18 @@ const jenisBarangDetailOptions = [
 
 const jenisBarangSiberOptions = ["SIBER", "TULISAN TANGAN"];
 
+// Barang modal state
+const isBarangModalOpen = ref(false);
+const editingBarangIndex = ref(null);
+const currentBarang = ref({
+  jenisBarang: "",
+  tandaBarang: "",
+  keadaanBarang: "",
+  kuantitiBarang: 1,
+  jenisBarangDetail: "",
+  jenisBarangSiber: "",
+});
+
 // Watcher to update Penghantar fields when the checkbox is checked
 watch(isPenghantarSameAsPemohon, (newValue) => {
   if (newValue) {
@@ -248,6 +359,43 @@ const navigateBack = () => {
   router.back();
 };
 
+// Barang modal functions
+const openBarangModal = () => {
+  editingBarangIndex.value = null;
+  currentBarang.value = {
+    jenisBarang: "",
+    tandaBarang: "",
+    keadaanBarang: "",
+    kuantitiBarang: 1,
+    jenisBarangDetail: "",
+    jenisBarangSiber: "",
+  };
+  isBarangModalOpen.value = true;
+};
+
+const editBarang = (index) => {
+  editingBarangIndex.value = index;
+  currentBarang.value = { ...barangList.value[index] };
+  isBarangModalOpen.value = true;
+};
+
+const removeBarang = (index) => {
+  barangList.value.splice(index, 1);
+};
+
+const cancelBarangModal = () => {
+  isBarangModalOpen.value = false;
+};
+
+const saveBarangModal = () => {
+  if (editingBarangIndex.value === null) {
+    barangList.value.push({ ...currentBarang.value });
+  } else {
+    barangList.value[editingBarangIndex.value] = { ...currentBarang.value };
+  }
+  isBarangModalOpen.value = false;
+};
+
 // Validate the form
 const isFormValid = () => {
   const requiredFields = [
@@ -259,20 +407,24 @@ const isFormValid = () => {
     noPegawaiPenghantar,
     ringkasanKenyataanKes,
     bilangan,
-    jenisBarang,
-    tandaBarang,
-    keadaanBarang,
-    kuantitiBarang,
-    jenisBarangDetail,
-    jenisBarangSiber,
     noKertasSiasatan,
     noLaporanPolis,
     tarikhTemujanji,
     slotMasa,
   ];
 
-  return requiredFields.every(
+  const areRequiredFieldsFilled = requiredFields.every(
     (field) => field.value !== "" && field.value !== 0
+  );
+
+  const areBarangFieldsValid = barangList.value.every((barang) =>
+    Object.values(barang).every((value) => value !== "" && value !== 0)
+  );
+
+  return (
+    areRequiredFieldsFilled &&
+    areBarangFieldsValid &&
+    barangList.value.length > 0
   );
 };
 
@@ -298,12 +450,7 @@ const simpan = () => {
           noPegawaiPenghantar: noPegawaiPenghantar.value,
           ringkasanKenyataanKes: ringkasanKenyataanKes.value,
           bilangan: bilangan.value,
-          jenisBarang: jenisBarang.value,
-          tandaBarang: tandaBarang.value,
-          keadaanBarang: keadaanBarang.value,
-          kuantitiBarang: kuantitiBarang.value,
-          jenisBarangDetail: jenisBarangDetail.value,
-          jenisBarangSiber: jenisBarangSiber.value,
+          barangList: barangList.value,
           noKertasSiasatan: noKertasSiasatan.value,
           noLaporanPolis: noLaporanPolis.value,
           tarikhTemujanji: tarikhTemujanji.value,
@@ -344,12 +491,7 @@ const submitForm = () => {
             noPegawaiPenghantar: noPegawaiPenghantar.value,
             ringkasanKenyataanKes: ringkasanKenyataanKes.value,
             bilangan: bilangan.value,
-            jenisBarang: jenisBarang.value,
-            tandaBarang: tandaBarang.value,
-            keadaanBarang: keadaanBarang.value,
-            kuantitiBarang: kuantitiBarang.value,
-            jenisBarangDetail: jenisBarangDetail.value,
-            jenisBarangSiber: jenisBarangSiber.value,
+            barangList: barangList.value,
             noKertasSiasatan: noKertasSiasatan.value,
             noLaporanPolis: noLaporanPolis.value,
             tarikhTemujanji: tarikhTemujanji.value,
@@ -367,7 +509,7 @@ const submitForm = () => {
           // Show error message
           $swal.fire({
             title: "Ralat!",
-            text: "Sila isi semua medan yang diperlukan.",
+            text: "Sila isi semua medan yang diperlukan dan tambah sekurang-kurangnya satu barang.",
             icon: "error",
             confirmButtonText: "OK",
           });
@@ -398,6 +540,15 @@ function generateSampleData(noSiri) {
   ];
   const keadaanBarangOptions = ["Baik", "Sederhana", "Rosak"];
 
+  const generateBarang = () => ({
+    jenisBarang: randomChoice(jenisBarangOptions),
+    tandaBarang: `TB-${randomNumber(1000, 9999)}`,
+    keadaanBarang: randomChoice(keadaanBarangOptions),
+    kuantitiBarang: randomNumber(1, 10),
+    jenisBarangDetail: randomChoice(jenisBarangDetailOptions),
+    jenisBarangSiber: randomChoice(jenisBarangSiberOptions),
+  });
+
   return {
     noSiri: noSiri,
     namaPemohon: randomChoice(namaPemohon),
@@ -405,16 +556,12 @@ function generateSampleData(noSiri) {
     noPegawaiPemohon: `PG${randomNumber(10000, 99999)}`,
     namaPenghantar: randomChoice(namaPemohon),
     pangkatPenghantar: randomChoice(pangkat),
+    noPegawaiPenghantar: `PG${randomNumber(10000, 99999)}`,
     ringkasanKenyataanKes: `Kes ${noSiri}: Penemuan barang bukti dalam serbuan di lokasi ${randomChoice(
       ["A", "B", "C", "D"]
     )}`,
-    bilangan: randomNumber(1, 10),
-    jenisBarang: randomChoice(jenisBarangOptions),
-    tandaBarang: `TB-${randomNumber(1000, 9999)}`,
-    keadaanBarang: randomChoice(keadaanBarangOptions),
-    kuantitiBarang: randomNumber(1, 100),
-    jenisBarangDetail: randomChoice(jenisBarangDetailOptions),
-    jenisBarangSiber: randomChoice(jenisBarangSiberOptions),
+    bilangan: randomNumber(1, 5),
+    barangList: Array.from({ length: randomNumber(1, 3) }, generateBarang),
     noKertasSiasatan: `KS-${randomNumber(10000, 99999)}`,
     noLaporanPolis: `RPT-${randomNumber(100000, 999999)}`,
     tarikhTemujanji: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
@@ -432,14 +579,10 @@ onMounted(() => {
   noPegawaiPemohon.value = sampleData.noPegawaiPemohon;
   namaPenghantar.value = sampleData.namaPenghantar;
   pangkatPenghantar.value = sampleData.pangkatPenghantar;
+  noPegawaiPenghantar.value = sampleData.noPegawaiPenghantar;
   ringkasanKenyataanKes.value = sampleData.ringkasanKenyataanKes;
   bilangan.value = sampleData.bilangan;
-  jenisBarang.value = sampleData.jenisBarang;
-  tandaBarang.value = sampleData.tandaBarang;
-  keadaanBarang.value = sampleData.keadaanBarang;
-  kuantitiBarang.value = sampleData.kuantitiBarang;
-  jenisBarangDetail.value = sampleData.jenisBarangDetail;
-  jenisBarangSiber.value = sampleData.jenisBarangSiber;
+  barangList.value = sampleData.barangList;
   noKertasSiasatan.value = sampleData.noKertasSiasatan;
   noLaporanPolis.value = sampleData.noLaporanPolis;
   tarikhTemujanji.value = sampleData.tarikhTemujanji;
