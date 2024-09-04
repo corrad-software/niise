@@ -16,49 +16,221 @@ model audit {
   auditCreatedDate DateTime? @db.DateTime(0)
 }
 
-model user {
-  userID             Int                  @id @default(autoincrement())
-  userSecretKey      String?              @db.VarChar(255)
-  userUsername       String?              @unique(map: "userUsername") @db.VarChar(255)
-  userPassword       String?              @db.VarChar(255)
-  userFullName       String?              @db.VarChar(255)
-  userEmail          String?              @db.VarChar(255)
-  userPhone          String?              @db.VarChar(255)
-  userStatus         String?              @db.VarChar(255)
-  userCreatedDate    DateTime?            @db.DateTime(0)
-  userModifiedDate   DateTime?            @db.DateTime(0)
-  chat               chat[]
-  project            project[]
-  project_permission project_permission[]
-  thread             thread[]
-  userrole           userrole[]
-}
+model document {
+  documentID                    Int                             @id @default(autoincrement())
+  userID                        Int?
+  documentName                  String?                         @db.VarChar(255)
+  documentURL                   String?                         @db.VarChar(255)
+  documentType                  String?                         @db.VarChar(255)
+  documentExtension             String?                         @db.VarChar(255)
+  imageMIMEType                 String?                         @db.VarChar(255)
+  documentSize                  Int?
+  documentStatus                String?                         @default("ACTIVE") @db.VarChar(255)
+  documentCreatedDate           String?                         @db.VarChar(255)
+  documentModifiedDate          String?                         @db.VarChar(255)
+  user                          user?                           @relation(fields: [userID], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "document_ibfk_1")
+  permohonan_report             permohonan_report[]
+  permohonan_report_doc_support permohonan_report_doc_support[]
 
-model role {
-  roleID             Int                  @id @default(autoincrement())
-  roleName           String?              @db.VarChar(255)
-  roleDescription    String?              @db.VarChar(255)
-  roleStatus         String?              @db.VarChar(255)
-  roleCreatedDate    DateTime?            @db.DateTime(0)
-  roleModifiedDate   DateTime?            @db.DateTime(0)
-  project_permission project_permission[]
-  userrole           userrole[]
+  @@index([userID], map: "userID")
 }
 
 model lookup {
-  lookupID                                Int         @id @default(autoincrement())
-  lookupOrder                             Int?
-  lookupTitle                             String?     @db.VarChar(255)
-  lookupRefCode                           String?     @db.VarChar(255)
-  lookupValue                             String?     @db.VarChar(255)
-  lookupType                              String?     @db.VarChar(255)
-  lookupStatus                            String?     @db.VarChar(255)
-  lookupCreatedDate                       DateTime?   @db.DateTime(0)
-  lookupModifiedDate                      DateTime?   @db.DateTime(0)
-  assistant                               assistant[]
-  project                                 project[]
-  project_project_projectViewTypeTolookup project[]   @relation("project_projectViewTypeTolookup")
-  thread                                  thread[]
+  lookupID             Int                    @id @default(autoincrement())
+  lookupOrder          Int?
+  lookupTitle          String?                @db.VarChar(255)
+  lookupRefCode        String?                @db.VarChar(255)
+  lookupValue          String?                @db.VarChar(255)
+  lookupType           String?                @db.VarChar(255)
+  lookupStatus         String?                @db.VarChar(255)
+  lookupCreatedDate    DateTime?              @db.DateTime(0)
+  lookupModifiedDate   DateTime?              @db.DateTime(0)
+  permohonan           permohonan[]
+  permohonan_penolakan permohonan_penolakan[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model notifikasi {
+  notifikasiID Int    @id @default(autoincrement())
+  penghantarID Int
+  penerimaID   Int
+  body         String @db.Text
+  status       Int
+}
+
+model pemohon {
+  id                 Int          @id @default(autoincrement())
+  userID             Int
+  pangkat_pemohon    String       @db.VarChar(255)
+  no_pegawai_pemohon String       @db.VarChar(255)
+  user               user         @relation(fields: [userID], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "pemohon_ibfk_1")
+  permohonan         permohonan[]
+
+  @@index([userID], map: "userID")
+}
+
+model penghantar {
+  id                    Int          @id @default(autoincrement())
+  nama_penghantar       String       @db.VarChar(255)
+  pangkat_penghantar    String       @db.VarChar(255)
+  no_pegawai_penghantar String       @db.VarChar(255)
+  permohonan            permohonan[]
+}
+
+model permohonan {
+  id                             Int                             @id @default(autoincrement())
+  no_siri                        String                          @unique(map: "Permohonan_no_siri_key") @db.VarChar(255)
+  pemohonID                      Int?
+  penghantar_sama_dengan_pemohon Int?
+  penghantarID                   Int?
+  status_permohonan              String                          @db.VarChar(255)
+  ringkasan_kenyataan_kes        String?                         @db.Text
+  bilangan                       String?                         @db.VarChar(255)
+  jenis_barang                   Int?
+  tanda_barang                   String?                         @db.VarChar(255)
+  keadaan_barang                 String?                         @db.VarChar(255)
+  kuantiti_barang                Int?
+  jenis_barang_details           String?                         @db.Text
+  no_laporan_polis               String?                         @db.VarChar(255)
+  tarikh_temujanji               DateTime?                       @db.DateTime(0)
+  create_at                      DateTime                        @db.DateTime(0)
+  penghantar                     penghantar?                     @relation(fields: [penghantarID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_ibfk_1")
+  pemohon                        pemohon?                        @relation(fields: [pemohonID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_ibfk_2")
+  lookup                         lookup?                         @relation(fields: [jenis_barang], references: [lookupID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_ibfk_3")
+  permohonan_assign_forensik     permohonan_assign_forensik[]
+  permohonan_penerimaan          permohonan_penerimaan[]
+  permohonan_report              permohonan_report[]
+  permohonan_report_doc_support  permohonan_report_doc_support[]
+  permohonan_semakan             permohonan_semakan[]
+
+  @@index([pemohonID], map: "idx_pemohon")
+  @@index([penghantarID], map: "idx_penghantar")
+  @@index([jenis_barang], map: "jenis_barang")
+}
+
+model permohonan_assign_forensik {
+  assignID           Int        @id @default(autoincrement())
+  permohonanID       Int
+  pegawai_forensikID Int
+  permohonan         permohonan @relation(fields: [permohonanID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_assign_forensik_ibfk_2")
+  user               user       @relation(fields: [pegawai_forensikID], references: [userID], onUpdate: Restrict, map: "permohonan_assign_forensik_ibfk_3")
+
+  @@index([pegawai_forensikID], map: "pegawai_forensikID")
+  @@index([permohonanID], map: "permohonanID")
+}
+
+model permohonan_penerimaan {
+  penerimaanID           Int        @id @default(autoincrement())
+  permohonanID           Int
+  peralatan_keadaan_baik Int
+  pegawai_berkelayakan   Int
+  kaedah_dpt_dilakukan   Int
+  subkontrak_diperlukan  Int
+  tugasan_diterima       Int
+  ulasan_pegawai         Int?
+  create_at              DateTime   @db.DateTime(0)
+  diterima_oleh          Int
+  permohonan             permohonan @relation(fields: [permohonanID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_penerimaan_ibfk_1")
+  user                   user       @relation(fields: [diterima_oleh], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_penerimaan_ibfk_2")
+
+  @@index([diterima_oleh], map: "diterima_oleh")
+  @@index([permohonanID], map: "permohonanID")
+}
+
+model permohonan_penolakan {
+  penolakanID     Int       @id @default(autoincrement())
+  permohonanID    Int
+  sebab_penolakan Int
+  lain_sebab      String?   @db.VarChar(255)
+  create_at       DateTime? @db.DateTime(0)
+  ditolak_oleh    Int?
+  lookup          lookup    @relation(fields: [sebab_penolakan], references: [lookupID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_penolakan_ibfk_1")
+  user            user?     @relation(fields: [ditolak_oleh], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_penolakan_ibfk_2")
+
+  @@index([ditolak_oleh], map: "ditolak_oleh")
+  @@index([sebab_penolakan], map: "sebab_penolakan")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model permohonan_report {
+  reportID        Int        @id @default(autoincrement())
+  permohonanID    Int
+  peralatan       String     @db.VarChar(255)
+  langkah_langkah Int
+  gambarID        Int?
+  ulasan          String?    @db.Text
+  dapatan         String     @db.VarChar(255)
+  create_at       DateTime?  @db.DateTime(0)
+  create_by       Int
+  permohonan      permohonan @relation(fields: [permohonanID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_report_ibfk_1")
+  document        document?  @relation(fields: [gambarID], references: [documentID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_report_ibfk_2")
+
+  @@index([gambarID], map: "gambarID")
+  @@index([permohonanID], map: "permohonanID")
+}
+
+model permohonan_report_doc_support {
+  report_attachID Int        @id @default(autoincrement())
+  permohonanID    Int
+  documentID      Int
+  document        document   @relation(fields: [documentID], references: [documentID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_report_doc_support_ibfk_1")
+  permohonan      permohonan @relation(fields: [permohonanID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_report_doc_support_ibfk_2")
+
+  @@index([documentID], map: "documentID")
+  @@index([permohonanID], map: "permohonanID")
+}
+
+model permohonan_semakan {
+  semakanID              Int        @id @default(autoincrement())
+  permohonanID           Int
+  peralatan_keadaan_baik Int
+  pegawai_berkelayakan   Int
+  kaedah_dpt_dilakukan   Int
+  subkontrak_diperlukan  Int
+  tugasan_diterima       Int
+  ulasan_pegawai         String?    @db.Text
+  create_at              Int
+  disemak_oleh           Int
+  permohonan             permohonan @relation(fields: [permohonanID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_semakan_ibfk_1")
+  user                   user       @relation(fields: [disemak_oleh], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_semakan_ibfk_2")
+
+  @@index([disemak_oleh], map: "disemak_oleh")
+  @@index([permohonanID], map: "permohonanID")
+}
+
+model role {
+  roleID           Int        @id @default(autoincrement())
+  roleName         String?    @db.VarChar(255)
+  roleDescription  String?    @db.VarChar(255)
+  roleStatus       String?    @db.VarChar(255)
+  roleCreatedDate  DateTime?  @db.DateTime(0)
+  roleModifiedDate DateTime?  @db.DateTime(0)
+  userrole         userrole[]
+}
+
+model status {
+  statusID    Int    @id @default(autoincrement())
+  status_name String @db.VarChar(255)
+}
+
+model user {
+  userID                     Int                          @id @default(autoincrement())
+  userSecretKey              String?                      @db.VarChar(255)
+  userUsername               String?                      @db.VarChar(255)
+  userPassword               String?                      @db.VarChar(255)
+  userFullName               String?                      @db.VarChar(255)
+  userEmail                  String?                      @db.VarChar(255)
+  userPhone                  String?                      @db.VarChar(255)
+  userStatus                 String?                      @db.VarChar(255)
+  userCreatedDate            DateTime?                    @db.DateTime(0)
+  userModifiedDate           DateTime?                    @db.DateTime(0)
+  document                   document[]
+  pemohon                    pemohon[]
+  permohonan_assign_forensik permohonan_assign_forensik[]
+  permohonan_penerimaan      permohonan_penerimaan[]
+  permohonan_penolakan       permohonan_penolakan[]
+  permohonan_semakan         permohonan_semakan[]
+  userrole                   userrole[]
 }
 
 model userrole {
@@ -71,155 +243,4 @@ model userrole {
 
   @@index([userRoleRoleID], map: "FK_userrole_role")
   @@index([userRoleUserID], map: "FK_userrole_user")
-}
-
-model assistant {
-  assistantID           Int       @id @default(autoincrement())
-  assistantOAIID        String?   @db.VarChar(255)
-  assistantImg          String?   @db.VarChar(255)
-  assistantName         String?   @db.VarChar(255)
-  assistantDescription  String?   @db.VarChar(255)
-  assistantType         Int?
-  assistantStatus       String?   @db.VarChar(255)
-  assistantVerified     Boolean?  @db.Bit(1)
-  assistantCreatedDate  DateTime? @db.DateTime(0)
-  assistantModifiedDate DateTime? @db.DateTime(0)
-  lookup                lookup?   @relation(fields: [assistantType], references: [lookupID], onDelete: NoAction, onUpdate: NoAction, map: "assistant_ibfk_1")
-  thread                thread[]
-
-  @@index([assistantType], map: "assistantType")
-}
-
-model chat {
-  chatID           Int        @id @default(autoincrement())
-  userID           Int?
-  threadID         Int?
-  projectID        Int?
-  chatOAIMessageID String?    @unique(map: "chatOAIMessageID") @db.VarChar(255)
-  chatType         String?    @db.VarChar(255)
-  chatRole         String?    @db.VarChar(255)
-  chatMessage      String?    @db.LongText
-  chatCreatedDate  DateTime?  @db.DateTime(0)
-  chatModifiedDate DateTime?  @db.DateTime(0)
-  user             user?      @relation(fields: [userID], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "chat_ibfk_1")
-  thread           thread?    @relation(fields: [threadID], references: [threadID], onDelete: NoAction, onUpdate: NoAction, map: "chat_ibfk_2")
-  project          project?   @relation(fields: [projectID], references: [projectID], onDelete: NoAction, onUpdate: NoAction, map: "chat_ibfk_3")
-  chatFile         chatFile[]
-
-  @@index([projectID], map: "projectID")
-  @@index([threadID], map: "threadID")
-  @@index([userID], map: "userID")
-}
-
-model chatFile {
-  chatFileID Int   @id @default(autoincrement())
-  fileID     Int?
-  chatID     Int?
-  file       file? @relation(fields: [fileID], references: [fileID], onDelete: NoAction, onUpdate: NoAction, map: "chatFile_ibfk_1")
-  chat       chat? @relation(fields: [chatID], references: [chatID], onDelete: NoAction, onUpdate: NoAction, map: "chatFile_ibfk_2")
-
-  @@index([chatID], map: "chatID")
-  @@index([fileID], map: "fileID")
-}
-
-model configuration {
-  configurationID           Int       @id @default(autoincrement())
-  configurationName         String?   @db.VarChar(255)
-  configurationCode         String?   @unique(map: "configurationCode") @db.VarChar(255)
-  configurationType         String?   @db.VarChar(255)
-  configurationValue        String?   @db.VarChar(255)
-  configurationCreatedDate  DateTime? @db.DateTime(0)
-  configurationModifiedDate DateTime? @db.DateTime(0)
-}
-
-model file {
-  fileID           Int        @id @default(autoincrement())
-  fileOAIID        String?    @unique(map: "fileOAIID") @db.VarChar(255)
-  fileName         String?    @db.VarChar(255)
-  fileOriginalName String?    @db.VarChar(255)
-  fileType         String?    @db.VarChar(255)
-  fileURL          String?    @db.VarChar(255)
-  fileBytes        Int?
-  fileCreatedDate  DateTime?  @db.DateTime(0)
-  fileModifiedDate DateTime?  @db.DateTime(0)
-  chatFile         chatFile[]
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model project {
-  projectID                                                          Int                  @id @default(autoincrement())
-  projectUniqueID                                                    String               @unique(map: "projectUniqueID") @db.VarChar(255)
-  userID                                                             Int?
-  projectName                                                        String?              @db.VarChar(255)
-  projectDescription                                                 String?              @db.VarChar(255)
-  projectDefault                                                     Boolean?             @default(dbgenerated("b'0'")) @db.Bit(1)
-  projectType                                                        Int?
-  projectPublic                                                      Boolean?             @db.Bit(1)
-  projectViewType                                                    Int?
-  projectCreatedDate                                                 DateTime?            @db.DateTime(0)
-  projectModifiedDate                                                DateTime?            @db.DateTime(0)
-  chat                                                               chat[]
-  user                                                               user?                @relation(fields: [userID], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "project_ibfk_2")
-  lookup                                                             lookup?              @relation(fields: [projectType], references: [lookupID], onDelete: NoAction, onUpdate: NoAction, map: "project_ibfk_3")
-  lookup_project_projectViewTypeTolookup                             lookup?              @relation("project_projectViewTypeTolookup", fields: [projectViewType], references: [lookupID], onDelete: NoAction, onUpdate: NoAction, map: "project_ibfk_4")
-  project_permission_project_permission_projectPermissionIDToproject project_permission?  @relation("project_permission_projectPermissionIDToproject")
-  project_permission_project_permission_projectIDToproject           project_permission[] @relation("project_permission_projectIDToproject")
-  repository                                                         repository[]
-
-  @@index([projectType], map: "projectType")
-  @@index([userID], map: "userID")
-  @@index([projectViewType], map: "projectViewType")
-}
-
-model project_permission {
-  projectPermissionID                                     Int       @id @default(autoincrement())
-  userID                                                  Int?
-  roleID                                                  Int?
-  projectID                                               Int?
-  projectPermissionStatus                                 String?   @db.VarChar(255)
-  projectPermissionCreatedDate                            DateTime? @db.DateTime(0)
-  projectPermissionModifiedDate                           DateTime? @db.DateTime(0)
-  project_project_permission_projectPermissionIDToproject project   @relation("project_permission_projectPermissionIDToproject", fields: [projectPermissionID], references: [projectID], onDelete: NoAction, onUpdate: NoAction, map: "project_permission_ibfk_1")
-  user                                                    user?     @relation(fields: [userID], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "project_permission_ibfk_2")
-  role                                                    role?     @relation(fields: [roleID], references: [roleID], onDelete: NoAction, onUpdate: NoAction, map: "project_permission_ibfk_3")
-  project_project_permission_projectIDToproject           project?  @relation("project_permission_projectIDToproject", fields: [projectID], references: [projectID], onDelete: NoAction, onUpdate: NoAction, map: "project_permission_ibfk_4")
-
-  @@index([projectID], map: "projectID")
-  @@index([roleID], map: "roleID")
-  @@index([userID], map: "userID")
-}
-
-model repository {
-  repositoryID           Int       @id @default(autoincrement())
-  projectID              Int?
-  repositoryName         String?   @db.VarChar(255)
-  repositoryDescription  String?   @db.VarChar(255)
-  repositoryVersion      String?   @db.VarChar(255)
-  repositoryContent      String?   @db.LongText
-  repositoryStatus       String?   @db.VarChar(255)
-  repositoryCreatedDate  DateTime? @db.DateTime(0)
-  repositoryModifiedDate DateTime? @db.DateTime(0)
-  project                project?  @relation(fields: [projectID], references: [projectID], onDelete: NoAction, onUpdate: NoAction, map: "repository_ibfk_1")
-
-  @@index([projectID], map: "projectID")
-  @@index([repositoryStatus], map: "repositoryStatus")
-}
-
-model thread {
-  threadID           Int        @id @default(autoincrement())
-  userID             Int?
-  assistantID        Int?
-  threadTitle        String?    @db.VarChar(255)
-  threadOAIID        String?    @unique(map: "threadOAIID") @db.VarChar(255)
-  threadStatus       Int?
-  threadCreatedDate  DateTime?  @db.DateTime(0)
-  threadModifiedDate DateTime?  @db.DateTime(0)
-  chat               chat[]
-  assistant          assistant? @relation(fields: [assistantID], references: [assistantID], onDelete: NoAction, onUpdate: NoAction, map: "thread_ibfk_1")
-  user               user?      @relation(fields: [userID], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "thread_ibfk_2")
-  lookup             lookup?    @relation(fields: [threadStatus], references: [lookupID], onDelete: NoAction, onUpdate: NoAction, map: "thread_ibfk_3")
-
-  @@index([assistantID], map: "assistantID")
-  @@index([userID], map: "userID")
-  @@index([threadStatus], map: "threadStatus")
 }

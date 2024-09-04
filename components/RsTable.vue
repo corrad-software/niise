@@ -63,9 +63,9 @@ const props = defineProps({
 
 // Default varaiable
 const columnTitle = ref([]);
-const dataTable = ref(props.data);
+const dataTable = ref([]);
 const dataTitle = ref([]);
-const dataLength = ref(props.data.length);
+const dataLength = ref(0);
 
 // Advanced Option Variable
 const currentSort = ref(0);
@@ -145,12 +145,21 @@ const spacingCharactertoCamelCase = (array) => {
 watch(
   () => [props.data, props.field],
   () => {
-    if (props.field && props.field.length > 0) {
-      columnTitle.value = spacingCharactertoCamelCase(props.field);
-      dataTitle.value = spacingCharactertoCamelCase(props.field);
+    if (props.data && props.data.length > 0) {
+      dataTable.value = props.data;
+      dataLength.value = props.data.length;
+      if (props.field && props.field.length > 0) {
+        columnTitle.value = spacingCharactertoCamelCase(props.field);
+        dataTitle.value = spacingCharactertoCamelCase(props.field);
+      } else {
+        columnTitle.value = Object.keys(dataTable.value[0]);
+        dataTitle.value = Object.keys(dataTable.value[0]);
+      }
     } else {
-      columnTitle.value = Object.keys(dataTable.value[0]);
-      dataTitle.value = Object.keys(dataTable.value[0]);
+      dataTable.value = [];
+      dataLength.value = 0;
+      columnTitle.value = [];
+      dataTitle.value = [];
     }
   },
   { immediate: true }
@@ -196,7 +205,9 @@ const filteredDatabyTitle = (data, title) => {
 };
 
 onMounted(() => {
-  setColumnTitle(dataTable.value[0]);
+  if (dataTable.value.length > 0) {
+    setColumnTitle(dataTable.value[0]);
+  }
 });
 
 // Computed data
@@ -422,7 +433,7 @@ watch(
 
 <template>
   <div
-    v-if="data && data.length > 0 && dataTable && dataTable.length > 0"
+    v-if="dataTable && dataTable.length > 0"
     class="table-wrapper"
     :class="{
       '!border': advanced && !hideTable && optionsAdvanced.outsideBorder,
@@ -463,7 +474,6 @@ watch(
               <span class="hidden sm:block">Filter</span>
             </rs-button>
           </div>
-          <!-- <rs-button class="mt-2">asdaasd</rs-button> -->
         </div>
         <div class="flex justify-center items-center gap-x-2">
           <span class="text-[rgb(var(--text-color))]">Result per page:</span>
@@ -473,11 +483,6 @@ watch(
             :options="[5, 10, 25, 100]"
             outer-class="mb-0"
           />
-          <!-- <v-select
-            :options="[5, 10, 25, 100]"
-            v-model="pageSize"
-            :clearable="false"
-          ></v-select> -->
         </div>
       </div>
       <div
@@ -776,5 +781,8 @@ watch(
         </rs-button>
       </div>
     </div>
+  </div>
+  <div v-else class="table-wrapper p-4 text-center">
+    <p class="text-[rgb(var(--text-color))]">No data found</p>
   </div>
 </template>
