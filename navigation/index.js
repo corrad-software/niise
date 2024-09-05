@@ -27,6 +27,18 @@ export default [
           // },
         ],
       },
+      {
+        title: "FOR-02",
+        icon: "ph:number-circle-two-fill",
+        child: [
+          {
+            title: "Pengesanan Penyamaran",
+            path: "/pengesanan-penyamaran/senarai",
+            child: [],
+            meta: {},
+          },
+        ],
+      },
     ],
   },
   {

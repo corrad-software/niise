@@ -31,14 +31,14 @@ const redirectClearError = () => {
           <div class="flex-1 text-center md:text-left items-center">
             <span class="block mb-2 font-bold text-2xl md:text-3xl">Oops!</span>
             <p class="text-lg md:text-xl font-base">
-              The page you are looking for does not exist.
+              Halaman yang anda cari tidak ada.
             </p>
 
             <button
               @click="redirectClearError"
-              class="mt-5 w-fit rounded-lg flex justify-center items-center h-fit text-sm px-8 py-2.5 text-white bg-[#F3586A] hover:bg-[#F3586A]/90 disabled:bg-[#F3586A]/30 disabled:text-[#F3586A]/50 disabled:border-primary/5 disabled:cursor-default"
+              class="mt-5 w-fit rounded-lg flex justify-center items-center h-fit text-sm px-8 py-2.5 text-white bg-[#00A59A] hover:bg-[#00A59A]/90 disabled:bg-[#00A59A]/30 disabled:text-[#00A59A]/50 disabled:border-primary/5 disabled:cursor-default"
             >
-              Back to Home
+              Kembali ke halaman utama
             </button>
           </div>
         </div>
