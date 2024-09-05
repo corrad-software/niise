@@ -62,7 +62,7 @@
         <div class="space-y-4">
           <h2 class="text-xl font-semibold">Butiran Pegawai</h2>
           <div
-            v-for="role in ['PENYIASAT', 'PENGHANTAR', 'PENERIMA', 'PEMERIKSA']"
+            v-for="role in ['PENYIASAT', 'PENGHANTAR', 'PEMERIKSA', 'PENERIMA']"
             :key="role"
             class="grid grid-cols-1 md:grid-cols-3 gap-4"
           >
@@ -71,8 +71,6 @@
               :name="`pegawai.${role}.nama`"
               :label="`${role} - Nama`"
               v-model="generatedData.pegawai[role].nama"
-              validation="required"
-              :validation-messages="{ required: 'Nama diperlukan' }"
               disabled
             />
             <FormKit
@@ -80,8 +78,6 @@
               :name="`pegawai.${role}.pangkat`"
               :label="`${role} - Pangkat`"
               v-model="generatedData.pegawai[role].pangkat"
-              validation="required"
-              :validation-messages="{ required: 'Pangkat diperlukan' }"
               disabled
             />
             <FormKit
@@ -89,8 +85,6 @@
               :name="`pegawai.${role}.noPegawai`"
               :label="`${role} - No Pegawai`"
               v-model="generatedData.pegawai[role].noPegawai"
-              validation="required"
-              :validation-messages="{ required: 'No Pegawai diperlukan' }"
               disabled
             />
           </div>
@@ -99,6 +93,7 @@
         <!-- Peralatan and Langkah2 -->
         <div class="space-y-4">
           <FormKit
+            v-model="generatedData.peralatan"
             type="textarea"
             name="peralatan"
             label="Peralatan"
@@ -107,6 +102,7 @@
             :rows="3"
           />
           <FormKit
+            v-model="generatedData.langkah2"
             type="textarea"
             name="langkah2"
             label="Langkah-langkah"
@@ -118,10 +114,11 @@
 
         <!-- Dapatan -->
         <FormKit
+          v-model="generatedData.dapatan.value"
           type="radio"
           name="dapatan"
           label="Dapatan"
-          :options="['Tulen', 'Palsu', 'Tidak dapat dikenalpasti']"
+          :options="dapatanOptions"
           validation="required"
           :validation-messages="{ required: 'Dapatan diperlukan' }"
         />
@@ -130,7 +127,7 @@
         <div>
           <h2 class="text-xl font-semibold mb-2">Document Tambahan</h2>
           <FormKit type="list" name="documentTambahan" :value="[]">
-            <FormKit type="group" :repeatable="true" :key="index">
+            <FormKit type="group" :repeatable="true">
               <div class="flex items-center space-x-2">
                 <FormKit
                   type="text"
@@ -152,7 +149,7 @@
         </div>
 
         <div class="flex justify-end gap-2">
-          <rs-button btn-type="reset" @click="previousPage()"
+          <rs-button variant="danger" btn-type="reset" @click="previousPage()"
             >Kembali</rs-button
           >
           <rs-button type="submit" btn-type="submit">Hantar Laporan</rs-button>
@@ -167,8 +164,9 @@ import { useRoute } from "vue-router";
 import { ref, onMounted } from "vue";
 import { jsPDF } from "jspdf";
 
+const { $swal } = useNuxtApp();
 const route = useRoute();
-const bahanBukti = route.params.bahanBukti;
+const reportID = route.params.reportID;
 
 const generatedData = ref({
   kesId: "",
@@ -178,89 +176,119 @@ const generatedData = ref({
   pegawai: {
     PENYIASAT: { nama: "", pangkat: "", noPegawai: "" },
     PENGHANTAR: { nama: "", pangkat: "", noPegawai: "" },
-    PENERIMA: { nama: "", pangkat: "", noPegawai: "" },
     PEMERIKSA: { nama: "", pangkat: "", noPegawai: "" },
+    PENERIMA: { nama: "", pangkat: "", noPegawai: "" },
   },
   peralatan: "",
   langkah2: "",
   dapatan: "",
   documentTambahan: [],
 });
+// State to store dapatan options
+const dapatanOptions = ref([]);
 
-onMounted(() => {
-  // Simulate fetching system-generated data
-  generatedData.value = {
-    kesId: `KES${Math.floor(Math.random() * 1000000)
-      .toString()
-      .padStart(6, "0")}`,
-    tagNo: `TAG${Math.floor(Math.random() * 10000)
-      .toString()
-      .padStart(4, "0")}`,
-    jenisBrg: ["Dokumen", "Elektronik", "Senjata"][
-      Math.floor(Math.random() * 3)
-    ],
-    jenisPemeriksaan: ["Forensik", "Visual", "Kimia"][
-      Math.floor(Math.random() * 3)
-    ],
-    pegawai: {
-      PENYIASAT: generatePegawai("KB"),
-      PENGHANTAR: generatePegawai(),
-      PENERIMA: generatePegawai(),
-      PEMERIKSA: generatePegawai(),
-    },
-  };
+// Fetch dapatan options from the lookup API
+const fetchDapatanOptions = async () => {
+  try {
+    const { data } = await useFetch("/api/lookup?type=dapatan");
+    if (data.value.statusCode === 200) {
+      dapatanOptions.value = data.value.data.map((item) => ({
+        label: item.label,
+        value: item.value,
+      }));
+    } else {
+      $swal.fire("Error", "Failed to fetch dapatan options.", "error");
+    }
+  } catch (error) {
+    $swal.fire("Error", "Failed to load dapatan options.", "error");
+  }
+};
+
+onMounted(async () => {
+  try {
+    const { data } = await useFetch(`/api/laporan/${reportID}`);
+    if (data.value.statusCode === 200) {
+      generatedData.value = {
+        ...generatedData.value, // Keep the default structure
+        ...data.value.data, // Merge API data
+      };
+    } else {
+      $swal.fire("Error", "Failed to fetch report data.", "error");
+    }
+
+    // Fetch dapatan options on mount
+    await fetchDapatanOptions();
+  } catch (error) {
+    $swal.fire("Error", "Failed to load data.", "error");
+  }
 });
 
-function generatePegawai(role = "") {
-  const names = ["Ahmad", "Siti", "Mohd", "Nurul", "Lim", "Raj"];
-  const surnames = ["Abdullah", "Tan", "Kumar", "Lee", "Muthu", "Hassan"];
-  const pangkat = ["Inspektor", "Sarjan", "Koperal", "Konstabel"];
+// function generatePegawai(role = "") {
+//   const names = ["Ahmad", "Siti", "Mohd", "Nurul", "Lim", "Raj"];
+//   const surnames = ["Abdullah", "Tan", "Kumar", "Lee", "Muthu", "Hassan"];
+//   const pangkat = ["Inspektor", "Sarjan", "Koperal", "Konstabel"];
 
-  return {
-    nama: `${names[Math.floor(Math.random() * names.length)]} ${
-      surnames[Math.floor(Math.random() * surnames.length)]
-    }`,
-    pangkat:
-      role === "KB"
-        ? "Ketua Bahagian"
-        : pangkat[Math.floor(Math.random() * pangkat.length)],
-    noPegawai: `P${Math.floor(Math.random() * 100000)
-      .toString()
-      .padStart(5, "0")}`,
-  };
-}
+//   return {
+//     nama: `${names[Math.floor(Math.random() * names.length)]} ${
+//       surnames[Math.floor(Math.random() * surnames.length)]
+//     }`,
+//     pangkat:
+//       role === "KB"
+//         ? "Ketua Bahagian"
+//         : pangkat[Math.floor(Math.random() * pangkat.length)],
+//     noPegawai: `P${Math.floor(Math.random() * 100000)
+//       .toString()
+//       .padStart(5, "0")}`,
+//   };
+// }
 
 const submitForm = async (formData) => {
-  console.log("Form submitted:", formData);
-  // Implement your API call or form submission logic here
+  try {
+    const { data } = await useFetch(`/api/laporan/${reportID}`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (data.value.statusCode === 200) {
+      $swal.fire("Success", "Report updated successfully", "success");
+    } else {
+      $swal.fire("Error", data.value.message, "error");
+    }
+  } catch (error) {
+    $swal.fire("Error", "Failed to submit report", "error");
+  }
 };
 
 const generatePDF = () => {
   const doc = new jsPDF();
-  
+
   // Set font sizes
   const titleSize = 16;
   const subtitleSize = 14;
   const normalSize = 10;
-  
+
   // Add title
   doc.setFontSize(titleSize);
   doc.text("Laporan Bahan Bukti", 105, 20, { align: "center" });
-  
+
   // Add case details
   doc.setFontSize(subtitleSize);
   doc.text("Butiran Kes", 20, 40);
-  
+
   doc.setFontSize(normalSize);
   doc.text(`KES ID: ${generatedData.value.kesId}`, 30, 50);
   doc.text(`TAG NO: ${generatedData.value.tagNo}`, 30, 60);
   doc.text(`Jenis Barang: ${generatedData.value.jenisBrg}`, 30, 70);
-  doc.text(`Jenis Pemeriksaan: ${generatedData.value.jenisPemeriksaan}`, 30, 80);
-  
+  doc.text(
+    `Jenis Pemeriksaan: ${generatedData.value.jenisPemeriksaan}`,
+    30,
+    80
+  );
+
   // Add officer details
   doc.setFontSize(subtitleSize);
   doc.text("Butiran Pegawai", 20, 100);
-  
+
   doc.setFontSize(normalSize);
   let yPos = 110;
   for (const [role, officer] of Object.entries(generatedData.value.pegawai)) {
@@ -270,28 +298,39 @@ const generatePDF = () => {
     doc.text(`No Pegawai: ${officer.noPegawai}`, 40, yPos + 30);
     yPos += 45;
   }
-  
+
   // Add examination details
   doc.setFontSize(subtitleSize);
   doc.text("Butiran Pemeriksaan", 20, yPos);
-  
+
   doc.setFontSize(normalSize);
-  doc.text(`Peralatan: ${generatedData.value.peralatan || "N/A"}`, 30, yPos + 10);
-  doc.text(`Langkah-langkah: ${generatedData.value.langkah2 || "N/A"}`, 30, yPos + 20);
+  doc.text(
+    `Peralatan: ${generatedData.value.peralatan || "N/A"}`,
+    30,
+    yPos + 10
+  );
+  doc.text(
+    `Langkah-langkah: ${generatedData.value.langkah2 || "N/A"}`,
+    30,
+    yPos + 20
+  );
   doc.text(`Dapatan: ${generatedData.value.dapatan || "N/A"}`, 30, yPos + 30);
-  
+
   // Add additional documents
-  if (generatedData.value.documentTambahan && generatedData.value.documentTambahan.length > 0) {
-    yPos += 50;
-    doc.setFontSize(subtitleSize);
-    doc.text("Dokumen Tambahan", 20, yPos);
-    
-    doc.setFontSize(normalSize);
-    generatedData.value.documentTambahan.forEach((doc, index) => {
-      doc.text(`${index + 1}. ${doc.nama}`, 30, yPos + 10 + (index * 10));
-    });
-  }
-  
+  // if (
+  //   generatedData.value.documentTambahan &&
+  //   generatedData.value.documentTambahan.length > 0
+  // ) {
+  //   yPos += 50;
+  //   doc.setFontSize(subtitleSize);
+  //   doc.text("Dokumen Tambahan", 20, yPos);
+
+  //   doc.setFontSize(normalSize);
+  //   generatedData.value.documentTambahan.forEach((doc, index) => {
+  //     doc.text(`${index + 1}. ${doc.nama}`, 30, yPos + 10 + index * 10);
+  //   });
+  // }
+
   // Generate and download the PDF
   doc.save(`Laporan_${generatedData.value.kesId}.pdf`);
 };

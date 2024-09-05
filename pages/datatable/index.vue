@@ -159,7 +159,7 @@ const showTooltip = (codeId, message) => {
           }"
           :options-advanced="{
             sortable: true,
-            responsive: true,
+            
             filterable: false,
           }"
           advanced
@@ -217,7 +217,7 @@ const showTooltip = (codeId, message) => {
                         }"
                         :options-advanced="{
                           sortable: true,
-                          responsive: true,
+                          
                           filterable: false,
                         }"
                         advanced

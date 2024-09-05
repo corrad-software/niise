@@ -4,21 +4,25 @@
     <rs-card class="p-6">
       <div class="flex justify-between items-center">
         <h3 class="text-lg font-semibold">Status Semakan</h3>
-        <rs-badge :variant="statusSemakan === 'Selesai' ? 'success' : 'warning'">
+        <rs-badge
+          :variant="statusSemakan === 'Selesai' ? 'success' : 'warning'"
+        >
           {{ statusSemakan }}
         </rs-badge>
       </div>
       <div class="flex justify-between items-center mt-4">
         <h3 class="text-lg font-semibold">Status Penerimaan</h3>
-        <rs-badge :variant="statusPenerimaan === 'Diterima' ? 'success' : 'danger'">
+        <rs-badge
+          :variant="statusPenerimaan === 'Diterima' ? 'success' : 'danger'"
+        >
           {{ statusPenerimaan }}
         </rs-badge>
       </div>
 
-      <div class="flex gap-2 justify-end mt-5">
-        <rs-button @click="openSemakModal">Semak</rs-button>
-        <rs-button @click="openTerimaModal">Terima</rs-button>
-        <rs-button @click="openTolakModal">Tolak</rs-button>
+      <div class="flex gap-2 mt-5">
+        <rs-button @click="openSemakModal" variant="primary">Semak</rs-button>
+        <rs-button @click="openTerimaModal" variant="success">Terima</rs-button>
+        <rs-button @click="openTolakModal" variant="danger">Tolak</rs-button>
       </div>
     </rs-card>
 
@@ -45,7 +49,7 @@
         }"
         :options-advanced="{
           sortable: true,
-          responsive: true,
+          
           filterable: false,
         }"
         advanced
@@ -70,13 +74,17 @@
         <template v-slot:tindakan="data">
           <div class="flex gap-2">
             <rs-button
-              @click="openEditModal(data.text, data.index)"
+              @click="openEditModal(data.text.userID, data.text.assignID)"
               variant="info"
               size="sm"
             >
               <Icon name="ic:baseline-edit" size="1.2rem" />
             </rs-button>
-            <rs-button @click="confirmDelete(data.text)" variant="danger" size="sm">
+            <rs-button
+              @click="confirmDelete(data.text.userID, data.text.assignID)"
+              variant="danger"
+              size="sm"
+            >
               <Icon name="ic:baseline-delete" size="1.2rem" />
             </rs-button>
           </div>
@@ -91,6 +99,7 @@
     <rs-card class="p-6">
       <h3 class="text-lg font-semibold mb-4">Bahan Bukti</h3>
       <rs-table
+        v-if="evidences.length > 0"
         :data="evidences"
         :options="{
           variant: 'default',
@@ -99,7 +108,7 @@
         }"
         :options-advanced="{
           sortable: true,
-          responsive: true,
+          
           filterable: false,
         }"
         advanced
@@ -113,9 +122,6 @@
             <th>Kuantiti</th>
             <th>Tindakan</th>
           </tr>
-        </template>
-        <template v-slot:no="data">
-          {{ data.text }}
         </template>
         <template v-slot:jenisBarang="data">
           {{ data.text }}
@@ -140,6 +146,9 @@
           </rs-button>
         </template>
       </rs-table>
+      <div v-else class="text-center p-10">
+        <p>Tidak ada bahan bukti yang terlibat.</p>
+      </div>
     </rs-card>
 
     <!-- Add/Edit Modal -->
@@ -172,7 +181,6 @@
       <template #footer> </template>
     </rs-modal>
 
-    <!-- Semak Modal -->
     <rs-modal v-model="showSemakModal" @close="closeSemakModal">
       <template #header>
         <h3>Semak Maklumat</h3>
@@ -227,8 +235,10 @@
             validation="required"
           />
           <div class="flex justify-end gap-2 mt-4">
-            <rs-button variant="danger" @click="closeSemakModal">Batal</rs-button>
-            <rs-button variant="primary" type="submit">Hantar</rs-button>
+            <rs-button variant="danger" @click="closeSemakModal"
+              >Batal</rs-button
+            >
+            <rs-button variant="primary" btn-type="submit">Hantar</rs-button>
           </div>
         </FormKit>
 
@@ -255,8 +265,10 @@
             }"
           />
           <div class="flex justify-end gap-2 mt-4">
-            <rs-button variant="danger" @click="closeSemakModal">Batal</rs-button>
-            <rs-button variant="primary" type="submit">Hantar</rs-button>
+            <rs-button variant="danger" @click="closeSemakModal"
+              >Batal</rs-button
+            >
+            <rs-button variant="primary" btn-type="submit">Hantar</rs-button>
           </div>
         </FormKit>
       </template>
@@ -314,8 +326,10 @@
             validation="required"
           />
           <div class="flex justify-end gap-2 mt-4">
-            <rs-button variant="danger" @click="closeTerimaModal">Batal</rs-button>
-            <rs-button variant="primary" type="submit">Hantar</rs-button>
+            <rs-button variant="danger" @click="closeTerimaModal"
+              >Batal</rs-button
+            >
+            <rs-button variant="primary" btn-type="submit">Hantar</rs-button>
           </div>
         </FormKit>
       </template>
@@ -335,12 +349,7 @@
             type="select"
             name="sebabPenolakan"
             label="Sebab penolakan permohonan"
-            :options="[
-              'Dokumen tidak lengkap',
-              'Maklumat tidak tepat',
-              'Tidak memenuhi syarat',
-              'Lain-lain',
-            ]"
+            :options="sebabPenolakanOptions"
             validation="required"
             :validation-messages="{
               required: 'Sila pilih sebab penolakan',
@@ -356,8 +365,10 @@
             }"
           />
           <div class="flex justify-end gap-2 mt-4">
-            <rs-button variant="secondary" @click="closeTolakModal">Batal</rs-button>
-            <rs-button variant="danger" type="submit">Hantar</rs-button>
+            <rs-button variant="secondary" @click="closeTolakModal"
+              >Batal</rs-button
+            >
+            <rs-button variant="danger" btn-type="submit">Hantar</rs-button>
           </div>
         </FormKit>
       </template>
@@ -369,127 +380,294 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
-
 definePageMeta({
   layout: "default",
 });
 
+const route = useRoute();
 const { $swal } = useNuxtApp();
 
 // Status data
 const statusSemakan = ref("Selesai");
 const statusPenerimaan = ref("Diterima");
 
-// Forensic Officers Data
+// State variables
+const showModal = ref(false);
 const forensicOfficers = ref([]);
-
-// Evidence Data
-const evidences = ref([
-  {
-    no: 1,
-    jenisBarang: "Dokumen",
-    tagNo: "TAG001",
-    keadaan: "Baik",
-    kuantiti: 3,
-    tindakan: 1,
-  },
-  {
-    no: 2,
-    jenisBarang: "Peralatan Elektronik",
-    tagNo: "TAG002",
-    keadaan: "Rosak",
-    kuantiti: 5,
-    tindakan: 2,
-  },
-]);
-
-// User Roles
+const pegawaiOption = ref([]);
+const selectedPegawai = ref(null);
+const editMode = ref(false);
+const currentOfficerID = ref(null);
+const currentAssignID = ref(null);
 const isKetuaBahagian = ref(true);
 const isKetuaJabatan = ref(false);
 
-// Modal Controls
-const showModal = ref(false);
-const editMode = ref(false);
-const selectedPegawai = ref(null);
+const sebabPenolakanOptions = ref([]);
 
-// Sample pegawai listing (simulating API response)
-const pegawaiList = ref([]);
-const pegawaiOption = ref([
-  {
-    value: null,
-    label: "Pilih Pegawai",
-  },
-]);
+// Evidence Data
+const evidences = ref([]);
 
-// Fetch pegawai list (simulated API call)
-const fetchPegawaiList = () => {
-  // In a real scenario, this would be an API call
-  pegawaiList.value = [
-    {
-      id: "PG001",
-      nama: "Ahmad bin Ali",
-      pangkat: "Inspektor",
-      noPegawai: "PG12345",
-      tindakan: 1,
-    },
-    {
-      id: "PG002",
-      nama: "Siti binti Omar",
-      pangkat: "Sarjan",
-      noPegawai: "PG67890",
-      tindakan: 2,
-    },
-    {
-      id: "PG003",
-      nama: "Muthu a/l Rajan",
-      pangkat: "Koperal",
-      noPegawai: "PG24680",
-      tindakan: 3,
-    },
-  ];
+// Fetch the status data
+const fetchStatusData = async () => {
+  try {
+    const { data } = await useFetch(
+      `/api/permohonan/${route.params.noSiri}/status`
+    );
+
+    if (data.value.statusCode === 200) {
+      statusSemakan.value = data.value.data.statusSemakan || "Belum Disemak";
+      statusPenerimaan.value =
+        data.value.data.statusPenerimaan || "Belum Diterima";
+    } else {
+      $swal.fire(
+        "Error",
+        "Gagal mendapatkan status semakan dan penerimaan.",
+        "error"
+      );
+    }
+  } catch (error) {
+    $swal.fire("Error", "Gagal memuatkan data status.", "error");
+  }
 };
 
-onMounted(() => {
-  fetchPegawaiList();
+// Fetch reports (Bahan Bukti)
+const fetchReports = async () => {
+  try {
+    const { data } = await useFetch(
+      `/api/permohonan/${route.params.noSiri}/reports`
+    );
 
-  for (let index = 0; index < pegawaiList.value.length; index++) {
-    pegawaiOption.value.push({
-      value: pegawaiList.value[index].tindakan,
-      label: `${pegawaiList.value[index].pangkat} ${pegawaiList.value[index].nama} (${pegawaiList.value[index].noPegawai})`,
-    });
+    if (data.value.statusCode === 200) {
+      evidences.value = data.value.data || [];
+    }
+  } catch (error) {
+    console.error("Error fetching reports:", error);
+    $swal.fire("Error", "Gagal mendapatkan senarai bahan bukti.", "error");
   }
-});
+};
 
-// Computed property for form validation
-const isFormValid = computed(() => {
-  return (
-    // filter pegawaiList based on selectedPegawai
-    pegawaiList.value.filter((p) => p.tindakan === selectedPegawai.value)
-  );
-});
+// Fetch existing forensic officers and available officers
+const fetchAssignedOfficers = async () => {
+  try {
+    const { data } = await useFetch(
+      `/api/permohonan/${route.params.noSiri}/forensik/list`
+    );
+    if (data.value.statusCode === 200) {
+      forensicOfficers.value = data.value.data || [];
+    }
+  } catch (error) {
+    console.error("Error fetching forensic officers:", error);
+    $swal.fire("Error", "Gagal mendapatkan senarai pegawai forensik.", "error");
+  }
+};
 
-// Actions
+const fetchAvailableOfficers = async () => {
+  try {
+    const { data } = await useFetch(
+      `/api/permohonan/${route.params.noSiri}/forensik/available`
+    );
+
+    if (data.value.statusCode === 200) {
+      pegawaiOption.value = data.value.data || [];
+    }
+  } catch (error) {
+    console.error("Error fetching available officers:", error);
+    $swal.fire("Error", "Gagal mendapatkan senarai pegawai tersedia.", "error");
+  }
+};
+
+const fetchSebabPenolakanOptions = async () => {
+  try {
+    const { data } = await useFetch("/api/lookup?type=sebab_penolakan");
+    if (data.value.statusCode === 200) {
+      sebabPenolakanOptions.value = data.value.data;
+    } else {
+      $swal.fire("Error", "Failed to fetch sebab penolakan options", "error");
+    }
+  } catch (error) {
+    $swal.fire("Error", "Failed to load lookup data", "error");
+  }
+};
+
+// Open modals
 const openAddModal = () => {
   editMode.value = false;
   selectedPegawai.value = null;
+  fetchAvailableOfficers();
   showModal.value = true;
 };
 
-const openEditModal = (pegawai, index) => {
+const openEditModal = (userID, assignID) => {
   editMode.value = true;
-  selectedPegawai.value = pegawai;
-
-  console.log(selectedPegawai.value);
-  console.log("index", index);
+  currentOfficerID.value = userID;
+  currentAssignID.value = assignID;
+  selectedPegawai.value = null;
+  fetchAvailableOfficers(); // Get updated available officers for edit mode
   showModal.value = true;
 };
 
+const confirmDelete = (userID, assignID) => {
+  $swal
+    .fire({
+      title: "Apakah anda pasti?",
+      text: "Anda tidak akan dapat mengembalikannya!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Ya, hapus!",
+    })
+    .then((result) => {
+      if (result.isConfirmed) {
+        deletePegawai(userID, assignID);
+      }
+    });
+};
+
+// Close modal
 const closeModal = () => {
   showModal.value = false;
   selectedPegawai.value = null;
 };
 
+// Add new officer
+const addNewPegawai = async () => {
+  try {
+    const response = await useFetch(
+      `/api/permohonan/${route.params.noSiri}/forensik/add`,
+      {
+        method: "POST",
+        body: { pegawaiID: selectedPegawai.value },
+      }
+    );
+
+    if (response.data.value.statusCode === 200) {
+      await fetchAssignedOfficers();
+      $swal.fire("Berjaya", "Pegawai baru telah ditambah", "success");
+      closeModal();
+    } else {
+      $swal.fire("Error", response.data.message, "error");
+    }
+  } catch (error) {
+    $swal.fire("Error", "Gagal menambah pegawai.", "error");
+  }
+};
+
+// Edit existing officer
+const updatePegawai = async () => {
+  try {
+    const response = await useFetch(
+      `/api/permohonan/${route.params.noSiri}/forensik/edit`,
+      {
+        method: "PUT",
+        body: {
+          assignID: currentAssignID.value,
+          newPegawaiID: selectedPegawai.value,
+        },
+      }
+    );
+
+    if (response.data.value.statusCode === 200) {
+      await fetchAssignedOfficers(); // Refresh the list of officers
+      $swal.fire("Berjaya", "Maklumat pegawai telah dikemaskini", "success");
+      closeModal();
+    } else {
+      $swal.fire("Error", response.data.message, "error");
+    }
+  } catch (error) {
+    $swal.fire("Error", "Gagal mengemaskini maklumat pegawai.", "error");
+  }
+};
+
+// Delete officer
+const deletePegawai = async (officer, assignID) => {
+  try {
+    const response = await useFetch(
+      `/api/permohonan/${route.params.noSiri}/forensik/delete`,
+      {
+        method: "DELETE",
+        body: { assignID: assignID },
+      }
+    );
+
+    if (response.data.value.statusCode === 200) {
+      await fetchAssignedOfficers();
+      $swal.fire("Dihapuskan!", "Pegawai telah dipadam.", "success");
+    } else {
+      $swal.fire("Error", response.data.message, "error");
+    }
+  } catch (error) {
+    $swal.fire("Error", "Gagal memadam pegawai.", "error");
+  }
+};
+
+// Submit Semak form
+const handleSemakSubmit = async (formData) => {
+  try {
+    const response = await useFetch(
+      `/api/permohonan/${route.params.noSiri}/semak`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+    if (response.data.value.statusCode === 200) {
+      $swal.fire("Berjaya", "Maklumat semakan telah disimpan", "success");
+      await fetchStatusData();
+    } else {
+      $swal.fire("Error", response.data.message, "error");
+    }
+  } catch (error) {
+    $swal.fire("Error", "Gagal menyimpan semakan.", "error");
+  }
+  closeSemakModal();
+};
+
+// Submit Terima form
+const handleTerimaSubmit = async (formData) => {
+  try {
+    const response = await useFetch(
+      `/api/permohonan/${route.params.noSiri}/terima`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+    if (response.data.value.statusCode === 200) {
+      $swal.fire("Berjaya", "Permohonan telah diterima", "success");
+      await fetchStatusData();
+    } else {
+      $swal.fire("Error", response.data.message, "error");
+    }
+  } catch (error) {
+    $swal.fire("Error", "Gagal menerima permohonan.", "error");
+  }
+  closeTerimaModal();
+};
+
+// Submit Tolak form
+const handleTolakSubmit = async (formData) => {
+  try {
+    const response = await useFetch(
+      `/api/permohonan/${route.params.noSiri}/tolak`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+    if (response.data.value.statusCode === 200) {
+      $swal.fire("Berjaya", "Permohonan telah ditolak", "success");
+      navigateTo("/kemaskini-daftar/senarai");
+    } else {
+      $swal.fire("Error", response.data.message, "error");
+    }
+  } catch (error) {
+    $swal.fire("Error", "Gagal menolak permohonan.", "error");
+  }
+  closeTolakModal();
+};
+
+// Handle form submission (add/edit)
 const handleSubmit = () => {
   if (editMode.value) {
     updatePegawai();
@@ -498,93 +676,15 @@ const handleSubmit = () => {
   }
 };
 
-const addNewPegawai = () => {
-  console.log(selectedPegawai.value);
-  if (selectedPegawai.value) {
-    const selectedPegawai_ = pegawaiList.value.find(
-      (p) => p.tindakan === selectedPegawai.value
-    );
-    if (selectedPegawai_) {
-      const newPegawai = {
-        ...selectedPegawai_,
-        tindakan: selectedPegawai_.tindakan,
-      };
-      forensicOfficers.value.push(newPegawai);
-      $swal.fire("Berjaya", "Pegawai baru telah ditambah", "success");
-      closeModal();
-    } else {
-      $swal.fire("Ralat", "Pegawai tidak dijumpai", "error");
-    }
-  } else {
-    $swal.fire("Ralat", "Sila pilih pegawai", "error");
-  }
-};
-
-const updatePegawai = () => {
-  console.log("masuk uodate");
-  if (selectedPegawai.value) {
-    console.log(selectedPegawai.value);
-    const selectedPegawai_ = pegawaiList.value.find(
-      (p) => p.tindakan == selectedPegawai.value
-    );
-    console.log("selectedPegawai_", selectedPegawai_);
-    if (selectedPegawai_) {
-      const pegawaiFromSelectedPegawais = forensicOfficers.value.findIndex(
-        (officer) => officer.tindakan === selectedPegawai.value
-      );
-      console.log("pegawaiFromSelectedPegawais", pegawaiFromSelectedPegawais);
-      if (pegawai_ !== -1) {
-        forensicOfficers.value[pegawai_] = {
-          ...selectedPegawai_,
-          tindakan: selectedPegawai_.tindakan,
-        };
-        $swal.fire("Berjaya", "Maklumat pegawai telah dikemaskini", "success");
-        closeModal();
-      } else {
-        $swal.fire("Ralat", "Pegawai tidak dijumpai", "error");
-      }
-    } else {
-      $swal.fire("Ralat", "Pegawai tidak dijumpai", "error");
-    }
-  } else {
-    $swal.fire("Ralat", "Sila pilih pegawai", "error");
-  }
-};
-
-const confirmDelete = (pegawai) => {
-  $swal
-    .fire({
-      title: "Anda pasti?",
-      text: "Pegawai ini akan dipadamkan.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Ya, padam",
-      cancelButtonText: "Batal",
-    })
-    .then((result) => {
-      if (result.isConfirmed) {
-        deletePegawai(pegawai);
-      }
-    });
-};
-
-const deletePegawai = (pegawai) => {
-  const index = forensicOfficers.value.findIndex(
-    (officer) => officer.tindakan === pegawai
-  );
-  if (index !== -1) {
-    forensicOfficers.value.splice(index, 1);
-    $swal.fire("Dihapuskan!", "Pegawai telah dipadam.", "success");
-  } else {
-    $swal.fire("Ralat", "Pegawai tidak dijumpai", "error");
-  }
-};
+// Fetch officers when the component mounts
+onMounted(() => {
+  fetchStatusData();
+  fetchAssignedOfficers();
+  fetchReports(); // Fetch reports related to the permohonan
+});
 
 const generateReport = (bahanBukti) => {
   console.log("Generate Report for:", bahanBukti);
-
   navigateTo(`/kemaskini-daftar/laporan/${bahanBukti}`);
 };
 
@@ -600,25 +700,10 @@ const closeSemakModal = () => {
 };
 
 // User role (you might want to fetch this from your auth system)
-const userRole = ref("Pegawai Kaunter"); // Change this to 'ketuaBahagian' to test the other form
+const userRole = ref("Pegawai Kaunter"); // Change this to 'Ketua Bahagian' to test the other form
 
 // For ketua bahagian form
 const kelulusanKetuaBahagian = ref(null);
-
-const handleSemakSubmit = (formData) => {
-  console.log("Semak form submitted:", formData);
-  // Here you would typically send the data to your API
-  let successMessage = "";
-  if (userRole.value === "Pegawai Kaunter") {
-    successMessage = "Maklumat semakan telah disimpan";
-  } else if (userRole.value === "Ketua Bahagian") {
-    const decision =
-      formData.kelulusanKetuaBahagian === "Diterima" ? "diterima" : "ditolak";
-    successMessage = `Permohonan telah ${decision}. Ulasan: ${formData.ulasanKetuaBahagian}`;
-  }
-  $swal.fire("Berjaya", successMessage, "success");
-  closeSemakModal();
-};
 
 // Terima Modal Controls
 const showTerimaModal = ref(false);
@@ -631,53 +716,19 @@ const closeTerimaModal = () => {
   showTerimaModal.value = false;
 };
 
-const handleTerimaSubmit = (formData) => {
-  console.log("Terima form submitted:", formData);
-  // Here you would typically send the data to your API
-  let successMessage = "Permohonan telah diterima.";
-
-  // Check if any of the radio button answers are 'Tidak'
-  const hasNegativeResponse = [
-    "peralatanBaik",
-    "pegawaiBerkelayakan",
-    "kaedahDapatDilakukan",
-    "tugasanDiterima",
-  ].some((field) => formData[field] === "Tidak");
-
-  if (hasNegativeResponse) {
-    successMessage += " Namun, terdapat beberapa perkara yang perlu diberi perhatian.";
-  }
-
-  successMessage += ` Ulasan: ${formData.ulasanPegawaiKaunter}`;
-
-  $swal.fire("Berjaya", successMessage, "success");
-  closeTerimaModal();
-};
-
 // Tolak Modal Controls
 const showTolakModal = ref(false);
 
-const openTolakModal = () => {
+const openTolakModal = async () => {
+  await fetchSebabPenolakanOptions();
   showTolakModal.value = true;
 };
 
 const closeTolakModal = () => {
   showTolakModal.value = false;
 };
-
-const handleTolakSubmit = (formData) => {
-  console.log("Tolak form submitted:", formData);
-  // Here you would typically send the data to your API
-  let rejectionReason = formData.sebabPenolakan;
-  if (rejectionReason === "Lain-lain") {
-    rejectionReason += `: ${formData.lainLainSebab}`;
-  }
-
-  const successMessage = `Permohonan telah ditolak. Sebab: ${rejectionReason}`;
-
-  $swal.fire("Berjaya", successMessage, "success");
-  closeTolakModal();
-};
 </script>
 
-<style lang="scss" scoped></style>
+<style scoped>
+/* Your existing styles */
+</style>

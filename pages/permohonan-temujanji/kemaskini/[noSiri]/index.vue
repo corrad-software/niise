@@ -97,7 +97,11 @@
             <tbody>
               <tr v-for="(barang, index) in barangList" :key="index">
                 <td class="border border-gray-300 p-2">
-                  {{ getJenisBarangLabel(barang.jenisBarangDetail) }}
+                  {{
+                    barang.jenisBarangDetailLabel
+                      ? barang.jenisBarangDetailLabel
+                      : barang.jenisBarangDetail
+                  }}
                 </td>
                 <td class="border border-gray-300 p-2">
                   {{ barang.kuantitiBarang }}
@@ -406,9 +410,19 @@ const cancelBarangModal = () => {
 
 const saveBarangModal = () => {
   if (editingBarangIndex.value === null) {
-    barangList.value.push({ ...currentBarang.value });
+    barangList.value.push({
+      ...currentBarang.value,
+      jenisBarangDetailLabel: getJenisBarangLabel(
+        currentBarang.value.jenisBarangDetail
+      ),
+    });
   } else {
-    barangList.value[editingBarangIndex.value] = { ...currentBarang.value };
+    barangList.value[editingBarangIndex.value] = {
+      ...currentBarang.value,
+      jenisBarangDetailLabel: getJenisBarangLabel(
+        currentBarang.value.jenisBarangDetail
+      ),
+    };
   }
   isBarangModalOpen.value = false;
 };

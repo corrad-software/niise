@@ -1,5 +1,35 @@
 export default [
   {
+    header: "Forensik",
+    description: "",
+    child: [
+      {
+        title: "FOR-01",
+        icon: "ph:number-circle-one-fill",
+        child: [
+          {
+            title: "Permohonan Temujanji",
+            path: "/permohonan-temujanji/senarai",
+            child: [],
+            meta: {},
+          },
+          {
+            title: "Kaunter Semakan ",
+            path: "/kemaskini-daftar/senarai",
+            child: [],
+            meta: {},
+          },
+          // {
+          //   title: "Kemaskini Daftar",
+          //   path: "/kemaskini-daftar/senarai",
+          //   child: [],
+          //   meta: {},
+          // },
+        ],
+      },
+    ],
+  },
+  {
     header: "Utama",
     description: "",
     child: [
@@ -122,36 +152,7 @@ export default [
     ],
     meta: {},
   },
-  {
-    header: "Prototaip Forensik",
-    description: "",
-    child: [
-      {
-        title: "FOR-01",
-        icon: "ph:number-circle-one-fill",
-        child: [
-          {
-            title: "Permohonan Temujanji",
-            path: "/permohonan-temujanji/senarai",
-            child: [],
-            meta: {},
-          },
-          {
-            title: "Kaunter Semakan ",
-            path: "/kemaskini-daftar/senarai",
-            child: [],
-            meta: {},
-          },
-          // {
-          //   title: "Kemaskini Daftar",
-          //   path: "/kemaskini-daftar/senarai",
-          //   child: [],
-          //   meta: {},
-          // },
-        ],
-      },
-    ],
-  },
+
   {
     header: "Pengurusan",
     description: "",

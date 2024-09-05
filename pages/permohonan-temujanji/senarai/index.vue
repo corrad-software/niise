@@ -20,7 +20,6 @@
         }"
         :options-advanced="{
           sortable: true,
-          responsive: true,
           filterable: false,
         }"
         advanced
@@ -62,10 +61,7 @@
         <template v-slot:butiran="data">
           <div
             class="flex flex-wrap gap-2"
-            v-if="
-              data.value.status !== 'Sah' &&
-              data.value.status !== 'Permohonan Dihantar'
-            "
+            v-if="data.value.status === 'Permohonan Draf'"
           >
             <!-- Button to navigate to the "Kemaskini" page for the selected permohonan -->
             <rs-button

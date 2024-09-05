@@ -119,22 +119,13 @@ export default defineEventHandler(async (event) => {
 
     // Insert related `report` and `document` data
     for (const barang of barangList) {
-      //   await prisma.report.create({
-      //     data: {
-      //       permohonanID: newPermohonan.id,
-      //       jenis_barang: barang.jenisBarangDetail,
-      //       kuantiti_barang: barang.kuantitiBarang,
-      //       tanda_barang: barang.tandaBarang,
-      //       keadaan_barang: barang.keadaanBarang,
-      //       create_by: userID,
-      //       create_at: new Date(),
-      //     },
-      //   });
-
       await prisma.report.create({
         data: {
           permohonanID: newPermohonan.id,
           jenis_barang: barang.jenisBarangDetail,
+          kuantiti_barang: parseInt(barang.kuantitiBarang),
+          tanda_barang: barang.tandaBarang,
+          keadaan_barang: barang.keadaanBarang,
           create_by: userID,
           create_at: new Date(),
         },

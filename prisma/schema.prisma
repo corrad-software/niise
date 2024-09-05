@@ -106,8 +106,8 @@ model permohonan {
   penghantar                     penghantar?                  @relation(fields: [penghantarID], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "permohonan_ibfk_1")
   permohonan_assign_forensik     permohonan_assign_forensik[]
   permohonan_jenis_barang        permohonan_jenis_barang[]
-  permohonan_penerimaan          permohonan_penerimaan[]
-  permohonan_semakan             permohonan_semakan[]
+  permohonan_penerimaan          permohonan_penerimaan?
+  permohonan_semakan             permohonan_semakan?
   report                         report[]
 
   @@index([pemohonID], map: "idx_pemohon")
@@ -129,25 +129,24 @@ model permohonan_assign_forensik {
 
 model permohonan_penerimaan {
   penerimaanID           Int        @id @default(autoincrement())
-  permohonanID           Int
+  permohonanID           Int        @unique(map: "permohonanID")
   peralatan_keadaan_baik Int
   pegawai_berkelayakan   Int
   kaedah_dpt_dilakukan   Int
   subkontrak_diperlukan  Int
   tugasan_diterima       Int
-  ulasan_pegawai         Int?
+  ulasan_pegawai         String?    @db.Text
   create_at              DateTime   @db.DateTime(0)
   diterima_oleh          Int
   permohonan             permohonan @relation(fields: [permohonanID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_penerimaan_ibfk_1")
   user                   user       @relation(fields: [diterima_oleh], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_penerimaan_ibfk_2")
 
   @@index([diterima_oleh], map: "diterima_oleh")
-  @@index([permohonanID], map: "permohonanID")
 }
 
 model permohonan_penolakan {
   penolakanID     Int       @id @default(autoincrement())
-  permohonanID    Int
+  permohonanID    Int       @unique(map: "permohonanID")
   sebab_penolakan Int
   lain_sebab      String?   @db.VarChar(255)
   create_at       DateTime? @db.DateTime(0)
@@ -161,20 +160,19 @@ model permohonan_penolakan {
 
 model permohonan_semakan {
   semakanID              Int        @id @default(autoincrement())
-  permohonanID           Int
-  peralatan_keadaan_baik Int
-  pegawai_berkelayakan   Int
-  kaedah_dpt_dilakukan   Int
-  subkontrak_diperlukan  Int
-  tugasan_diterima       Int
+  permohonanID           Int        @unique(map: "permohonanID")
+  peralatan_keadaan_baik Int?
+  pegawai_berkelayakan   Int?
+  kaedah_dpt_dilakukan   Int?
+  subkontrak_diperlukan  Int?
+  tugasan_diterima       Int?
   ulasan_pegawai         String?    @db.Text
-  create_at              Int
-  disemak_oleh           Int
+  create_at              DateTime?  @db.DateTime(0)
+  disemak_oleh           Int?
   permohonan             permohonan @relation(fields: [permohonanID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_semakan_ibfk_1")
-  user                   user       @relation(fields: [disemak_oleh], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_semakan_ibfk_2")
+  user                   user?      @relation(fields: [disemak_oleh], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_semakan_ibfk_2")
 
   @@index([disemak_oleh], map: "disemak_oleh")
-  @@index([permohonanID], map: "permohonanID")
 }
 
 model role {
@@ -275,8 +273,11 @@ model report {
   reportID                           Int                  @id @default(autoincrement())
   permohonanID                       Int
   jenis_barang                       Int
+  tanda_barang                       String?              @db.VarChar(255)
+  keadaan_barang                     String?              @db.VarChar(255)
+  kuantiti_barang                    Int?
   peralatan                          String?              @db.VarChar(255)
-  langkah_langkah                    Int?
+  langkah_langkah                    String?              @db.VarChar(255)
   gambarID                           Int?
   ulasan                             String?              @db.Text
   dapatan                            Int?

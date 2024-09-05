@@ -46,7 +46,6 @@
           label="Ringkasan Kenyataan Kes"
           v-model="ringkasanKenyataanKes"
           validation="required"
-          disabled
         />
         <FormKit
           type="number"
@@ -55,72 +54,56 @@
           validation="required|number"
           disabled
         />
-        <FormKit
-          type="text"
-          label="Jenis Barang"
-          v-model="jenisBarang"
-          validation="required"
-          disabled
-        />
-        <FormKit
-          type="text"
-          label="Tanda Barang"
-          v-model="tandaBarang"
-          validation="required"
-          disabled
-        />
-        <FormKit
-          type="text"
-          label="Keadaan Barang"
-          v-model="keadaanBarang"
-          validation="required"
-          disabled
-        />
-        <FormKit
-          type="number"
-          label="Kuantiti Barang"
-          v-model="kuantitiBarang"
-          validation="required|number"
-          disabled
-        />
-        <FormKit
-          type="select"
-          label="Jenis Barang"
-          v-model="jenisBarangDetail"
-          :options="jenisBarangDetailOptions"
-          validation="required"
-          disabled
-        />
-        <FormKit
-          type="select"
-          label="Jenis Barang Siber"
-          v-model="jenisBarangSiber"
-          :options="jenisBarangSiberOptions"
-          validation="required"
-          disabled
-        />
+
+        <!-- Barang Section -->
+        <div class="mb-4">
+          <h3 class="mb-2">Senarai Barang</h3>
+          <table
+            v-if="barangList.length > 0"
+            class="w-full border-collapse border border-gray-300 mb-2"
+          >
+            <thead>
+              <tr class="bg-gray-100">
+                <th class="border border-gray-300 p-2">Jenis Barang</th>
+                <th class="border border-gray-300 p-2">Kuantiti</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(barang, index) in barangList" :key="index">
+                <td class="border border-gray-300 p-2">
+                  {{
+                    barang.jenisBarangDetailLabel
+                      ? barang.jenisBarangDetailLabel
+                      : barang.jenisBarangDetail
+                  }}
+                </td>
+                <td class="border border-gray-300 p-2">
+                  {{ barang.kuantitiBarang }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div v-else class="text-gray-500 mb-2">Tiada barang ditambah</div>
+        </div>
+
         <FormKit
           type="text"
           label="No Kertas Siasatan"
           v-model="noKertasSiasatan"
-          disabled
         />
         <FormKit
           type="text"
           label="No Laporan Polis"
           v-model="noLaporanPolis"
-          disabled
         />
         <div class="flex justify-end gap-2 mt-4">
-          <rs-button type="button" @click="navi" variant="danger"
+          <rs-button type="button" @click="navigateBack" variant="danger"
             >Kembali</rs-button
           >
-          <rs-button type="button" @click="confirmBatal" variant="primary"
+          <!-- <rs-button type="button" @click="confirmBatal" variant="primary"
             >Tolak</rs-button
-          >
-          <rs-button type="submit" @click="confirmSah" variant="success"
-            >Sah</rs-button
-          >
+          > -->
+          <rs-button btn-type="submit" variant="success">Hantar</rs-button>
         </div>
       </FormKit>
     </rs-card>
@@ -128,11 +111,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router";
-
 const router = useRouter();
 const route = useRoute();
+const { $swal } = useNuxtApp();
 
 const noSiri = ref(route.params.noSiri);
 
@@ -143,26 +124,11 @@ const namaPenghantar = ref("");
 const pangkatPenghantar = ref("");
 const ringkasanKenyataanKes = ref("");
 const bilangan = ref(0);
-const jenisBarang = ref("");
-const tandaBarang = ref("");
-const keadaanBarang = ref("");
-const kuantitiBarang = ref(0);
-const jenisBarangDetail = ref("");
-const jenisBarangSiber = ref("");
+const barangList = ref([]);
 const noKertasSiasatan = ref("");
 const noLaporanPolis = ref("");
 
-const jenisBarangDetailOptions = [
-  "PASPORT",
-  "MALPASS",
-  "CAP KESELAMATAN",
-  "CAP JARI",
-  "PEMERIKSAAN",
-  "I-KAD",
-  "LAIN-LAIN",
-];
-
-const jenisBarangSiberOptions = ["SIBER", "TULISAN TANGAN"];
+const jenisBarangDetailOptions = ref([]);
 
 const navigateBack = () => {
   router.back();
@@ -177,12 +143,6 @@ const isFormValid = () => {
     pangkatPenghantar,
     ringkasanKenyataanKes,
     bilangan,
-    jenisBarang,
-    tandaBarang,
-    keadaanBarang,
-    kuantitiBarang,
-    jenisBarangDetail,
-    jenisBarangSiber,
     noKertasSiasatan,
     noLaporanPolis,
   ];
@@ -192,35 +152,38 @@ const isFormValid = () => {
   );
 };
 
-const simpan = () => {
+const submitForm = async () => {
   if (isFormValid()) {
-    console.log("Form data saved");
-  } else {
-    console.error("Please fill in all required fields.");
-  }
-};
+    try {
+      const response = await $fetch(`/api/kaunter-permohonan/${noSiri.value}`, {
+        method: "PUT",
+        body: {
+          ringkasanKenyataanKes: ringkasanKenyataanKes.value,
+          noKertasSiasatan: noKertasSiasatan.value,
+          noLaporanPolis: noLaporanPolis.value,
+        },
+      });
 
-const submitForm = () => {
-  if (isFormValid()) {
-    console.log({
-      namaPemohon: namaPemohon.value,
-      pangkatPemohon: pangkatPemohon.value,
-      noPegawaiPemohon: noPegawaiPemohon.value,
-      namaPenghantar: namaPenghantar.value,
-      pangkatPenghantar: pangkatPenghantar.value,
-      ringkasanKenyataanKes: ringkasanKenyataanKes.value,
-      bilangan: bilangan.value,
-      jenisBarang: jenisBarang.value,
-      tandaBarang: tandaBarang.value,
-      keadaanBarang: keadaanBarang.value,
-      kuantitiBarang: kuantitiBarang.value,
-      jenisBarangDetail: jenisBarangDetail.value,
-      jenisBarangSiber: jenisBarangSiber.value,
-      noKertasSiasatan: noKertasSiasatan.value,
-      noLaporanPolis: noLaporanPolis.value,
-    });
+      if (response.statusCode === 200) {
+        await $swal.fire({
+          title: "Berjaya!",
+          text: "Permohonan telah berjaya dikemaskini.",
+          icon: "success",
+          confirmButtonText: "OK",
+        });
 
-    navigateTo(`/kemaskini-daftar/kemaskini/sah/${noSiri.value}`);
+        router.push("/kemaskini-daftar/senarai");
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      $swal.fire({
+        title: "Ralat!",
+        text: error.message || "Gagal mengemaskini permohonan. Sila cuba lagi.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
   } else {
     $swal.fire({
       title: "Ralat!",
@@ -260,75 +223,64 @@ const confirmSah = () => {
     })
     .then((result) => {
       if (result.isConfirmed) {
-        submitForm();
       }
     });
 };
 
-function generateSampleData(noSiri) {
-  const randomNumber = (min, max) =>
-    Math.floor(Math.random() * (max - min + 1) + min);
-  const randomChoice = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const fetchLookupData = async (type) => {
+  try {
+    const response = await $fetch(`/api/lookup?type=${type}`);
+    if (response.statusCode === 200) {
+      return response.data;
+    }
+  } catch (error) {
+    console.error(`Error fetching ${type} lookup data:`, error);
+    return [];
+  }
+};
 
-  const namaPemohon = [
-    "Ali bin Abu",
-    "Siti binti Ahmad",
-    "Muthu a/l Rajan",
-    "Lim Wei Ling",
-  ];
-  const pangkat = ["Inspektor", "Sarjan", "Koperal", "Konstabel"];
-  const jenisBarangOptions = [
-    "Dokumen",
-    "Peralatan Elektronik",
-    "Senjata",
-    "Dadah",
-    "Barang Kemas",
-  ];
-  const keadaanBarangOptions = ["Baik", "Sederhana", "Rosak"];
+const fetchExistingData = async (noSiri) => {
+  try {
+    const response = await $fetch(`/api/permohonan/${noSiri}`);
+    if (response.statusCode === 200) {
+      return response.data;
+    }
+  } catch (error) {
+    console.error("Error fetching existing data:", error);
+    $swal.fire({
+      title: "Ralat!",
+      text: "Gagal mendapatkan data permohonan.",
+      icon: "error",
+      confirmButtonText: "OK",
+    });
+  }
+};
 
-  return {
-    noSiri: noSiri,
-    namaPemohon: randomChoice(namaPemohon),
-    pangkatPemohon: randomChoice(pangkat),
-    noPegawaiPemohon: `PG${randomNumber(10000, 99999)}`,
-    namaPenghantar: randomChoice(namaPemohon),
-    pangkatPenghantar: randomChoice(pangkat),
-    ringkasanKenyataanKes: `Kes ${noSiri}: Penemuan barang bukti dalam serbuan di lokasi ${randomChoice(
-      ["A", "B", "C", "D"]
-    )}`,
-    bilangan: randomNumber(1, 10),
-    jenisBarang: randomChoice(jenisBarangOptions),
-    tandaBarang: `TB-${randomNumber(1000, 9999)}`,
-    keadaanBarang: randomChoice(keadaanBarangOptions),
-    kuantitiBarang: randomNumber(1, 100),
-    jenisBarangDetail: randomChoice(jenisBarangDetailOptions),
-    jenisBarangSiber: randomChoice(jenisBarangSiberOptions),
-    noKertasSiasatan: `KS-${randomNumber(10000, 99999)}`,
-    noLaporanPolis: `RPT-${randomNumber(100000, 999999)}`,
-  };
-}
+onMounted(async () => {
+  const existingData = await fetchExistingData(noSiri.value);
 
-onMounted(() => {
-  const sampleData = generateSampleData(noSiri.value);
+  if (existingData) {
+    namaPemohon.value = existingData.namaPemohon;
+    pangkatPemohon.value = existingData.pangkatPemohon;
+    noPegawaiPemohon.value = existingData.noPegawaiPemohon;
+    namaPenghantar.value = existingData.namaPenghantar;
+    pangkatPenghantar.value = existingData.pangkatPenghantar;
+    ringkasanKenyataanKes.value = existingData.ringkasanKenyataanKes;
+    bilangan.value = existingData.bilangan;
+    barangList.value = existingData.barangList;
+    noKertasSiasatan.value = existingData.noKertasSiasatan;
+    noLaporanPolis.value = existingData.noLaporanPolis;
+  }
 
-  namaPemohon.value = sampleData.namaPemohon;
-  pangkatPemohon.value = sampleData.pangkatPemohon;
-  noPegawaiPemohon.value = sampleData.noPegawaiPemohon;
-  namaPenghantar.value = sampleData.namaPenghantar;
-  pangkatPenghantar.value = sampleData.pangkatPenghantar;
-  ringkasanKenyataanKes.value = sampleData.ringkasanKenyataanKes;
-  bilangan.value = sampleData.bilangan;
-  jenisBarang.value = sampleData.jenisBarang;
-  tandaBarang.value = sampleData.tandaBarang;
-  keadaanBarang.value = sampleData.keadaanBarang;
-  kuantitiBarang.value = sampleData.kuantitiBarang;
-  jenisBarangDetail.value = sampleData.jenisBarangDetail;
-  jenisBarangSiber.value = sampleData.jenisBarangSiber;
-  noKertasSiasatan.value = sampleData.noKertasSiasatan;
-  noLaporanPolis.value = sampleData.noLaporanPolis;
+  jenisBarangDetailOptions.value = await fetchLookupData("jenis_barang");
 });
 
-const { $swal } = useNuxtApp();
+const getJenisBarangLabel = (value) => {
+  const option = jenisBarangDetailOptions.value.find(
+    (opt) => opt.__original === value
+  );
+  return option ? option.label : value;
+};
 </script>
 
 <style lang="scss" scoped>

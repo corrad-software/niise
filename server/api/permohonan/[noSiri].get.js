@@ -22,7 +22,20 @@ export default defineEventHandler(async (event) => {
           },
         },
         penghantar: true,
-        report: true, // Assuming 'report' is where the `barang` (items) are stored
+        report: {
+          select: {
+            jenis_barang: true,
+            lookup_report_jenis_barangTolookup: {
+              select: {
+                lookupID: true,
+                lookupValue: true,
+              },
+            },
+            tanda_barang: true,
+            keadaan_barang: true,
+            kuantiti_barang: true,
+          },
+        },
       },
     });
 
@@ -47,7 +60,10 @@ export default defineEventHandler(async (event) => {
         ringkasanKenyataanKes: permohonan.ringkasan_kenyataan_kes || "",
         bilangan: permohonan.bilangan || 0,
         barangList: permohonan.report.map((barang) => ({
-          jenisBarangDetail: barang.jenis_barang || "",
+          jenisBarangDetail:
+            barang.lookup_report_jenis_barangTolookup.lookupID || "",
+          jenisBarangDetailLabel:
+            barang.lookup_report_jenis_barangTolookup.lookupValue || "",
           tandaBarang: barang.tanda_barang || "",
           keadaanBarang: barang.keadaan_barang || "",
           kuantitiBarang: barang.kuantiti_barang || 0,
