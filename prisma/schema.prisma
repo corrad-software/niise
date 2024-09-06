@@ -358,7 +358,7 @@ model temujanji_detail {
   sejarahPerjalanan    String?     @db.VarChar(255)
   persamaanTandaTangan String?     @db.VarChar(255)
   pemeriksaanLain      String?     @db.VarChar(255)
-  dapatan              String      @db.VarChar(255)
+  dapatan              String?     @db.VarChar(255)
   laporanSystemTdb     Int?
   create_at            DateTime?   @db.DateTime(0)
   modified_at          DateTime?   @db.DateTime(0)

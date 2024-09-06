@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
       data: {
         jenisSemakan: jenisSemakan,
         tarikh: new Date(tarikh),
-        masa: new Date(`${tarikh}T${masa}:00`),
+        masa: new Date(`${tarikh}T${masa}:00`) ?? new Date(),
         status: "Temujanji Diterima",
         gambarSubjek: gambarSubjek
           ? await saveDocument(gambarSubjek, "Subjek")

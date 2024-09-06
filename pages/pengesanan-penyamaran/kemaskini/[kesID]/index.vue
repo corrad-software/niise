@@ -201,28 +201,35 @@ const formData = ref({
 
 // Dropdown options
 const jenisDokumenOptions = ref([
+  { label: "Sila Pilih", value: "" },
   { label: "Passport", value: "Passport" },
   { label: "Kad Pengenalan", value: "Kad Pengenalan" },
 ]);
 
 const negaraOptions = ref([
+  { label: "Sila Pilih", value: "" },
+
   { label: "Malaysia", value: "Malaysia" },
   { label: "Singapura", value: "Singapura" },
 ]);
 
 const kewarganegaraanOptions = ref([
+  { label: "Sila Pilih", value: "" },
+
   { label: "Malaysia", value: "Malaysia" },
   { label: "Singapura", value: "Singapura" },
   { label: "Tiada", value: "Tiada" },
 ]);
 
 const jantinaOptions = ref([
+  { label: "Sila Pilih", value: "" },
   { label: "Lelaki", value: "Lelaki" },
   { label: "Perempuan", value: "Perempuan" },
   { label: "Lain-lain", value: "Lain-lain" },
 ]);
 
 const dapatanOptions = ref([
+  { label: "Sila Pilih", value: "" },
   { label: "Sama", value: "Sama" },
   { label: "Tidak Sama", value: "Tidak Sama" },
   { label: "Tidak Dapat Dikenalpasti", value: "Tidak Dapat Dikenalpasti" },

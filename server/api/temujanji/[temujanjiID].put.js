@@ -4,8 +4,11 @@ export default defineEventHandler(async (event) => {
 
   try {
     // Get temujanji details ID
-    const temujanjiDetailsID = await prisma.temujanji_detail.findFirst({
+    const temujanjiDetailsID = await prisma.temujanji.findFirst({
       where: { temujanjiID: parseInt(temujanjiID) },
+      select: {
+        temujanjiDetailID: true,
+      },
     });
 
     console.log(temujanjiDetailsID);
