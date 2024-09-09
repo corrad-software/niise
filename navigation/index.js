@@ -39,6 +39,18 @@ export default [
           },
         ],
       },
+      {
+        title: "FOR-03",
+        icon: "ph:number-circle-two-fill",
+        child: [
+          {
+            title: "e-library",
+            path: "/e-library",
+            child: [],
+            meta: {},
+          },
+        ],
+      },
     ],
   },
   {

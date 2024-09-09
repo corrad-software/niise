@@ -35,6 +35,7 @@ model document {
   temujanji_temujanji_gambarSubjekTodocument  temujanji[]                    @relation("temujanji_gambarSubjekTodocument")
   temujanji_temujanji_gambarCapJariTodocument temujanji[]                    @relation("temujanji_gambarCapJariTodocument")
   temujanji_detail                            temujanji_detail[]
+  temujanji_log                               temujanji_log[]
 
   @@index([userID], map: "userID")
 }
@@ -312,6 +313,7 @@ model report_doc_support {
 
 model temujanji {
   temujanjiID                                Int               @id @default(autoincrement())
+  noSiri                                     String            @db.VarChar(255)
   temujanjiDetailID                          Int?
   pemohonID                                  Int
   jenisSemakan                               String            @db.VarChar(255)
@@ -326,6 +328,7 @@ model temujanji {
   document_temujanji_gambarCapJariTodocument document?         @relation("temujanji_gambarCapJariTodocument", fields: [gambarCapJari], references: [documentID], onDelete: NoAction, onUpdate: NoAction, map: "fk_gambarCapJari")
   pemohon                                    pemohon           @relation(fields: [pemohonID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "temujanji_ibfk_1")
   temujanji_detail                           temujanji_detail? @relation(fields: [temujanjiDetailID], references: [temujanjiDetailID], onDelete: NoAction, onUpdate: NoAction, map: "temujanji_ibfk_4")
+  temujanji_log                              temujanji_log[]
 
   @@index([gambarCapJari], map: "idx_gambarCapJari")
   @@index([gambarSubjek], map: "idx_gambarSubjek")
@@ -366,4 +369,50 @@ model temujanji_detail {
   document             document?   @relation(fields: [laporanSystemTdb], references: [documentID], onDelete: NoAction, onUpdate: NoAction, map: "temujanji_detail_ibfk_2")
 
   @@index([laporanSystemTdb], map: "idx_laporanSystemTdb")
+}
+
+model temujanji_log {
+  temujanjiLogID       Int       @id @default(autoincrement())
+  temujanjiID          Int
+  pemohonID            Int?
+  jenisSemakan         String?   @db.VarChar(255)
+  tarikh               DateTime? @db.Date
+  masa                 DateTime? @db.Time(0)
+  gambarSubjek         Int?
+  gambarCapJari        Int?
+  negara               String?   @db.VarChar(255)
+  namaPemilik          String?   @db.VarChar(255)
+  noDokumen            String?   @db.VarChar(255)
+  kewarganegaraan      String?   @db.VarChar(255)
+  tarikhLahir          DateTime? @db.Date
+  jantina              String?   @db.VarChar(255)
+  tarikhLuputDokumen   DateTime? @db.Date
+  skorPersamaanMuka    Decimal?  @db.Decimal(10, 2)
+  skorPersamaanCapJari Decimal?  @db.Decimal(10, 2)
+  umur                 Int?
+  tinggi               Decimal?  @db.Decimal(10, 2)
+  warnaRambut          String?   @db.VarChar(255)
+  bangsa               String?   @db.VarChar(255)
+  etnik                String?   @db.VarChar(255)
+  bentukKepala         String?   @db.VarChar(255)
+  mata                 String?   @db.VarChar(255)
+  telinga              String?   @db.VarChar(255)
+  hidung               String?   @db.VarChar(255)
+  mulut                String?   @db.VarChar(255)
+  parut                String?   @db.VarChar(255)
+  sejarahPerjalanan    String?   @db.VarChar(255)
+  persamaanTandaTangan String?   @db.VarChar(255)
+  pemeriksaanLain      String?   @db.VarChar(255)
+  dapatan              String?   @db.VarChar(255)
+  laporanSystemTdb     Int?
+  create_at            DateTime? @db.DateTime(0)
+  modified_at          DateTime? @db.DateTime(0)
+  document             document? @relation(fields: [laporanSystemTdb], references: [documentID], onDelete: NoAction, onUpdate: NoAction, map: "temujanji_log_ibfk_1")
+  temujanji            temujanji @relation(fields: [temujanjiID], references: [temujanjiID], onDelete: NoAction, onUpdate: NoAction, map: "temujanji_log_ibfk_2")
+
+  @@index([gambarCapJari], map: "gambarCapJari")
+  @@index([gambarSubjek], map: "gambarSubjek")
+  @@index([laporanSystemTdb], map: "laporanSystemTdb")
+  @@index([pemohonID], map: "pemohonID")
+  @@index([temujanjiID], map: "temujanjiID")
 }
