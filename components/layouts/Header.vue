@@ -11,6 +11,7 @@ const langList = languageList();
 const locale = ref("en");
 
 const themes = themeList();
+const themes2 = themeList2();
 
 function setTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
@@ -85,6 +86,66 @@ onMounted(() => {
       </div>
 
       <div class="flex gap-2 item-center justify-items-end">
+        <VoiceReader class="ml-4" />
+
+        <!-- New dropdown for themeList.js -->
+        <VDropdown placement="bottom-end" distance="13" name="theme">
+          <button class="icon-btn h-10 w-10 rounded-full">
+            <Icon size="22px" name="ph:paint-brush-broad" />
+          </button>
+          <template #popper>
+            <ul class="header-dropdown w-full md:w-52">
+              <li v-for="(val, index) in themes" :key="index">
+                <a
+                  @click="setTheme(val.theme)"
+                  class="flex justify-between items-center cursor-pointer py-2 px-4 hover:bg-[rgb(var(--bg-1))]"
+                >
+                  <span class="capitalize"> {{ val.theme }} </span>
+                  <div class="flex items-center gap-x-1">
+                    <div
+                      v-for="(color, colorIndex) in val.colors"
+                      :key="colorIndex"
+                      class="h-[25px] w-[10px] rounded-lg"
+                      :style="{
+                        backgroundColor: rgbToHex(color.value),
+                      }"
+                    ></div>
+                  </div>
+                </a>
+              </li>
+            </ul>
+          </template>
+        </VDropdown>
+
+        <!-- New dropdown for themeList2.js -->
+        <VDropdown placement="bottom-end" distance="13" name="theme2">
+          <button class="icon-btn h-10 w-10 rounded-full">
+            <Icon size="22px" name="ph:wheelchair" />
+          </button>
+          <template #popper>
+            <ul class="header-dropdown w-full md:w-52">
+              <li v-for="(val, index) in themes2" :key="index">
+                <a
+                  @click="setTheme(val.theme)"
+                  class="flex justify-between items-center cursor-pointer py-2 px-4 hover:bg-[rgb(var(--bg-1))]"
+                >
+                  <span class="capitalize"> {{ val.theme }} </span>
+                  <div class="flex items-center gap-x-1">
+                    <div
+                      v-for="(color, colorIndex) in val.colors"
+                      :key="colorIndex"
+                      class="h-[25px] w-[10px] rounded-lg"
+                      :style="{
+                        backgroundColor: rgbToHex(color.value),
+                      }"
+                    ></div>
+                  </div>
+                </a>
+              </li>
+            </ul>
+          </template>
+        </VDropdown>
+
         <VDropdown placement="bottom-end" distance="13" name="notification">
           <button class="relative icon-btn h-10 w-10 rounded-full">
             <span

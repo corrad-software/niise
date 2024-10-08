@@ -1,7 +1,7 @@
 export default function () {
   return [
     {
-      theme: "default",
+      theme: "biasa",
       colors: [
         {
           name: "primary",
@@ -18,7 +18,7 @@ export default function () {
       ],
     },
     {
-      theme: "dark",
+      theme: "gelap",
       colors: [
         {
           name: "primary",
@@ -31,40 +31,6 @@ export default function () {
         {
           name: "accent",
           value: "15, 23, 42",
-        },
-      ],
-    },
-    {
-      theme: "nier",
-      colors: [
-        {
-          name: "primary",
-          value: "99, 95, 84",
-        },
-        {
-          name: "secondary",
-          value: "207, 107, 83",
-        },
-        {
-          name: "accent",
-          value: "243, 88, 106",
-        },
-      ],
-    },
-    {
-      theme: "custom1",
-      colors: [
-        {
-          name: "primary",
-          value: "9, 76, 90",
-        },
-        {
-          name: "secondary",
-          value: "62, 72, 83",
-        },
-        {
-          name: "accent",
-          value: "0, 103, 236",
         },
       ],
     },
