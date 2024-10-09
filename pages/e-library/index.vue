@@ -1,3 +1,30 @@
+<script setup>
+const tableData = ref([]);
+
+const fetchELibraryData = async () => {
+  try {
+    const { data: response } = await useFetch("/api/elibrary");
+    if (response.value && response.value.statusCode === 200) {
+      tableData.value = response.value.data;
+    } else {
+      console.error("Error fetching e-library data:", response.value.message);
+    }
+  } catch (error) {
+    console.error("Error fetching e-library data:", error);
+  }
+};
+
+const viewItem = (noSiri) => {
+  console.log(`View item with noSiri: ${noSiri}`);
+  // Implement view functionality
+  navigateTo(`/e-library/maklumat/${noSiri}`);
+};
+
+onMounted(() => {
+  fetchELibraryData();
+});
+</script>
+
 <template>
   <div>
     <div class="flex justify-between items-center">
@@ -37,41 +64,5 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { ref, onMounted } from "vue";
-
-const tableData = ref([]);
-
-const generateData = () => {
-  const data = [];
-  for (let i = 1; i <= 10; i++) {
-    data.push({
-      noSiri: `NS${String(i).padStart(3, "0")}`,
-      pengguna: `Pengguna ${i}`,
-      subjek: `Subjek ${i}`,
-      tarikh: new Date(2023, 0, i).toLocaleDateString("ms-MY"),
-      aksi: { noSiri: `NS${String(i).padStart(3, "0")}` },
-    });
-  }
-  return data;
-};
-
-const viewItem = (noSiri) => {
-  console.log(`View item with noSiri: ${noSiri}`);
-  // Implement view functionality
-
-  navigateTo(`/e-library/maklumat/${noSiri}`);
-};
-
-const editItem = (noSiri) => {
-  console.log(`Edit item with noSiri: ${noSiri}`);
-  // Implement edit functionality
-};
-
-onMounted(() => {
-  tableData.value = generateData();
-});
-</script>
 
 <style lang="scss" scoped></style>

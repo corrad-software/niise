@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
     const temujanjiDetailsID = await prisma.temujanji.findFirst({
       where: { temujanjiID: parseInt(temujanjiID) },
       select: {
+        pemohonID: true,
         temujanjiID: true,
         temujanjiDetailID: true,
         noSiri: true,
@@ -57,6 +58,7 @@ export default defineEventHandler(async (event) => {
     await prisma.temujanji_log.create({
       data: {
         temujanjiID: parseInt(temujanjiID),
+        pemohonID: temujanjiDetailsID.pemohonID,
         jenisSemakan: temujanjiDetailsID.jenisSemakan,
         tarikh: temujanjiDetailsID.tarikh,
         masa: temujanjiDetailsID.masa,
@@ -84,6 +86,7 @@ export default defineEventHandler(async (event) => {
         persamaanTandaTangan: body.persamaanTandaTangan || null,
         pemeriksaanLain: body.pemeriksaanLain || null,
         dapatan: body.dapatan,
+        create_at: new Date(),
       },
     });
 

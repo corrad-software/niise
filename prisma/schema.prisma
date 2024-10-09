@@ -67,13 +67,14 @@ model notifikasi {
 }
 
 model pemohon {
-  id                 Int          @id @default(autoincrement())
+  id                 Int             @id @default(autoincrement())
   userID             Int
-  pangkat_pemohon    String       @db.VarChar(255)
-  no_pegawai_pemohon String       @db.VarChar(255)
-  user               user         @relation(fields: [userID], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "pemohon_ibfk_1")
+  pangkat_pemohon    String          @db.VarChar(255)
+  no_pegawai_pemohon String          @db.VarChar(255)
+  user               user            @relation(fields: [userID], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "pemohon_ibfk_1")
   permohonan         permohonan[]
   temujanji          temujanji[]
+  temujanji_log      temujanji_log[]
 
   @@index([userID], map: "userID")
 }
@@ -409,6 +410,7 @@ model temujanji_log {
   modified_at          DateTime? @db.DateTime(0)
   document             document? @relation(fields: [laporanSystemTdb], references: [documentID], onDelete: NoAction, onUpdate: NoAction, map: "temujanji_log_ibfk_1")
   temujanji            temujanji @relation(fields: [temujanjiID], references: [temujanjiID], onDelete: NoAction, onUpdate: NoAction, map: "temujanji_log_ibfk_2")
+  pemohon              pemohon?  @relation(fields: [pemohonID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "temujanji_log_ibfk_3")
 
   @@index([gambarCapJari], map: "gambarCapJari")
   @@index([gambarSubjek], map: "gambarSubjek")
