@@ -10,182 +10,73 @@ export default [
         child: [],
         meta: {},
       },
-      {
-        title: "Carian",
-        path: "/carian",
-        icon: "ph:magnifying-glass",
-        child: [],
-        meta: {},
-      },
-      {
-        title: "Laporan",
-        path: "/laporan",
-        icon: "ph:chart-bar-fill",
-        child: [],
-        meta: {},
-      },
     ],
     meta: {},
   },
   {
-    header: "Fungsi",
-    description: "",
+    header: "Pentadbiran",
+    description: "Urus aplikasi anda",
     child: [
       {
-        title: "Komponen",
-        icon: "ph:gear-fine",
+        title: "Konfigurasi",
+        icon: "ic:outline-settings",
         child: [
           {
-            title: "Amaran",
-            path: "/komponen/amaran",
-            child: [],
-            meta: {},
-          },
-          {
-            title: "Butang",
-            path: "/komponen/butang",
-            child: [],
-            meta: {},
-          },
-          {
-            title: "Lencana",
-            path: "/komponen/lencana",
-            child: [],
-            meta: {},
-          },
-          {
-            title: "Collapse",
-            path: "/komponen/collapse",
-            child: [],
-            meta: {},
-          },
-          {
-            title: "Dropdown",
-            path: "/komponen/dropdown",
-            child: [],
-            meta: {},
-          },
-          {
-            title: "Modal",
-            path: "/komponen/modal",
-            child: [],
-            meta: {},
-          },
-          {
-            title: "Progress Bar",
-            path: "/komponen/progress-bar",
-            child: [],
-            meta: {},
-          },
-          {
-            title: "Tab",
-            path: "/komponen/tab",
-            child: [],
-            meta: {},
+            title: "Persekitaran",
+            path: "/devtool/config/environment",
           },
         ],
       },
       {
-        title: "Datatable",
-        path: "/datatable",
-        icon: "ph:table",
-        child: [],
-        meta: {},
-      },
-      {
-        title: "Borang",
-        path: "/borang",
-        icon: "ph:clipboard-text",
+        title: "Penyunting Menu",
+        icon: "ci:menu-alt-03",
+        path: "/devtool/menu-editor",
         child: [],
       },
       {
-        title: "Ikon",
-        path: "/ikon",
-        icon: "iconamoon:slightly-smiling-face",
-        child: [],
-        meta: {},
+        title: "Urus Pengguna",
+        path: "/devtool/user-management",
+        icon: "ph:user-circle-gear",
+        child: [
+          {
+            title: "Senarai Pengguna",
+            path: "/devtool/user-management/user",
+            icon: "",
+            child: [],
+          },
+          {
+            title: "Senarai Peranan",
+            path: "/devtool/user-management/role",
+            icon: "",
+            child: [],
+          },
+        ],
       },
       {
-        title: "Tipografi",
-        path: "/tipografi",
-        icon: "ph:text-aa",
-        child: [],
-        meta: {},
+        title: "Kandungan",
+        icon: "mdi:pencil-ruler",
+        child: [
+          {
+            title: "Penyunting",
+            path: "/devtool/content-editor",
+          },
+          {
+            title: "Templat",
+            path: "/devtool/content-editor/template",
+          },
+        ],
       },
       {
-        title: "Senarai Mesej",
-        path: "/senarai-mesej",
-        icon: "ic:outline-mail",
+        title: "Penyunting API",
+        path: "/devtool/api-editor",
+        icon: "material-symbols:api-rounded",
         child: [],
-        meta: {},
       },
     ],
-    meta: {},
+    meta: {
+      auth: {
+        role: ["Developer"],
+      },
+    },
   },
-  // {
-  //   header: "Pentadbiran",
-  //   description: "Urus aplikasi anda",
-  //   child: [
-  //     {
-  //       title: "Konfigurasi",
-  //       icon: "ic:outline-settings",
-  //       child: [
-  //         {
-  //           title: "Persekitaran",
-  //           path: "/devtool/config/environment",
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       title: "Penyunting Menu",
-  //       icon: "ci:menu-alt-03",
-  //       path: "/devtool/menu-editor",
-  //       child: [],
-  //     },
-  //     {
-  //       title: "Urus Pengguna",
-  //       path: "/devtool/user-management",
-  //       icon: "ph:user-circle-gear",
-  //       child: [
-  //         {
-  //           title: "Senarai Pengguna",
-  //           path: "/devtool/user-management/user",
-  //           icon: "",
-  //           child: [],
-  //         },
-  //         {
-  //           title: "Senarai Peranan",
-  //           path: "/devtool/user-management/role",
-  //           icon: "",
-  //           child: [],
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       title: "Kandungan",
-  //       icon: "mdi:pencil-ruler",
-  //       child: [
-  //         {
-  //           title: "Penyunting",
-  //           path: "/devtool/content-editor",
-  //         },
-  //         {
-  //           title: "Templat",
-  //           path: "/devtool/content-editor/template",
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       title: "Penyunting API",
-  //       path: "/devtool/api-editor",
-  //       icon: "material-symbols:api-rounded",
-  //       child: [],
-  //     },
-  //   ],
-  //   meta: {
-  //     auth: {
-  //       role: ["Developer"],
-  //     },
-  //   },
-  // },
 ];
