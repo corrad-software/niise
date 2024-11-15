@@ -23,35 +23,34 @@ const showModalEditForm = ref({
 const openModalAdd = () => {
   showModalAddForm.value = {
     apiURL: "",
+    method: "all",
   };
 
   showModalAdd.value = true;
 };
 
-const openModalEdit = (url) => {
+const openModalEdit = (url, method = "all") => {
   const apiURL = url.replace("/api/", "");
 
   showModalEditForm.value = {
     apiURL: apiURL,
     oldApiURL: apiURL,
+    method: method,
   };
 
   showModalEdit.value = true;
 };
 
-// Get api list from api folder
-const getApiList = async () => {
-  const { data } = await useFetch("/api/devtool/api/list", {
-    initialCache: false,
-  });
-  return data;
-};
-
-const apiList = await getApiList();
+const { data: apiList, refresh } = await useFetch("/api/devtool/api/list");
 
 const searchApi = () => {
+  if (!apiList.value || !apiList.value.data) return [];
+
   return apiList.value.data.filter((api) => {
-    return api.name.toLowerCase().includes(searchText.value.toLowerCase());
+    return (
+      api.name.toLowerCase().includes(searchText.value.toLowerCase()) ||
+      api.url.toLowerCase().includes(searchText.value.toLowerCase())
+    );
   });
 };
 
@@ -78,17 +77,15 @@ const saveAddAPI = async () => {
 
   if (data.value.statusCode === 200) {
     nuxtApp.$swal.fire({
-      title: "Berjaya",
-      text: "Kod telah berjaya disimpan.",
+      title: "Success",
+      text: "The code has been saved successfully.",
       icon: "success",
       confirmButtonText: "Ok",
       timer: 1000,
     });
-    setTimeout(() => {
-      nuxtApp.$router.go(
-        `/devtool/api-editor/code?path=/api${data.value.data.path}`
-      );
-    }, 1000);
+    // Close modal and refresh list
+    showModalAdd.value = false;
+    refresh();
   }
 };
 
@@ -105,31 +102,28 @@ const saveEditAPI = async () => {
 
   if (data.value.statusCode === 200) {
     nuxtApp.$swal.fire({
-      title: "Berjaya",
-      text: "Kod telah berjaya disimpan.",
+      title: "Success",
+      text: "The code has been saved successfully.",
       icon: "success",
       confirmButtonText: "Ok",
       timer: 1000,
     });
-    setTimeout(() => {
-      nuxtApp.$router.go(
-        `/devtool/api-editor/code?path=/api/${showModalEditForm.value.apiURL}`
-      );
-    }, 1000);
+    // Close modal and refresh list
+    showModalEdit.value = false;
+    refresh();
   }
 };
 
 const deleteAPI = async (apiURL) => {
   nuxtApp.$swal
     .fire({
-      title: "Adakah anda pasti untuk memadam API ini?",
-      text: "Anda tidak akan dapat memulihkan ini!",
+      title: "Are you sure to delete this API?",
+      text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Ya, padamkan!",
-      cancelButtonText: "Batal",
+      confirmButtonText: "Yes, delete it!",
     })
     .then(async (result) => {
       if (result.isConfirmed) {
@@ -144,15 +138,14 @@ const deleteAPI = async (apiURL) => {
 
         if (data.value.statusCode === 200) {
           nuxtApp.$swal.fire({
-            title: "Berjaya",
-            text: "Kod telah berjaya disimpan.",
+            title: "Success",
+            text: "The code has been saved successfully.",
             icon: "success",
             confirmButtonText: "Ok",
             timer: 1000,
           });
-          setTimeout(() => {
-            nuxtApp.$router.go();
-          }, 1000);
+          // Refresh list after deletion
+          refresh();
         }
       }
     });
@@ -165,13 +158,13 @@ const deleteAPI = async (apiURL) => {
       <template #header>
         <div class="flex">
           <Icon class="mr-2 flex justify-center" name="ic:outline-info"></Icon
-          >Maklumat
+          >Info
         </div>
       </template>
       <template #body>
         <p class="mb-4">
-          Halaman ini digunakan untuk mengedit API untuk bahagian pelayan. Anda boleh mengedit
-          API dengan memilih API untuk diedit dari senarai kad di bawah.
+          This page is used to edit the api for the server side. You can edit
+          the api by choosing the api to edit from the card list below.
         </p>
       </template>
     </rs-card>
@@ -181,14 +174,14 @@ const deleteAPI = async (apiURL) => {
         <div class="flex justify-end items-center mb-4">
           <rs-button @click="openModalAdd">
             <Icon name="material-symbols:add" class="mr-1"></Icon>
-            Tambah API
+            Add API
           </rs-button>
         </div>
 
         <!-- Search Button -->
         <FormKit
           v-model="searchText"
-          placeholder="Cari Tajuk..."
+          placeholder="Search Title..."
           type="search"
           class="mb-4"
         />
@@ -215,7 +208,7 @@ const deleteAPI = async (apiURL) => {
                       name="material-symbols:code-blocks-outline-rounded"
                       class="mr-2"
                     />
-                    Editor Kod
+                    Code Editor
                   </rs-button>
                   <div class="flex gap-2">
                     <rs-button @click="openModalEdit(api.url)">
@@ -233,34 +226,102 @@ const deleteAPI = async (apiURL) => {
       </div>
     </rs-card>
 
-    <rs-modal
-      title="Tambah API"
-      v-model="showModalAdd"
-      ok-title="Simpan"
-      :ok-callback="saveAddAPI"
-    >
-      <FormKit type="text" label="Url" v-model="showModalAddForm.apiURL">
-        <template #prefix>
-          <div class="bg-slate-100 dark:bg-slate-700 h-full rounded-l-md p-3">
-            /api/
+    <rs-modal title="Add API" v-model="showModalAdd" :overlay-close="false">
+      <template #body>
+        <FormKit type="form" :actions="false" @submit="saveAddAPI">
+          <FormKit
+            type="text"
+            label="URL"
+            :validation="[['required'], ['matches', '/^[a-z0-9/-]+$/']]"
+            :validation-messages="{
+              required: 'URL is required',
+              matches:
+                'URL contains invalid characters. Only letters, numbers, dashes, and forward slashes are allowed.',
+            }"
+            v-model="showModalAddForm.apiURL"
+          >
+            <template #prefix>
+              <div
+                class="bg-slate-100 dark:bg-slate-700 h-full rounded-l-md p-3"
+              >
+                /api/
+              </div>
+            </template>
+          </FormKit>
+
+          <!-- <FormKit
+            type="select"
+            label="Request Method"
+            :options="requestMethods"
+            validation="required"
+            placeholder="Select a method"
+            v-model="showModalAddForm.method"
+          /> -->
+
+          <div class="flex justify-end gap-2">
+            <rs-button variant="outline" @click="showModalAdd = false">
+              Cancel
+            </rs-button>
+            <rs-button btnType="submit">
+              <Icon
+                name="material-symbols:save-outline"
+                class="mr-2 !w-4 !h-4"
+              />
+              Save
+            </rs-button>
           </div>
-        </template>
-      </FormKit>
+        </FormKit>
+      </template>
+      <template #footer></template>
     </rs-modal>
 
-    <rs-modal
-      title="Edit API"
-      v-model="showModalEdit"
-      ok-title="Simpan"
-      :ok-callback="saveEditAPI"
-    >
-      <FormKit type="text" label="Url" v-model="showModalEditForm.apiURL">
-        <template #prefix>
-          <div class="bg-slate-100 dark:bg-slate-700 h-full rounded-l-md p-3">
-            /api/
+    <rs-modal title="Edit API" v-model="showModalEdit" :overlay-close="false">
+      <template #body>
+        <FormKit type="form" :actions="false" @submit="saveEditAPI">
+          <FormKit
+            type="text"
+            label="URL"
+            :validation="[['required'], ['matches', '/^[a-z0-9/-]+$/']]"
+            :validation-messages="{
+              required: 'URL is required',
+              matches:
+                'URL contains invalid characters. Only letters, numbers, dashes, and forward slashes are allowed.',
+            }"
+            v-model="showModalEditForm.apiURL"
+          >
+            <template #prefix>
+              <div
+                class="bg-slate-100 dark:bg-slate-700 h-full rounded-l-md p-3"
+              >
+                /api/
+              </div>
+            </template>
+          </FormKit>
+
+          <!-- <FormKit
+            type="select"
+            label="Request Method"
+            :options="requestMethods"
+            validation="required"
+            placeholder="Select a method"
+            v-model="showModalEditForm.method"
+          /> -->
+
+          <div class="flex justify-end gap-2">
+            <rs-button variant="outline" @click="showModalEdit = false">
+              Cancel
+            </rs-button>
+            <rs-button btnType="submit">
+              <Icon
+                name="material-symbols:save-outline"
+                class="mr-2 !w-4 !h-4"
+              />
+              Save
+            </rs-button>
           </div>
-        </template>
-      </FormKit>
+        </FormKit>
+      </template>
+      <template #footer></template>
     </rs-modal>
   </div>
 </template>

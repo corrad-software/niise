@@ -1,6 +1,6 @@
 <script setup>
 definePageMeta({
-  title: "Penyunting Kandungan",
+  title: "Content Editor",
   middleware: ["auth"],
   requiresAuth: true,
 });
@@ -11,13 +11,15 @@ const router = useRouter();
 const getPages = router.getRoutes();
 
 const pages = getPages.filter((page) => {
-  // filter out the pages that are not in the admin folder
-  return (
-    page.path.includes("/devtool") === false &&
-    page.meta?.title &&
-    page.meta?.title !== "Laman Utama" &&
-    page.name
-  );
+  // Filter out pages in the devtool path
+  if (page.path.includes("/devtool")) {
+    return false;
+  }
+
+  // Use page.name if page.meta.title doesn't exist
+  const pageTitle = page.meta?.title || page.name;
+
+  return pageTitle && pageTitle !== "Home" && page.name;
 });
 
 const searchText = ref("");
@@ -29,9 +31,8 @@ const modalData = ref({
 
 const searchPages = () => {
   return pages.filter((page) => {
-    return page.meta.title
-      .toLowerCase()
-      .includes(searchText.value.toLowerCase());
+    const pageTitle = page.meta?.title || page.name;
+    return pageTitle.toLowerCase().includes(searchText.value.toLowerCase());
   });
 };
 
@@ -44,7 +45,7 @@ const capitalizeSentence = (sentence) => {
     .join(" ");
 };
 
-const templateOptions = ref([{ label: "Pilih Templat", value: "" }]);
+const templateOptions = ref([{ label: "Select Template", value: "" }]);
 const selectTemplate = ref("");
 
 const { data: templates } = await useFetch(
@@ -74,13 +75,13 @@ const importTemplate = (pageName) => {
 const confirmModal = async () => {
   $swal
     .fire({
-      title: "Adakah anda pasti mahu mengimport templat ini?",
-      text: "Tindakan ini tidak boleh dibatalkan.",
+      title: "Are you sure you want to import this template?",
+      text: "This action cannot be undone.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Ya",
+      confirmButtonText: "Yes",
     })
     .then(async (result) => {
       if (result.isConfirmed) {
@@ -98,7 +99,7 @@ const confirmModal = async () => {
 
         if (res.value.statusCode == 200) {
           $swal.fire({
-            title: "Berjaya",
+            title: "Success",
             text: res.value.message,
             icon: "success",
             confirmButtonText: "Ok",
@@ -123,14 +124,14 @@ const confirmModal = async () => {
       <template #header>
         <div class="flex">
           <Icon class="mr-2 flex justify-center" name="ic:outline-info"></Icon
-          >Maklumat
+          >Info
         </div>
       </template>
       <template #body>
         <p class="mb-4">
-          Halaman ini digunakan untuk menyunting kandungan halaman. Anda boleh menyunting
-          kandungan halaman dengan memilih halaman untuk disunting dari senarai kad
-          di bawah.
+          This page is used to edit the content of a page. You can edit the
+          content of the page by choosing the page to edit from the card list
+          below.
         </p>
       </template>
     </rs-card>
@@ -140,7 +141,7 @@ const confirmModal = async () => {
         <!-- Search Button -->
         <FormKit
           v-model="searchText"
-          placeholder="Cari Tajuk..."
+          placeholder="Search Title..."
           type="search"
         />
 
@@ -152,7 +153,7 @@ const confirmModal = async () => {
             class="page border-2 border-gray-400 border-dashed rounded-lg"
             style="min-height: 250px"
           >
-            Tambah Halaman Baru
+            Add New Page
           </div> -->
           <div
             v-for="page in searchPages()"
@@ -161,7 +162,7 @@ const confirmModal = async () => {
           >
             <div class="pb-4">
               <h4 class="font-semibold">
-                {{ capitalizeSentence(page.meta.title) }}
+                {{ capitalizeSentence(page.meta?.title || page.name) }}
               </h4>
               <nuxt-link :to="page.path">
                 <div
@@ -180,6 +181,13 @@ const confirmModal = async () => {
               class="button-list flex justify-between border-t pt-4 border-gray-300"
             >
               <div class="flex gap-x-2">
+                <!-- <nuxt-link
+                  :to="`/devtool/content-editor/canvas?page=${page.name}`"
+                >
+                  <rs-button variant="primary" class="!py-2 !px-3">
+                    <Icon name="ph:paint-brush-broad"></Icon>
+                  </rs-button>
+                </nuxt-link> -->
                 <nuxt-link
                   :to="`/devtool/content-editor/code?page=${page.name}`"
                 >
@@ -207,18 +215,18 @@ const confirmModal = async () => {
       <FormKit
         v-model="selectTemplate"
         type="select"
-        label="Templat Kandungan"
+        label="Content Template"
         :options="templateOptions"
         validation="required"
         validation-visibility="dirty"
-        help="Sila pilih dengan teliti templat yang anda ingin import. Tindakan ini tidak boleh dibatalkan."
+        help="Please choose carefully the template that you want to import. This action cannot be undone."
       />
       <template #footer>
         <rs-button @click="showModal = false" variant="primary-text">
-          Batal
+          Cancel
         </rs-button>
         <rs-button @click="confirmModal" :disabled="!selectTemplate"
-          >Sahkan</rs-button
+          >Confirm</rs-button
         >
       </template>
     </rs-modal>

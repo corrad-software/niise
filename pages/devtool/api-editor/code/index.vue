@@ -3,7 +3,7 @@
 import { useThemeStore } from "~/stores/theme";
 
 definePageMeta({
-  title: "Penyunting Kod API",
+  title: "API Code Editor",
   middleware: ["auth"],
   requiresAuth: true,
 });
@@ -30,6 +30,9 @@ const linterError = ref(false);
 const linterErrorText = ref("");
 const linterErrorColumn = ref(0);
 const linterErrorLine = ref(0);
+
+// Add new ref for loading state
+const isLinterChecking = ref(false);
 
 // Get all themes
 const themes = codemirrorThemes();
@@ -63,8 +66,8 @@ if (data.value.statusCode === 200) {
 } else {
   $swal
     .fire({
-      title: "Ralat",
-      text: "API yang anda cuba sunting tidak dijumpai. Sila pilih API untuk disunting.",
+      title: "Error",
+      text: "The API you are trying to edit is not found. Please choose a API to edit.",
       icon: "error",
       confirmButtonText: "Ok",
     })
@@ -92,25 +95,30 @@ async function formatCode() {
 }
 
 async function checkLinterVue() {
-  // Call API to get the code
-  const { data } = await useFetch("/api/devtool/api/linter", {
-    initialCache: false,
-    method: "POST",
-    body: JSON.stringify({
-      code: fileCode.value,
-    }),
-  });
+  isLinterChecking.value = true;
+  try {
+    // Call API to get the code
+    const { data } = await useFetch("/api/devtool/api/linter", {
+      initialCache: false,
+      method: "POST",
+      body: JSON.stringify({
+        code: fileCode.value,
+      }),
+    });
 
-  if (data.value.statusCode === 200) {
-    linterError.value = false;
-    linterErrorText.value = "";
-    linterErrorColumn.value = 0;
-    linterErrorLine.value = 0;
-  } else if (data.value.statusCode === 400) {
-    linterError.value = true;
-    linterErrorText.value = data.value.data.message;
-    linterErrorColumn.value = data.value.data.column;
-    linterErrorLine.value = data.value.data.line;
+    if (data.value.statusCode === 200) {
+      linterError.value = false;
+      linterErrorText.value = "";
+      linterErrorColumn.value = 0;
+      linterErrorLine.value = 0;
+    } else if (data.value.statusCode === 400) {
+      linterError.value = true;
+      linterErrorText.value = data.value.data.message;
+      linterErrorColumn.value = data.value.data.column;
+      linterErrorLine.value = data.value.data.line;
+    }
+  } finally {
+    isLinterChecking.value = false;
   }
 }
 
@@ -134,8 +142,8 @@ const saveCode = async () => {
 
   if (linterError.value) {
     $swal.fire({
-      title: "Ralat",
-      text: "Terdapat ralat dalam kod anda. Sila betulkannya sebelum menyimpan.",
+      title: "Error",
+      text: "There is an error in your code. Please fix it before saving.",
       icon: "error",
       confirmButtonText: "Ok",
     });
@@ -153,8 +161,8 @@ const saveCode = async () => {
   });
   if (data.value.statusCode === 200) {
     $swal.fire({
-      title: "Berjaya",
-      text: "Kod telah berjaya disimpan.",
+      title: "Success",
+      text: "The code has been saved successfully.",
       icon: "success",
       confirmButtonText: "Ok",
       timer: 1000,
@@ -170,40 +178,49 @@ const saveCode = async () => {
   <div>
     <LayoutsBreadcrumb />
 
-    <rs-alert v-if="hasError" class="mb-4" variant="primary">{{
+    <rs-alert v-if="hasError" class="mb-4" variant="danger">{{
       error
     }}</rs-alert>
     <rs-card>
       <rs-tab fill>
-        <rs-tab-item title="Penyunting">
+        <rs-tab-item title="Editor">
           <div class="flex justify-end gap-2 mb-4">
-            <rs-button class="!p-2" @click="formatCode">
-              <Icon name="simple-icons:prettier" size="20px" class="mr-1" />
-              Format Kod</rs-button
+            <rs-button
+              class="!p-2"
+              @click="saveCode"
+              :disabled="isLinterChecking"
             >
-            <rs-button class="!p-2" @click="saveCode">
-              <Icon
-                name="material-symbols:save-outline-rounded"
-                size="20px"
-                class="mr-1"
-              />
-              Simpan API
+              <div class="flex items-center">
+                <Icon
+                  v-if="!isLinterChecking"
+                  name="material-symbols:save-outline-rounded"
+                  size="20px"
+                  class="mr-1"
+                />
+                <Icon
+                  v-else
+                  name="eos-icons:loading"
+                  size="20px"
+                  class="mr-1 animate-spin"
+                />
+                {{ isLinterChecking ? "Checking..." : "Save API" }}
+              </div>
             </rs-button>
           </div>
           <Transition>
-            <rs-alert v-if="linterError">
+            <rs-alert v-if="linterError" variant="danger" class="mb-4">
               <div class="flex gap-2">
                 <Icon
                   name="material-symbols:error-outline-rounded"
                   size="20px"
                 />
                 <div>
-                  <div class="font-bold">Ralat ESLint</div>
+                  <div class="font-bold">ESLint Error</div>
                   <div class="text-sm">
                     {{ linterErrorText }}
                   </div>
                   <div class="text-xs mt-2">
-                    Baris: {{ linterErrorLine }} Lajur: {{ linterErrorColumn }}
+                    Line: {{ linterErrorLine }} Column: {{ linterErrorColumn }}
                   </div>
                 </div>
               </div>
@@ -216,7 +233,7 @@ const saveCode = async () => {
             mode="javascript"
           />
         </rs-tab-item>
-        <rs-tab-item title="Penguji API">
+        <rs-tab-item title="API Tester">
           <rs-api-tester :url="route.query?.path" />
         </rs-tab-item>
       </rs-tab>

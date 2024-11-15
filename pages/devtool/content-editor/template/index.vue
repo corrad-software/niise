@@ -1,6 +1,6 @@
 <script setup>
 definePageMeta({
-  title: "Penyunting Templat",
+  title: "Template Editor",
   middleware: ["auth"],
   requiresAuth: true,
 });
@@ -31,14 +31,14 @@ const searchTemplate = () => {
       <template #header>
         <div class="flex">
           <Icon class="mr-2 flex justify-center" name="ic:outline-info"></Icon
-          >Maklumat
+          >Info
         </div>
       </template>
       <template #body>
         <p class="mb-4">
-          Laman web ini berfungsi sebagai platform untuk pengurusan templat, membolehkan
-          pengguna memilih dan menggunakan templat untuk memaparkan halaman mengikut
-          reka bentuk pilihan mereka.
+          This webpage serves as a platform for template management, enabling
+          users to select and utilize templates for rendering pages according to
+          their chosen design.
         </p>
       </template>
     </rs-card>
@@ -48,7 +48,7 @@ const searchTemplate = () => {
         <!-- Search Button -->
         <FormKit
           v-model="searchText"
-          placeholder="Cari Tajuk..."
+          placeholder="Search Title..."
           type="search"
         />
 
@@ -60,7 +60,7 @@ const searchTemplate = () => {
             class="page border-2 border-gray-400 border-dashed rounded-lg"
             style="min-height: 250px"
           >
-            Tambah Halaman Baru
+            Add New Page
           </div> -->
           <div
             v-for="val in searchTemplate()"
@@ -98,7 +98,9 @@ const searchTemplate = () => {
               <div class="flex items-center mb-4">
                 <p class="text-sm">{{ val.description }}</p>
               </div>
-              <div class="tag h-10 flex justify-start items-center overflow-x-auto gap-x-2">
+              <div
+                class="tag h-10 flex justify-start items-center overflow-x-auto gap-x-2"
+              >
                 <rs-badge v-for="val2 in val.tag">
                   {{ val2 }}
                 </rs-badge>

@@ -14,7 +14,7 @@ const router = useRouter();
 const getRoutes = router.getRoutes();
 const getNavigation = Menu ? ref(Menu) : ref([]);
 
-const allMenus = [];
+const allMenus = reactive([]);
 
 const showCode = ref(false);
 let i = 1;
@@ -42,6 +42,16 @@ const showModalAddForm = ref({
   name: "",
   path: "",
 });
+
+const systemPages = [
+  "/devtool",
+  "/dashboard",
+  "/login",
+  "/logout",
+  "/register",
+  "/reset-password",
+  "/forgot-password",
+];
 
 const kebabtoTitle = (str) => {
   if (!str) return str;
@@ -116,6 +126,10 @@ const openModalEdit = (menu) => {
 };
 
 const saveEditMenu = async () => {
+  // Clean the name and title ensure not spacing at the beginning or end
+  showModalEditForm.value.title = showModalEditForm.value.title.trim();
+  showModalEditForm.value.name = showModalEditForm.value.name.trim();
+
   const res = await useFetch("/api/devtool/menu/edit", {
     method: "POST",
     initialCache: false,
@@ -133,6 +147,8 @@ const saveEditMenu = async () => {
   const data = res.data.value;
 
   if (data.statusCode === 200) {
+    showModalEdit.value = false;
+
     nuxtApp.$swal.fire({
       title: "Success",
       text: data.message,
@@ -140,8 +156,8 @@ const saveEditMenu = async () => {
       timer: 2000,
       showConfirmButton: false,
     });
-    // refresh the page
-    nuxtApp.$router.go();
+
+    window.location.reload();
   }
 };
 
@@ -154,6 +170,10 @@ const openModalAdd = () => {
 };
 
 const saveAddMenu = async () => {
+  // Clean the name and title ensure not spacing at the beginning or end
+  showModalAddForm.value.title = showModalAddForm.value.title.trim();
+  showModalAddForm.value.name = showModalAddForm.value.name.trim();
+
   const res = await useFetch("/api/devtool/menu/add", {
     method: "POST",
     initialCache: false,
@@ -170,6 +190,8 @@ const saveAddMenu = async () => {
   const data = res.data.value;
 
   if (data.statusCode === 200) {
+    showModalAdd.value = false;
+
     nuxtApp.$swal.fire({
       title: "Success",
       text: data.message,
@@ -177,8 +199,8 @@ const saveAddMenu = async () => {
       timer: 2000,
       showConfirmButton: false,
     });
-    // refresh the page
-    nuxtApp.$router.go();
+
+    window.location.reload();
   } else {
     nuxtApp.$swal.fire({
       title: "Error",
@@ -222,8 +244,7 @@ const deleteMenu = async (menu) => {
             showConfirmButton: false,
           });
 
-          // refresh the page
-          nuxtApp.$router.go();
+          window.location.reload();
         }
       }
     });
@@ -319,9 +340,6 @@ const overwriteJsonFileLocal = async (menus) => {
       timer: 2000,
       showConfirmButton: false,
     });
-
-    // refresh the page
-    nuxtApp.$router.go();
   }
 };
 
@@ -398,6 +416,21 @@ const addMenuFromList = () => {
 //-----------------------------------------------------------------------------
 //-------------------------SECOND CHILD TAB ITEM (END)-------------------------
 //-----------------------------------------------------------------------------
+
+// Add this watcher after the showModalEditForm ref declaration
+watch(
+  () => showModalEditForm.value,
+  (newTitle) => {
+    showModalEditForm.value.name = newTitle.toLowerCase().replace(/\s+/g, "-");
+  }
+);
+
+watch(
+  () => showModalAddForm.value.title,
+  (newTitle) => {
+    showModalAddForm.value.name = newTitle.toLowerCase().replace(/\s+/g, "-");
+  }
+);
 </script>
 
 <template>
@@ -408,14 +441,14 @@ const addMenuFromList = () => {
       <template #header>
         <div class="flex">
           <Icon class="mr-2 flex justify-center" name="ic:outline-info"></Icon
-          >Maklumat
+          >Info
         </div>
       </template>
       <template #body>
         <p class="mb-4">
-          Halaman ini digunakan untuk mengedit menu laman web. Anda boleh
-          menambah, mengedit, dan memadam item menu. Anda juga boleh mengubah
-          susunan item menu dengan menyeret dan melepaskannya.
+          This page is used to edit the menu of the website. You can add, edit,
+          and delete menu items. You can also change the order of the menu items
+          by dragging and dropping them.
         </p>
       </template>
     </rs-card>
@@ -423,11 +456,11 @@ const addMenuFromList = () => {
     <rs-card>
       <div class="pt-2">
         <rs-tab fill>
-          <rs-tab-item title="Semua Menu">
+          <rs-tab-item title="All Menu">
             <div class="flex justify-end items-center mb-4">
               <rs-button @click="openModalAdd">
                 <Icon name="material-symbols:add" class="mr-1"></Icon>
-                Tambah Menu
+                Add Menu
               </rs-button>
             </div>
             <!-- Table All Menu -->
@@ -447,7 +480,7 @@ const addMenuFromList = () => {
             >
               <template v-slot:name="data">
                 <NuxtLink
-                  class="text-primary hover:underline"
+                  class="text-blue-700 hover:underline"
                   :to="data.value.path"
                   target="_blank"
                   >{{ data.text }}</NuxtLink
@@ -470,39 +503,44 @@ const addMenuFromList = () => {
                 </div>
               </template>
               <template v-slot:action="data">
-                <div
-                  class="flex items-center"
-                  v-if="data.value.parentMenu != 'admin'"
-                >
-                  <Icon
-                    name="material-symbols:edit-outline-rounded"
-                    class="text-primary hover:text-primary/90 cursor-pointer mr-1"
-                    size="22"
-                    @click="openModalEdit(data.value)"
-                  ></Icon>
-                  <Icon
-                    name="material-symbols:close-rounded"
-                    class="text-primary hover:text-primary/90 cursor-pointer"
-                    size="22"
-                    @click="deleteMenu(data.value)"
-                  ></Icon>
+                <div class="flex items-center">
+                  <template
+                    v-if="
+                      !systemPages.some((path) =>
+                        data.value.path.startsWith(path)
+                      ) && data.value.parentMenu != 'admin'
+                    "
+                  >
+                    <Icon
+                      name="material-symbols:edit-outline-rounded"
+                      class="text-primary hover:text-primary/90 cursor-pointer mr-1"
+                      size="22"
+                      @click="openModalEdit(data.value)"
+                    ></Icon>
+                    <Icon
+                      name="material-symbols:close-rounded"
+                      class="text-primary hover:text-primary/90 cursor-pointer"
+                      size="22"
+                      @click="deleteMenu(data.value)"
+                    ></Icon>
+                  </template>
+                  <div v-else class="text-gray-400">-</div>
                 </div>
-                <div class="flex items-center" v-else>-</div>
               </template>
             </rs-table>
           </rs-tab-item>
-          <rs-tab-item title="Urus Menu Sisi">
+          <rs-tab-item title="Manage Side Menu">
             <div class="flex justify-end items-center mb-4">
               <rs-button
                 class="mr-2"
                 @click="showCode ? (showCode = false) : (showCode = true)"
               >
                 <Icon name="ic:baseline-code" class="mr-2"></Icon>
-                {{ showCode ? "Sembunyikan" : "Tunjukkan" }} Kod JSON
+                {{ showCode ? "Hide" : "Show" }} JSON Code
               </rs-button>
               <rs-button @click="overwriteJsonFileLocal(sideMenuList)">
                 <Icon name="mdi:content-save-outline" class="mr-2"></Icon>
-                Simpan Menu
+                Save Menu
               </rs-button>
             </div>
 
@@ -510,7 +548,7 @@ const addMenuFromList = () => {
               <div>
                 <FormKit
                   type="search"
-                  placeholder="Cari Menu..."
+                  placeholder="Search Menu..."
                   outer-class="mb-5"
                   v-model="searchInput"
                 />
@@ -598,62 +636,110 @@ const addMenuFromList = () => {
       ></FormKit>
     </rs-modal>
 
-    <rs-modal
-      title="Edit Menu"
-      v-model="showModalEdit"
-      ok-title="Save"
-      :ok-callback="saveEditMenu"
-    >
-      <FormKit
-        type="text"
-        label="Title"
-        v-model="showModalEditForm.title"
-      ></FormKit>
-      <FormKit
-        type="text"
-        label="Name"
-        v-model="showModalEditForm.name"
-      ></FormKit>
-      <FormKit
-        type="text"
-        label="Path"
-        help="If the last path name is '/', the name of the file will be from its name property. While if the last path name is not '/', the name of the file will be from its path property."
-        v-model="showModalEditForm.path"
-      >
-        <template #prefix>
-          <div class="bg-slate-100 h-full rounded-l-md p-3">/</div>
-        </template>
-      </FormKit>
+    <rs-modal title="Edit Menu" v-model="showModalEdit" :overlay-close="false">
+      <template #body>
+        <FormKit type="form" :actions="false" @submit="saveEditMenu">
+          <FormKit
+            type="text"
+            label="Title"
+            :validation="[['required'], ['matches', '/^[a-zA-Z0-9]+$/']]"
+            :validation-messages="{
+              required: 'Title is required',
+              matches:
+                'Title contains invalid characters. Only letters and numbers are allowed.',
+            }"
+            v-model="showModalEditForm.title"
+          />
+
+          <FormKit
+            type="text"
+            label="Path"
+            help="If the last path name is '/', the name of the file will be from its name property. While if the last path name is not '/', the name of the file will be from its path property."
+            :validation="[['required'], ['matches', '/^[a-z0-9/-]+$/']]"
+            :validation-messages="{
+              required: 'Path is required',
+              matches:
+                'Path contains invalid characters or spacing before or after. Only letters, numbers, dashes, and underscores are allowed.',
+            }"
+            v-model="showModalEditForm.path"
+          >
+            <template #prefix>
+              <div
+                class="bg-slate-100 dark:bg-slate-700 h-full rounded-l-md p-3"
+              >
+                /
+              </div>
+            </template>
+          </FormKit>
+          <div class="flex justify-end gap-2">
+            <rs-button variant="outline" @click="showModalEdit = false">
+              Cancel
+            </rs-button>
+            <rs-button btnType="submit">
+              <Icon
+                name="material-symbols:save-outline"
+                class="mr-2 !w-4 !h-4"
+              />
+              Save Changes
+            </rs-button>
+          </div>
+        </FormKit>
+      </template>
+
+      <template #footer> </template>
     </rs-modal>
 
-    <rs-modal
-      title="Add Menu"
-      v-model="showModalAdd"
-      ok-title="Save"
-      :ok-callback="saveAddMenu"
-    >
-      <FormKit
-        type="text"
-        label="Title"
-        v-model="showModalAddForm.title"
-      ></FormKit>
-      <FormKit
-        type="text"
-        label="Name"
-        v-model="showModalAddForm.name"
-      ></FormKit>
-      <FormKit
-        type="text"
-        label="Path"
-        help="If the last path name is '/', the name of the file will be from its name property. While if the last path name is not '/', the name of the file will be from its path property."
-        v-model="showModalAddForm.path"
-      >
-        <template #prefix>
-          <div class="bg-slate-100 dark:bg-slate-700 h-full rounded-l-md p-3">
-            /
+    <rs-modal title="Add Menu" v-model="showModalAdd" :overlay-close="false">
+      <template #body>
+        <FormKit type="form" :actions="false" @submit="saveAddMenu">
+          <FormKit
+            type="text"
+            label="Title"
+            :validation="[['required'], ['matches', '/^[a-zA-Z0-9]+$/']]"
+            :validation-messages="{
+              required: 'Title is required',
+              matches:
+                'Title contains invalid characters. Only letters and numbers are allowed.',
+            }"
+            v-model="showModalAddForm.title"
+          />
+
+          <FormKit
+            type="text"
+            label="Path"
+            help="If the last path name is '/', the name of the file will be from its name property. While if the last path name is not '/', the name of the file will be from its path property."
+            :validation="[['required'], ['matches', '/^[a-z0-9/-]+$/']]"
+            :validation-messages="{
+              required: 'Path is required',
+              matches:
+                'Path contains invalid characters or spacing before or after. Only letters, numbers, dashes, and underscores are allowed.',
+            }"
+            v-model="showModalAddForm.path"
+          >
+            <template #prefix>
+              <div
+                class="bg-slate-100 dark:bg-slate-700 h-full rounded-l-md p-3"
+              >
+                /
+              </div>
+            </template>
+          </FormKit>
+          <div class="flex justify-end gap-2">
+            <rs-button variant="outline" @click="showModalAdd = false">
+              Cancel
+            </rs-button>
+            <rs-button btnType="submit">
+              <Icon
+                name="material-symbols:add-circle-outline-rounded"
+                class="mr-2 !w-4 !h-4"
+              />
+              Add Menu
+            </rs-button>
           </div>
-        </template>
-      </FormKit>
+        </FormKit>
+      </template>
+
+      <template #footer> </template>
     </rs-modal>
   </div>
 </template>
