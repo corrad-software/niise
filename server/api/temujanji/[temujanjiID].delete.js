@@ -2,33 +2,41 @@ export default defineEventHandler(async (event) => {
   const { temujanjiID } = event.context.params;
 
   try {
-    // Check if temujanji_detail exists before deleting
-    const detailExists = await prisma.temujanji_detail.findFirst({
+    // Get temujanji record to access related IDs
+    const temujanji = await prisma.temujanji.findUnique({
       where: { temujanjiID: parseInt(temujanjiID) },
+      select: {
+        temujanjiDetailID: true,
+        pemohonID: true,
+      },
     });
 
-    if (detailExists) {
-      await prisma.temujanji_detail.deleteMany({
-        where: { temujanjiID: parseInt(temujanjiID) },
-      });
+    if (!temujanji) {
+      return { statusCode: 404, message: "Temujanji tidak dijumpai" };
     }
 
-    const pemohonExists = await prisma.pemohon.findFirst({
-      where: { temujanjiID: parseInt(temujanjiID) },
-    });
-
-    if (pemohonExists) {
-      await prisma.pemohon.delete({
-        where: { temujanjiID: parseInt(temujanjiID) },
-      });
-    }
-
+    // Delete the temujanji record first
     await prisma.temujanji.delete({
       where: { temujanjiID: parseInt(temujanjiID) },
     });
 
+    // Then delete temujanji_detail if exists
+    if (temujanji.temujanjiDetailID) {
+      await prisma.temujanji_detail.delete({
+        where: { temujanjiDetailID: temujanji.temujanjiDetailID },
+      });
+    }
+
+    // Finally delete pemohon if exists
+    if (temujanji.pemohonID) {
+      await prisma.pemohon.delete({
+        where: { id: temujanji.pemohonID },
+      });
+    }
+
     return { statusCode: 200, message: "Berjaya" };
   } catch (error) {
+    console.error(error);
     return { statusCode: 500, message: error.message };
   }
 });

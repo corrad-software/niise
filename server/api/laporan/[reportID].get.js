@@ -83,8 +83,8 @@ export default defineEventHandler(async (event) => {
       documentTambahan: report.report_doc_support
         ? [
             {
-              nama: report.report_doc_support[0].document.documentName,
-              file: report.report_doc_support[0].document.documentURL,
+              nama: report?.report_doc_support[0]?.document?.documentName,
+              file: report?.report_doc_support[0]?.document?.documentURL,
             },
           ]
         : [

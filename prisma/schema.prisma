@@ -314,7 +314,7 @@ model report_doc_support {
 
 model temujanji {
   temujanjiID                                Int               @id @default(autoincrement())
-  noSiri                                     String            @db.VarChar(255)
+  noSiri                                     String?           @db.VarChar(255)
   temujanjiDetailID                          Int?
   pemohonID                                  Int
   jenisSemakan                               String            @db.VarChar(255)
