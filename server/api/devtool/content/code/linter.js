@@ -43,6 +43,8 @@ export default defineEventHandler(async (event) => {
         "textarea",
         "submit",
         "button",
+        "mask",
+        "form",
       ];
 
       // Find all FormKit components
@@ -259,6 +261,28 @@ export default defineEventHandler(async (event) => {
 
     // Validate template structure
     const validateTemplateStructure = (code) => {
+      // Add new validation for script tags inside template
+      const templateContent1 = code.match(
+        /<template>([\s\S]*)<\/template>/
+      )?.[1];
+      if (templateContent1) {
+        const scriptInTemplate = templateContent1.match(/<script\b[^>]*>/i);
+        if (scriptInTemplate) {
+          const lineNumber = templateContent1
+            .slice(0, scriptInTemplate.index)
+            .split("\n").length;
+          const column =
+            scriptInTemplate.index -
+            templateContent1.lastIndexOf("\n", scriptInTemplate.index);
+
+          throw {
+            message: "Script tags are not allowed inside template section",
+            line: lineNumber,
+            column: column,
+          };
+        }
+      }
+
       // Check for root level template and script tags
       const rootTemplateCount = (
         code.match(/^[\s\S]*<template>[\s\S]*<\/template>/g) || []
@@ -274,28 +298,28 @@ export default defineEventHandler(async (event) => {
       }
 
       // Extract template content for further validation
-      const templateContent = code.match(
+      const templateContent2 = code.match(
         /<template>([\s\S]*)<\/template>/
       )?.[1];
-      if (templateContent) {
+      if (templateContent2) {
         const tagStack = [];
         const tagRegex = /<\/?([a-zA-Z][a-zA-Z0-9:-]*)\s*([^>]*?)(\/?)>/g;
         let match;
         let lineNumber = 1;
         let lastIndex = 0;
 
-        while ((match = tagRegex.exec(templateContent)) !== null) {
+        while ((match = tagRegex.exec(templateContent2)) !== null) {
           const [fullTag, tagName, attributes, selfClosing] = match;
 
           // Calculate line number
           lineNumber += (
-            templateContent.slice(lastIndex, match.index).match(/\n/g) || []
+            templateContent2.slice(lastIndex, match.index).match(/\n/g) || []
           ).length;
           lastIndex = match.index;
 
           // Skip comments
-          if (templateContent.slice(match.index).startsWith("<!--")) {
-            const commentEnd = templateContent.indexOf("-->", match.index);
+          if (templateContent2.slice(match.index).startsWith("<!--")) {
+            const commentEnd = templateContent2.indexOf("-->", match.index);
             if (commentEnd !== -1) {
               tagRegex.lastIndex = commentEnd + 3;
               continue;
@@ -307,7 +331,7 @@ export default defineEventHandler(async (event) => {
               message: `Malformed tag found: ${fullTag}`,
               line: lineNumber,
               column:
-                match.index - templateContent.lastIndexOf("\n", match.index),
+                match.index - templateContent2.lastIndexOf("\n", match.index),
             };
           }
 
@@ -318,7 +342,7 @@ export default defineEventHandler(async (event) => {
               name: tagName,
               line: lineNumber,
               column:
-                match.index - templateContent.lastIndexOf("\n", match.index),
+                match.index - templateContent2.lastIndexOf("\n", match.index),
             });
           } else {
             if (tagStack.length === 0) {
@@ -326,7 +350,7 @@ export default defineEventHandler(async (event) => {
                 message: `Unexpected closing tag </${tagName}> found without matching opening tag`,
                 line: lineNumber,
                 column:
-                  match.index - templateContent.lastIndexOf("\n", match.index),
+                  match.index - templateContent2.lastIndexOf("\n", match.index),
               };
             }
 
@@ -336,7 +360,7 @@ export default defineEventHandler(async (event) => {
                 message: `Mismatched tags: expected closing tag for "${lastTag.name}" but found "${tagName}"`,
                 line: lineNumber,
                 column:
-                  match.index - templateContent.lastIndexOf("\n", match.index),
+                  match.index - templateContent2.lastIndexOf("\n", match.index),
               };
             }
             tagStack.pop();
