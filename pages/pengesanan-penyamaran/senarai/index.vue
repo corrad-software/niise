@@ -3,6 +3,7 @@ const { $swal } = useNuxtApp();
 
 // Reactive variable to store table data
 const tableData = ref([]);
+const showButton = ref({});
 
 // Fetch appointment list from API
 const fetchAppointments = async () => {
@@ -10,6 +11,16 @@ const fetchAppointments = async () => {
     const response = await useFetch("/api/temujanji");
     if (response.data.value && response.data.value.statusCode === 200) {
       tableData.value = response.data.value.data;
+
+      if (response.data.value.showButton) {
+        showButton.value = response.data.value.showButton;
+      } else {
+        showButton.value = {
+          tambah: false,
+          keputusan: false,
+          kemaskini: false,
+        };
+      }
     } else {
       console.error(response.data.value.message);
     }
@@ -80,7 +91,12 @@ onMounted(() => {
     <!-- Header with title and "Add Appointment" button -->
     <div class="flex justify-between items-center">
       <h1>Senarai Temujanji</h1>
-      <rs-button @click="addAppointment" variant="primary" class="mt-2">
+      <rs-button
+        v-if="showButton.tambah"
+        @click="addAppointment"
+        variant="primary"
+        class="mt-2"
+      >
         Tambah Temujanji
       </rs-button>
     </div>
@@ -130,6 +146,7 @@ onMounted(() => {
           <div class="flex gap-2">
             <!-- Button to navigate to the "Update" page for the selected appointment -->
             <rs-button
+              v-if="showButton.keputusan"
               @click="resultAppointment(data.value.kesId)"
               variant="primary"
               size="sm"
@@ -139,6 +156,7 @@ onMounted(() => {
             </rs-button>
 
             <rs-button
+              v-if="showButton.kemaskini"
               @click="updateAppointment(data.value.kesId)"
               variant="info"
               size="sm"
@@ -147,6 +165,8 @@ onMounted(() => {
             >
               Kemaskini
             </rs-button>
+
+            <div v-if="!showButton.kemaskini && !showButton.keputusan">-</div>
 
             <!-- Button to delete the selected appointment -->
             <!-- <rs-button

@@ -42,7 +42,7 @@ export default [
         ],
         meta: {
           auth: {
-            role: ["PDRM"],
+            role: ["PDRM", "Pegawai Forensik"],
           },
         },
       },

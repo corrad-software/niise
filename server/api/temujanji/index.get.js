@@ -1,5 +1,23 @@
 export default defineEventHandler(async (event) => {
   try {
+    const { roles } = event.context.user;
+
+    let showButtonObj = {
+      tambah: false,
+      keputusan: false,
+      kemaskini: false,
+    };
+
+    if (roles.includes("Pegawai Forensik")) {
+      showButtonObj.keputusan = true;
+      showButtonObj.kemaskini = true;
+    }
+
+    if (roles.includes("PDRM")) {
+      showButtonObj.tambah = true;
+      showButtonObj.keputusan = true;
+    }
+
     const appointments = await prisma.temujanji.findMany({
       include: {
         pemohon: {
@@ -20,6 +38,7 @@ export default defineEventHandler(async (event) => {
         status: appointment.status || "Pending",
         tindakan: appointment.temujanjiID,
       })),
+      showButton: showButtonObj,
     };
   } catch (error) {
     console.log(error);
