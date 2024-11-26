@@ -95,6 +95,7 @@ export default defineEventHandler(async (event) => {
         pemohon: {
           create: {
             userID: userID, // Assuming the user is authenticated, replace with actual user ID
+            nama_pemohon: namaPemohon,
             pangkat_pemohon: pangkatPemohon,
             no_pegawai_pemohon: noPegawaiPemohon,
           },
@@ -113,6 +114,11 @@ export default defineEventHandler(async (event) => {
         no_laporan_polis: noLaporanPolis,
         tarikh_temujanji: new Date(tarikhTemujanji),
         slot_masa: new Date(`1970-01-01T${slotMasa}`), // Convert slotMasa string to Time
+        user_permohonan_create_byTouser: {
+          connect: {
+            userID: userID,
+          },
+        },
         create_at: new Date(),
       },
     });
@@ -126,7 +132,6 @@ export default defineEventHandler(async (event) => {
           kuantiti_barang: parseInt(barang.kuantitiBarang),
           tanda_barang: barang.tandaBarang,
           keadaan_barang: barang.keadaanBarang,
-          create_by: userID,
           create_at: new Date(),
         },
       });

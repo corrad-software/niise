@@ -1,6 +1,8 @@
 // File: /api/permohonan/[noSiri]/semak.put.js
 export default defineEventHandler(async (event) => {
   const { noSiri } = event.context.params;
+  const { userID } = event.context.user;
+
   const body = await readBody(event); // Get form data from frontend
 
   try {
@@ -47,7 +49,15 @@ export default defineEventHandler(async (event) => {
     // Update the status of the permohonan to "Permohonan Disemak"
     await prisma.permohonan.update({
       where: { no_siri: noSiri },
-      data: { status_permohonan: "Permohonan Disemak" },
+      data: {
+        status_permohonan: "Permohonan Disemak",
+        user_permohonan_modified_byTouser: {
+          connect: {
+            userID: userID,
+          },
+        },
+        modified_at: new Date(),
+      },
     });
 
     return {

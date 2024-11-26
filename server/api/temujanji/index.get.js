@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
       data: appointments.map((appointment, index) => ({
         no: index + 1,
         kesId: appointment.temujanjiID,
-        namaPemohon: appointment.pemohon.user.userFullName,
+        namaPemohon: appointment.pemohon.nama_pemohon,
         caraSemakan: appointment.jenisSemakan,
         status: appointment.status || "Pending",
         tindakan: appointment.temujanjiID,

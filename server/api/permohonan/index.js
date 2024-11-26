@@ -1,17 +1,51 @@
 // File: server/api/permohonan/index.get.js
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
   try {
-    const permohonan = await prisma.permohonan.findMany({
-      where: {
+    const { userID, roles } = event.context.user;
+
+    let whereCondition = {};
+
+    // Role-based filtering
+    if (roles.includes("Pegawai Kaunter")) {
+      whereCondition = {
+        status_permohonan: {
+          in: ["Permohonan Dihantar", "Permohonan Disemak"],
+        },
+      };
+    } else if (
+      roles.includes("Ketua Bahagian") ||
+      roles.includes("Pegawai Forensik")
+    ) {
+      whereCondition = {
+        status_permohonan: {
+          in: ["Permohonan Diterima"],
+        },
+      };
+    } else {
+      // Default condition for other roles
+      whereCondition = {
         status_permohonan: {
           notIn: ["Permohonan Ditolak"],
         },
-      },
+      };
+    }
+
+    const permohonan = await prisma.permohonan.findMany({
+      where: whereCondition,
       select: {
         id: true,
         no_siri: true,
         create_at: true,
         status_permohonan: true,
+        pemohon: {
+          select: {
+            user: {
+              select: {
+                userFullName: true,
+              },
+            },
+          },
+        },
       },
       orderBy: {
         create_at: "desc",
@@ -31,14 +65,17 @@ export default defineEventHandler(async () => {
           noSiri: item.no_siri,
           tarikhMasa: gmt8Date.toISOString().replace("T", " ").slice(0, 19),
           status: item.status_permohonan,
+          pemohon: item.pemohon?.nama_pemohon || "-",
           butiran: item.id,
         };
       }),
     };
   } catch (error) {
+    console.error("Error fetching permohonan:", error);
     return {
       statusCode: 500,
       message: "Failed to fetch permohonan data.",
+      error: error.message,
     };
   }
 });

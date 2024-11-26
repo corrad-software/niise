@@ -51,7 +51,7 @@ export default defineEventHandler(async (event) => {
     return {
       statusCode: 200,
       data: {
-        namaPemohon: permohonan.pemohon?.user?.userFullName || "", // Get namaPemohon from userID
+        namaPemohon: permohonan.pemohon?.nama_pemohon || "", // Get namaPemohon from userID
         pangkatPemohon: permohonan.pemohon?.pangkat_pemohon || "",
         noPegawaiPemohon: permohonan.pemohon?.no_pegawai_pemohon || "",
         namaPenghantar: permohonan.penghantar?.nama_penghantar || "",

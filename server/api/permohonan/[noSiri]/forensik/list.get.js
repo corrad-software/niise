@@ -1,5 +1,12 @@
 export default defineEventHandler(async (event) => {
   const { noSiri } = event.context.params;
+  const { roles } = event.context.user;
+
+  let showSection = false;
+
+  if (!roles.includes("Ketua Bahagian")) {
+    return { statusCode: 200, data: [], showSection: false };
+  }
 
   try {
     // Fetch the permohonan by noSiri
@@ -17,6 +24,7 @@ export default defineEventHandler(async (event) => {
             },
           },
         },
+        status_permohonan: true,
       },
     });
 
@@ -35,9 +43,17 @@ export default defineEventHandler(async (event) => {
       })
     );
 
+    // Check status of permohonan
+    const status = permohonan.status_permohonan;
+
+    if (status === "Permohonan Diluluskan") {
+      showSection = true;
+    }
+
     return {
       statusCode: 200,
       data: forensicOfficers,
+      showSection: showSection,
     };
   } catch (error) {
     return { statusCode: 500, message: "Error fetching forensic officers." };

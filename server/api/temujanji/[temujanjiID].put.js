@@ -1,8 +1,71 @@
+import { writeFile } from "fs/promises";
+import { join } from "path";
+import { mkdir } from "fs/promises";
+
+// Add allowed file types
+const ALLOWED_FILE_TYPES = {
+  "application/pdf": "pdf",
+  "image/jpeg": "jpg",
+};
+
 export default defineEventHandler(async (event) => {
   const { temujanjiID } = event.context.params;
+  const { userID } = event.context.user;
   const body = await readBody(event);
 
   try {
+    // Handle file upload if laporanTdb exists and is a base64 string
+    let laporanSystemTdb = null;
+    if (body.laporanTdb && body.laporanTdb.startsWith("data:")) {
+      // Extract file extension and base64 data
+      const matches = body.laporanTdb.match(
+        /^data:([A-Za-z-+\/]+);base64,(.+)$/
+      );
+
+      if (!matches || matches.length !== 3) {
+        throw new Error("Invalid base64 string");
+      }
+
+      const fileType = matches[1];
+      const base64Data = matches[2];
+
+      // Validate file type
+      if (!ALLOWED_FILE_TYPES[fileType]) {
+        throw new Error(
+          "Jenis fail tidak dibenarkan. Sila muat naik fail PDF atau JPG sahaja."
+        );
+      }
+
+      const extension = ALLOWED_FILE_TYPES[fileType];
+
+      // Create unique filename
+      const fileName = `laporan_${temujanjiID}_${Date.now()}.${extension}`;
+
+      // Ensure uploads directory exists
+      const uploadDir = join(process.cwd(), "public", "uploads");
+      await mkdir(uploadDir, { recursive: true });
+
+      // Write file
+      const filePath = join(uploadDir, fileName);
+      await writeFile(filePath, base64Data, "base64");
+
+      // Create document record
+      const document = await prisma.document.create({
+        data: {
+          documentName: fileName,
+          documentURL: `/uploads/${fileName}`,
+          documentType: "LAPORAN",
+          documentExtension: extension,
+          imageMIMEType: fileType,
+          documentSize: Math.round(base64Data.length * 0.75), // Approximate size in bytes
+          documentStatus: "ACTIVE",
+          documentCreatedDate: new Date().toISOString(),
+        },
+      });
+
+      laporanSystemTdb = document.documentID;
+    }
+
     // Get temujanji details ID
     const temujanjiDetailsID = await prisma.temujanji.findFirst({
       where: { temujanjiID: parseInt(temujanjiID) },
@@ -18,9 +81,7 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    console.log(temujanjiDetailsID);
-
-    // Update the main `temujanji` table and related details in `temujanji_detail`
+    // Update the temujanji_detail table
     await prisma.temujanji_detail.update({
       where: {
         temujanjiDetailID: temujanjiDetailsID.temujanjiDetailID,
@@ -50,6 +111,18 @@ export default defineEventHandler(async (event) => {
         persamaanTandaTangan: body.persamaanTandaTangan || null,
         pemeriksaanLain: body.pemeriksaanLain || null,
         dapatan: body.dapatan,
+        ...(laporanSystemTdb && {
+          document: {
+            connect: {
+              documentID: laporanSystemTdb,
+            },
+          },
+        }),
+        user_temujanji_detail_modified_byTouser: {
+          connect: {
+            userID: userID,
+          },
+        },
         modified_at: new Date(),
       },
     });
@@ -98,7 +171,7 @@ export default defineEventHandler(async (event) => {
     console.error("Error updating temujanji:", error);
     return {
       statusCode: 500,
-      message: "Gagal mengemaskini temujanji.",
+      message: error.message || "Gagal mengemaskini temujanji.",
     };
   }
 });

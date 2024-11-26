@@ -458,7 +458,7 @@ watch(
             <FormKit
               v-model="keyword"
               type="search"
-              placeholder="Search..."
+              placeholder="Carian..."
               outer-class="mb-0"
             />
             <rs-button
@@ -476,7 +476,9 @@ watch(
           </div>
         </div>
         <div class="flex justify-center items-center gap-x-2">
-          <span class="text-[rgb(var(--text-color))]">Result per page:</span>
+          <span class="text-[rgb(var(--text-color))]"
+            >Hasil setiap halaman:</span
+          >
           <FormKit
             type="select"
             v-model="pageSize"
@@ -717,8 +719,8 @@ watch(
     <div v-if="advanced" class="table-footer">
       <div class="flex justify-center items-center gap-x-2">
         <span class="text-sm text-[rgb(var(--text-color))] hidden md:block"
-          >Showing {{ pageSize * currentPage - pageSize + 1 }} to
-          {{ pageSize * currentPage }} of {{ totalEntries }} entries</span
+          >Memaparkan {{ pageSize * currentPage - pageSize + 1 }} hingga
+          {{ pageSize * currentPage }} daripada {{ totalEntries }} entri</span
         >
       </div>
       <div class="table-footer-page">

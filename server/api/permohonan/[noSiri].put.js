@@ -97,6 +97,7 @@ export default defineEventHandler(async (event) => {
         pemohon: {
           update: {
             userID: userID,
+            nama_pemohon: namaPemohon,
             pangkat_pemohon: pangkatPemohon,
             no_pegawai_pemohon: noPegawaiPemohon,
           },
@@ -117,6 +118,11 @@ export default defineEventHandler(async (event) => {
         no_laporan_polis: noLaporanPolis,
         tarikh_temujanji: new Date(tarikhTemujanji),
         slot_masa: new Date(`1970-01-01T${slotMasa}`),
+        user_permohonan_modified_byTouser: {
+          connect: {
+            userID: userID,
+          },
+        },
         modified_at: new Date(),
       },
     });
@@ -134,7 +140,6 @@ export default defineEventHandler(async (event) => {
           kuantiti_barang: parseInt(barang.kuantitiBarang),
           tanda_barang: barang.tandaBarang,
           keadaan_barang: barang.keadaanBarang,
-          create_by: userID,
           create_at: new Date(),
         },
       });

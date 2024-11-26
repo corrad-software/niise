@@ -35,13 +35,19 @@ export default defineEventHandler(async (event) => {
       .join(" ");
 
     // Transform the lookups data to the required format
-    const transformedLookups = [
-      { label: `Sila Pilih ${defaultTitle}`, value: null }, // Add an empty option as the first item
-      ...lookups.map((lookup) => ({
-        label: lookup.lookupValue,
-        value: lookup.lookupID,
-      })),
-    ];
+    const transformedLookups =
+      type === "dapatan"
+        ? lookups.map((lookup) => ({
+            label: lookup.lookupValue,
+            value: lookup.lookupID,
+          }))
+        : [
+            { label: `Sila Pilih ${defaultTitle}`, value: null }, // Add an empty option as the first item
+            ...lookups.map((lookup) => ({
+              label: lookup.lookupValue,
+              value: lookup.lookupID,
+            })),
+          ];
 
     return {
       statusCode: 200,

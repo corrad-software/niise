@@ -1,105 +1,3 @@
-<template>
-  <div>
-    <!-- Header with title and "Permohonan Baru" button -->
-    <div class="flex justify-between items-center">
-      <h1>Senarai Permohonan</h1>
-      <!-- Button to navigate to the "Permohonan Baru" page -->
-      <rs-button @click="permohonanBaru()" variant="primary" class="mt-2">
-        Permohonan Baru
-      </rs-button>
-    </div>
-
-    <!-- Table displaying the list of permohonan -->
-    <rs-card class="mt-4 py-2">
-      <rs-table
-        :data="tableData"
-        :options="{
-          variant: 'default',
-          striped: true,
-          borderless: true,
-        }"
-        :options-advanced="{
-          sortable: true,
-          filterable: false,
-        }"
-        advanced
-      >
-        <!-- Table Headers -->
-        <template v-slot:header>
-          <tr>
-            <th>No</th>
-            <th>No Siri</th>
-            <th>Tarikh & Masa</th>
-            <th>Status</th>
-            <th>Butiran</th>
-          </tr>
-        </template>
-
-        <!-- Table Data Rows -->
-        <template v-slot:no="data">
-          {{ data.text }}
-        </template>
-        <template v-slot:noSiri="data">
-          {{ data.text || "N/A" }}
-        </template>
-        <template v-slot:tarikhMasa="data">
-          {{ data.text || "N/A" }}
-        </template>
-        <template v-slot:status="data">
-          <rs-badge
-            :variant="
-              data.text === 'Aktif' || data.text === 'Sah'
-                ? 'success'
-                : 'danger'
-            "
-          >
-            {{ data.text || "N/A" }}
-          </rs-badge>
-        </template>
-
-        <!-- Actions for each permohonan -->
-        <template v-slot:butiran="data">
-          <div
-            class="flex flex-wrap gap-2"
-            v-if="data.value.status === 'Permohonan Draf'"
-          >
-            <!-- Button to navigate to the "Kemaskini" page for the selected permohonan -->
-            <rs-button
-              @click="kemaskini(data.value.noSiri)"
-              variant="primary"
-              size="sm"
-              class="p-1"
-              title="Kemaskini"
-            >
-              <Icon name="ic:baseline-edit" size="1.2rem" />
-            </rs-button>
-
-            <!-- Button to delete the selected permohonan -->
-            <rs-button
-              @click="hapus(data.value.noSiri)"
-              variant="danger"
-              size="sm"
-              class="p-1"
-              title="Hapus"
-            >
-              <Icon name="ic:baseline-delete" size="1.2rem" />
-            </rs-button>
-          </div>
-
-          <!-- If permohonan has been confirmed or submitted -->
-          <div v-else>
-            <span>{{
-              data.value.status === "Sah"
-                ? "Permohonan telah disahkan"
-                : "Permohonan telah dihantar"
-            }}</span>
-          </div>
-        </template>
-      </rs-table>
-    </rs-card>
-  </div>
-</template>
-
 <script setup>
 const { $swal } = useNuxtApp();
 
@@ -169,3 +67,110 @@ onMounted(() => {
   fetchPermohonan();
 });
 </script>
+
+<template>
+  <div>
+    <!-- Header with title and "Permohonan Baru" button -->
+    <div class="flex justify-between items-center">
+      <h1>Senarai Permohonan</h1>
+      <!-- Button to navigate to the "Permohonan Baru" page -->
+      <rs-button @click="permohonanBaru()" variant="primary" class="mt-2">
+        Permohonan Baru
+      </rs-button>
+    </div>
+
+    <!-- Table displaying the list of permohonan -->
+    <rs-card class="mt-4 py-2">
+      <rs-table
+        :data="tableData"
+        :options="{
+          variant: 'default',
+          striped: true,
+          borderless: true,
+        }"
+        :options-advanced="{
+          sortable: true,
+          filterable: false,
+        }"
+        advanced
+      >
+        <!-- Table Headers -->
+        <template v-slot:header>
+          <tr>
+            <th>No</th>
+            <th>No Siri</th>
+            <th>Tarikh & Masa</th>
+            <th>Status</th>
+            <th>Butiran</th>
+          </tr>
+        </template>
+
+        <!-- Table Data Rows -->
+        <template v-slot:no="data">
+          {{ data.text }}
+        </template>
+        <template v-slot:noSiri="data">
+          {{ data.text || "N/A" }}
+        </template>
+        <template v-slot:tarikhMasa="data">
+          {{ data.text || "N/A" }}
+        </template>
+        <template v-slot:status="data">
+          <rs-badge
+            :variant="
+              data.text === 'Permohonan Draf'
+                ? 'warning'
+                : data.text === 'Permohonan Dihantar' ||
+                  data.text === 'Permohonan Disemak'
+                ? 'info'
+                : data.text === 'Permohonan Diterima' ||
+                  data.text === 'Permohonan Diluluskan'
+                ? 'success'
+                : 'danger'
+            "
+          >
+            {{ data.text || "N/A" }}
+          </rs-badge>
+        </template>
+
+        <!-- Actions for each permohonan -->
+        <template v-slot:butiran="data">
+          <div
+            class="flex flex-wrap gap-2"
+            v-if="data.value.status === 'Permohonan Draf'"
+          >
+            <!-- Button to navigate to the "Kemaskini" page for the selected permohonan -->
+            <rs-button
+              @click="kemaskini(data.value.noSiri)"
+              variant="primary"
+              size="sm"
+              class="p-1"
+              title="Kemaskini"
+            >
+              Kemaskini
+            </rs-button>
+
+            <!-- Button to delete the selected permohonan -->
+            <rs-button
+              @click="hapus(data.value.noSiri)"
+              variant="danger"
+              size="sm"
+              class="p-1"
+              title="Hapus"
+            >
+              Hapus
+            </rs-button>
+          </div>
+
+          <!-- If permohonan has been confirmed or submitted -->
+          <div v-else>
+            <!-- <rs-badge variant="warning">
+              -
+            </rs-badge> -->
+            -
+          </div>
+        </template>
+      </rs-table>
+    </rs-card>
+  </div>
+</template>

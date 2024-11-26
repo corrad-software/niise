@@ -1,84 +1,3 @@
-<template>
-  <div>
-    <!-- Header with title and "Add Appointment" button -->
-    <div class="flex justify-between items-center">
-      <h1>Senarai Temujanji</h1>
-      <rs-button @click="addAppointment" variant="primary" class="mt-2">
-        Tambah Temujanji
-      </rs-button>
-    </div>
-
-    <!-- Table displaying the list of appointments -->
-    <rs-card class="mt-4 py-2">
-      <rs-table
-        :data="tableData"
-        :options="{
-          variant: 'default',
-          striped: true,
-          borderless: true,
-        }"
-        :options-advanced="{
-          sortable: true,
-          filterable: false,
-        }"
-        advanced
-      >
-        <!-- Table Data Rows -->
-        <template v-slot:no="data">
-          {{ data.text }}
-        </template>
-        <template v-slot:kesId="data">
-          {{ data.text || "N/A" }}
-        </template>
-        <template v-slot:namaPemohon="data">
-          {{ data.text || "N/A" }}
-        </template>
-        <template v-slot:caraSemakan="data">
-          {{ data.text || "N/A" }}
-        </template>
-        <template v-slot:status="data">
-          <rs-badge
-            :variant="
-              data.text === 'Aktif' || data.text === 'Selesai'
-                ? 'success'
-                : 'danger'
-            "
-          >
-            {{ data.text || "N/A" }}
-          </rs-badge>
-        </template>
-
-        <!-- Actions for each appointment -->
-        <template v-slot:tindakan="data">
-          <div class="flex gap-2">
-            <!-- Button to navigate to the "Update" page for the selected appointment -->
-            <rs-button
-              @click="updateAppointment(data.value.kesId)"
-              variant="primary"
-              size="sm"
-              class="p-1"
-              title="Kemaskini"
-            >
-              <Icon name="ic:baseline-edit" size="1.2rem" />
-            </rs-button>
-
-            <!-- Button to delete the selected appointment -->
-            <rs-button
-              @click="deleteAppointment(data.value.kesId)"
-              variant="danger"
-              size="sm"
-              class="p-1"
-              title="Hapus"
-            >
-              <Icon name="ic:baseline-delete" size="1.2rem" />
-            </rs-button>
-          </div>
-        </template>
-      </rs-table>
-    </rs-card>
-  </div>
-</template>
-
 <script setup>
 const { $swal } = useNuxtApp();
 
@@ -107,6 +26,11 @@ const addAppointment = () => {
 // Function to navigate to the "Update Appointment" page
 const updateAppointment = (kesId) => {
   navigateTo(`/pengesanan-penyamaran/kemaskini/${kesId}`);
+};
+
+// Function to navigate to the "Result Appointment" page
+const resultAppointment = (kesId) => {
+  navigateTo(`/pengesanan-penyamaran/keputusan/${kesId}`);
 };
 
 // Function to delete an appointment by its kesId
@@ -150,3 +74,93 @@ onMounted(() => {
   fetchAppointments();
 });
 </script>
+
+<template>
+  <div>
+    <!-- Header with title and "Add Appointment" button -->
+    <div class="flex justify-between items-center">
+      <h1>Senarai Temujanji</h1>
+      <rs-button @click="addAppointment" variant="primary" class="mt-2">
+        Tambah Temujanji
+      </rs-button>
+    </div>
+
+    <!-- Table displaying the list of appointments -->
+    <rs-card class="mt-4 py-2">
+      <rs-table
+        :data="tableData"
+        :options="{
+          variant: 'default',
+          striped: true,
+          borderless: true,
+        }"
+        :options-advanced="{
+          sortable: true,
+          filterable: false,
+        }"
+        advanced
+      >
+        <!-- Table Data Rows -->
+        <template v-slot:no="data">
+          {{ data.text }}
+        </template>
+        <template v-slot:kesId="data">
+          {{ data.text || "N/A" }}
+        </template>
+        <template v-slot:namaPemohon="data">
+          {{ data.text || "N/A" }}
+        </template>
+        <template v-slot:caraSemakan="data">
+          {{ data.text || "N/A" }}
+        </template>
+        <template v-slot:status="data">
+          <rs-badge
+            :variant="
+              data.text === 'Temujanji Diterima' || data.text === 'Selesai'
+                ? 'success'
+                : 'warning'
+            "
+          >
+            {{ data.text || "N/A" }}
+          </rs-badge>
+        </template>
+
+        <!-- Actions for each appointment -->
+        <template v-slot:tindakan="data">
+          <div class="flex gap-2">
+            <!-- Button to navigate to the "Update" page for the selected appointment -->
+            <rs-button
+              @click="resultAppointment(data.value.kesId)"
+              variant="primary"
+              size="sm"
+              class="p-1 px-2"
+            >
+              Keputusan
+            </rs-button>
+
+            <rs-button
+              @click="updateAppointment(data.value.kesId)"
+              variant="info"
+              size="sm"
+              class="p-1 px-2"
+              title="Kemaskini"
+            >
+              Kemaskini
+            </rs-button>
+
+            <!-- Button to delete the selected appointment -->
+            <!-- <rs-button
+              @click="deleteAppointment(data.value.kesId)"
+              variant="danger"
+              size="sm"
+              class="p-1"
+              title="Hapus"
+            >
+              <Icon name="ic:baseline-delete" size="1.2rem" />
+            </rs-button> -->
+          </div>
+        </template>
+      </rs-table>
+    </rs-card>
+  </div>
+</template>

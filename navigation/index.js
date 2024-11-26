@@ -11,20 +11,22 @@ export default [
             title: "Permohonan Temujanji",
             path: "/permohonan-temujanji/senarai",
             child: [],
-            meta: {},
+            meta: {
+              auth: {
+                role: ["PDRM"],
+              },
+            },
           },
           {
             title: "Kaunter Semakan ",
             path: "/kemaskini-daftar/senarai",
             child: [],
-            meta: {},
+            meta: {
+              auth: {
+                role: ["Pegawai Kaunter", "Ketua Bahagian", "Pegawai Forensik"],
+              },
+            },
           },
-          // {
-          //   title: "Kemaskini Daftar",
-          //   path: "/kemaskini-daftar/senarai",
-          //   child: [],
-          //   meta: {},
-          // },
         ],
       },
       {
@@ -38,6 +40,11 @@ export default [
             meta: {},
           },
         ],
+        meta: {
+          auth: {
+            role: ["PDRM"],
+          },
+        },
       },
       {
         title: "FOR-03",
@@ -50,6 +57,11 @@ export default [
             meta: {},
           },
         ],
+        meta: {
+          auth: {
+            role: ["Pegawai Forensik"],
+          },
+        },
       },
     ],
   },

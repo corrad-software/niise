@@ -1,6 +1,9 @@
 <script setup>
+import { useUserStore } from "~/stores/user";
+
 const isVertical = ref(true);
 const isDesktop = ref(true);
+const user = useUserStore();
 
 const emit = defineEmits(["toggleMenu"]);
 
@@ -85,7 +88,7 @@ onMounted(() => {
       </div>
 
       <div class="flex gap-2 item-center justify-items-end">
-        <VDropdown placement="bottom-end" distance="13" name="notification">
+        <!-- <VDropdown placement="bottom-end" distance="13" name="notification">
           <button class="relative icon-btn h-10 w-10 rounded-full">
             <span
               class="w-3 h-3 absolute top-1 right-2 rounded-full bg-primary"
@@ -146,7 +149,7 @@ onMounted(() => {
               </NuxtScrollbar>
             </ul>
           </template>
-        </VDropdown>
+        </VDropdown> -->
 
         <VDropdown
           placement="bottom-end"
@@ -163,7 +166,9 @@ onMounted(() => {
               v-if="isDesktop"
               class="grid grid-cols-1 text-left ml-3 flex-none"
             >
-              <p class="font-semibold text-sm truncate w-24 mb-0">Johan</p>
+              <p class="font-semibold text-sm truncate w-24 mb-0">
+                {{ user.username }}
+              </p>
             </div>
             <Icon name="ic:outline-keyboard-arrow-down" class="ml-3" />
           </button>
@@ -175,7 +180,7 @@ onMounted(() => {
                   class="flex items-center cursor-pointer py-2 px-4 hover:bg-[rgb(var(--bg-1))]"
                 >
                   <Icon name="ic:outline-logout" class="mr-2" />
-                  Logout
+                  Log Keluar
                 </a>
               </li>
             </ul>

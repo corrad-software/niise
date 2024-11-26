@@ -6,12 +6,14 @@ export default defineEventHandler(async (event) => {
     const appointment = await prisma.temujanji.findUnique({
       where: { temujanjiID: parseInt(temujanjiID) },
       include: {
-        pemohon: true, // Include pemohon (applicant) details
-        temujanji_detail: true,
+        pemohon: true,
+        temujanji_detail: {
+          include: {
+            document: true, // Include document details
+          }
+        },
       },
     });
-
-    console.log(appointment);
 
     if (!appointment) {
       return {
@@ -50,8 +52,15 @@ export default defineEventHandler(async (event) => {
         persamaanTandaTangan: appointment.temujanji_detail.persamaanTandaTangan,
         pemeriksaanLain: appointment.temujanji_detail.pemeriksaanLain,
         dapatan: appointment.temujanji_detail.dapatan,
-        laporanSystemTdb:
-          appointment.temujanji_detail?.document?.documentURL || null,
+        laporanSystemTdb: appointment.temujanji_detail?.document
+          ? {
+              documentURL: appointment.temujanji_detail.document.documentURL,
+              documentName: appointment.temujanji_detail.document.documentName,
+              documentType: appointment.temujanji_detail.document.documentType,
+              documentExtension: appointment.temujanji_detail.document.documentExtension,
+              imageMIMEType: appointment.temujanji_detail.document.imageMIMEType,
+            }
+          : null,
       },
     };
   } catch (error) {

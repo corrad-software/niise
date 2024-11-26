@@ -1,6 +1,8 @@
 // File: /api/permohonan/[noSiri]/terima.put.js
 export default defineEventHandler(async (event) => {
   const { noSiri } = event.context.params;
+  const { userID } = event.context.user;
+
   const body = await readBody(event); // Get form data from frontend
 
   try {
@@ -47,7 +49,15 @@ export default defineEventHandler(async (event) => {
     // Update the status of the permohonan to "Diterima"
     await prisma.permohonan.update({
       where: { no_siri: noSiri },
-      data: { status_permohonan: "Permohonan Diterima" },
+      data: {
+        status_permohonan: "Permohonan Diterima",
+        user_permohonan_modified_byTouser: {
+          connect: {
+            userID: userID,
+          },
+        },
+        modified_at: new Date(),
+      },
     });
 
     return {

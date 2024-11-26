@@ -1,77 +1,3 @@
-<template>
-  <div>
-    <div class="flex justify-between items-center">
-      <h1>Senarai Permohonan</h1>
-    </div>
-
-    <rs-card class="mt-4 py-2">
-      <rs-table
-        :data="tableData"
-        :options="{
-          variant: 'default',
-          striped: true,
-          borderless: true,
-        }"
-        :options-advanced="{
-          sortable: true,
-          
-          filterable: false,
-        }"
-        advanced
-      >
-        <template v-slot:header>
-          <tr>
-            <th>No</th>
-            <th>No Siri</th>
-            <th>Tarikh & Masa</th>
-            <th>Status</th>
-            <th>Butiran</th>
-          </tr>
-        </template>
-        <template v-slot:no="data">
-          {{ data.text }}
-        </template>
-        <template v-slot:noSiri="data">
-          {{ data.text || "N/A" }}
-        </template>
-        <template v-slot:tarikhMasa="data">
-          {{ data.text || "N/A" }}
-        </template>
-        <template v-slot:status="data">
-          <rs-badge :variant="data.text === 'Aktif' ? 'success' : 'danger'">
-            {{ data.text || "N/A" }}
-          </rs-badge>
-        </template>
-        <template v-slot:butiran="data">
-          <div class="flex flex-wrap gap-2">
-            <!-- View Button -->
-            <rs-button
-              @click="lihat(data.value.noSiri)"
-              variant="info"
-              size="sm"
-              class="p-1"
-              title="Lihat"
-            >
-              <Icon name="ic:outline-visibility" size="1.2rem" />
-            </rs-button>
-
-            <!-- Edit Button -->
-            <rs-button
-              @click="kemaskini(data.value.noSiri)"
-              variant="primary"
-              size="sm"
-              class="p-1"
-              title="Kemaskini"
-            >
-              <Icon name="ic:baseline-edit" size="1.2rem" />
-            </rs-button>
-          </div>
-        </template>
-      </rs-table>
-    </rs-card>
-  </div>
-</template>
-
 <script setup>
 const { $swal } = useNuxtApp();
 
@@ -147,3 +73,87 @@ onMounted(() => {
   fetchPermohonan();
 });
 </script>
+
+<template>
+  <div>
+    <div class="flex justify-between items-center">
+      <h1>Senarai Permohonan</h1>
+    </div>
+
+    <rs-card class="mt-4 py-2">
+      <rs-table
+        :data="tableData"
+        :options="{
+          variant: 'default',
+          striped: true,
+          borderless: true,
+        }"
+        :options-advanced="{
+          sortable: true,
+
+          filterable: false,
+        }"
+        advanced
+      >
+        <template v-slot:header>
+          <tr>
+            <th>No</th>
+            <th>No Siri</th>
+            <th>Tarikh & Masa</th>
+            <th>Status</th>
+            <th>Butiran</th>
+          </tr>
+        </template>
+        <template v-slot:no="data">
+          {{ data.text }}
+        </template>
+        <template v-slot:noSiri="data">
+          {{ data.text || "N/A" }}
+        </template>
+        <template v-slot:tarikhMasa="data">
+          {{ data.text || "N/A" }}
+        </template>
+        <template v-slot:status="data">
+          <rs-badge
+            :variant="
+              data.text === 'Permohonan Draf'
+                ? 'warning'
+                : data.text === 'Permohonan Dihantar' || data.text === 'Permohonan Disemak'
+                ? 'info'
+                : data.text === 'Permohonan Diterima' || data.text === 'Permohonan Diluluskan'
+                ? 'success'
+                : 'danger'
+            "
+          >
+            {{ data.text || "N/A" }}
+          </rs-badge>
+        </template>
+        <template v-slot:butiran="data">
+          <div class="flex flex-wrap gap-2">
+            <!-- View Button -->
+            <rs-button
+              @click="lihat(data.value.noSiri)"
+              variant="info"
+              size="sm"
+              class="p-1 px-2"
+              title="Lihat"
+            >
+              Lihat
+            </rs-button>
+
+            <!-- Edit Button -->
+            <rs-button
+              @click="kemaskini(data.value.noSiri)"
+              variant="primary"
+              size="sm"
+              class="p-1 px-2"
+              title="Kemaskini"
+            >
+              Kemaskini
+            </rs-button>
+          </div>
+        </template>
+      </rs-table>
+    </rs-card>
+  </div>
+</template>

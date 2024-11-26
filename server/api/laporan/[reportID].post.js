@@ -1,63 +1,112 @@
 // Path: /api/report/[reportID].post.js
+import { writeFile } from "fs/promises";
+import { join } from "path";
+import { mkdir } from "fs/promises";
+
+// Add allowed file types
+const ALLOWED_FILE_TYPES = {
+  "application/pdf": "pdf",
+  "image/jpeg": "jpg",
+};
+
 export default defineEventHandler(async (event) => {
   const { reportID } = event.context.params;
+  const { userID } = event.context.user;
   const body = await readBody(event);
 
-  const {
-    peralatan,
-    langkah2,
-    dapatan, // This should correspond to lookupID in the `lookup` table
-    documentTambahan, // Array of documents
-  } = body;
-
-  console.log(body);
-
   try {
-    // Update the report in the database
+    // Update the report basic info
     const updatedReport = await prisma.report.update({
       where: { reportID: parseInt(reportID) },
       data: {
-        peralatan,
-        langkah_langkah: langkah2,
-        dapatan: parseInt(dapatan), // Assuming this is a lookupID from the `lookup` table
+        peralatan: body.peralatan,
+        langkah_langkah: body.langkah2,
+        lookup_report_dapatanTolookup: {
+          connect: {
+            lookupID: parseInt(body.dapatan),
+          },
+        },
+        user_report_modified_byTouser: {
+          connect: {
+            userID: userID,
+          },
+        },
+        modified_at: new Date(),
       },
     });
 
-    // Handle document uploads (if necessary)
-    if (documentTambahan && documentTambahan.length > 0) {
-      // Create documents first
-      const createdDocuments = await prisma.document.createMany({
-        data: documentTambahan.map((doc) => ({
-          documentName: doc.nama,
-        })),
-        skipDuplicates: true,
-      });
+    // Handle document uploads
+    if (body.documentTambahan?.length > 0) {
+      // Ensure uploads directory exists
+      const uploadsDir = join(process.cwd(), "public", "uploads");
+      await mkdir(uploadsDir, { recursive: true });
 
-      // Get the IDs of the newly created documents
-      const newDocumentIds = await prisma.document.findMany({
-        where: {
-          documentName: {
-            in: documentTambahan.map((doc) => doc.nama),
+      for (const doc of body.documentTambahan) {
+        // Extract file data
+        const matches = doc.file.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+
+        if (!matches || matches.length !== 3) {
+          throw new Error("Invalid base64 string");
+        }
+
+        const fileType = matches[1];
+        const base64Data = matches[2];
+
+        // Validate file type
+        if (!ALLOWED_FILE_TYPES[fileType]) {
+          throw new Error(
+            "Jenis fail tidak dibenarkan. Sila muat naik fail PDF atau JPG sahaja."
+          );
+        }
+
+        const extension = ALLOWED_FILE_TYPES[fileType];
+        const fileName = `report_${reportID}_${Date.now()}_${
+          doc.nama
+        }.${extension}`;
+        const filePath = join(uploadsDir, fileName);
+
+        // Save file to disk
+        await writeFile(filePath, base64Data, "base64");
+
+        // Create document record
+        const savedDocument = await prisma.document.create({
+          data: {
+            documentName: doc.nama,
+            documentURL: `/uploads/${fileName}`,
+            documentType: "LAPORAN_SOKONGAN",
+            documentExtension: extension,
+            imageMIMEType: fileType,
+            documentSize: Math.round(base64Data.length * 0.75),
+            documentStatus: "ACTIVE",
+            documentCreatedDate: new Date().toISOString(),
+            user: {
+              connect: {
+                userID: userID,
+              },
+            },
           },
-        },
-        select: {
-          documentID: true,
-          documentName: true,
-        },
-      });
+        });
 
-      // Update report_doc_support table
-      await prisma.report_doc_support.createMany({
-        data: newDocumentIds.map((doc) => ({
-          reportID: updatedReport.reportID,
-          documentID: doc.documentID,
-        })),
-      });
+        // Create report_doc_support record
+        await prisma.report_doc_support.create({
+          data: {
+            reportID: parseInt(reportID),
+            documentID: savedDocument.documentID,
+            keterangan: doc.keterangan,
+          },
+        });
+      }
     }
 
-    return { statusCode: 200, message: "Report updated successfully" };
+    return {
+      statusCode: 200,
+      message: "Laporan berjaya dikemaskini",
+    };
   } catch (error) {
-    console.log(error);
-    return { statusCode: 500, message: "Failed to update report" };
+    console.error("Error updating report:", error);
+    return {
+      statusCode: 500,
+      message: error.message || "Gagal mengemaskini laporan",
+    };
   }
 });
