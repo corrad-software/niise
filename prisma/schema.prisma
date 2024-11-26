@@ -20,15 +20,18 @@ model document {
   documentID                                  Int                            @id @default(autoincrement())
   userID                                      Int?
   documentName                                String?                        @db.VarChar(255)
-  documentURL                                 String?                        @db.VarChar(255)
+  documentURL                                 String?                        @db.Text
   documentType                                String?                        @db.VarChar(255)
   documentExtension                           String?                        @db.VarChar(255)
   imageMIMEType                               String?                        @db.VarChar(255)
   documentSize                                Int?
+  elibraryID                                  Int?
+  isElibraryImage                             Boolean?                       @default(dbgenerated("b'0'")) @db.Bit(1)
   documentStatus                              String?                        @default("ACTIVE") @db.VarChar(255)
   documentCreatedDate                         String?                        @db.VarChar(255)
   documentModifiedDate                        String?                        @db.VarChar(255)
   user                                        user?                          @relation(fields: [userID], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "document_ibfk_1")
+  elibrary                                    elibrary?                      @relation(fields: [elibraryID], references: [elibraryID], onDelete: NoAction, onUpdate: NoAction, map: "document_ibfk_2")
   permohonan_forensik_checking                permohonan_forensik_checking[]
   report                                      report[]
   report_doc_support                          report_doc_support[]
@@ -38,6 +41,7 @@ model document {
   temujanji_log                               temujanji_log[]
 
   @@index([userID], map: "userID")
+  @@index([elibraryID], map: "elibraryID")
 }
 
 model lookup {
@@ -457,27 +461,16 @@ model userrole {
 }
 
 model elibrary {
-  elibraryID                  Int              @id @default(autoincrement())
+  elibraryID                  Int        @id @default(autoincrement())
   elibrary_referenceID        Int?
-  elibrary_jenisDokumen       String           @db.VarChar(255)
-  elibrary_negaraPengeluaran  String           @db.VarChar(255)
+  elibrary_jenisDokumen       String     @db.VarChar(255)
+  elibrary_negaraPengeluaran  String     @db.VarChar(255)
   elibrary_tahunPengeluaran   Int
-  elibrary_ketulenan          String           @db.VarChar(100)
-  elibrary_maklumatTerperinci String?          @db.Text
-  elibrary_ulasan             String?          @db.VarChar(255)
-  created_at                  DateTime         @db.Timestamp(0)
-  updated_at                  DateTime         @db.Timestamp(0)
-  deleted_at                  DateTime?        @db.Timestamp(0)
-  elibrary_image              elibrary_image[]
-}
-
-model elibrary_image {
-  imageID    Int      @id @default(autoincrement())
-  elibraryID Int
-  image_URL  String   @db.VarChar(255)
-  created_at DateTime @db.Timestamp(0)
-  deleted_at DateTime @db.Timestamp(0)
-  elibrary   elibrary @relation(fields: [elibraryID], references: [elibraryID], onDelete: NoAction, onUpdate: NoAction, map: "elibrary_image_ibfk_1")
-
-  @@index([elibraryID], map: "elibraryID")
+  elibrary_ketulenan          String     @db.VarChar(100)
+  elibrary_maklumatTerperinci String?    @db.Text
+  elibrary_ulasan             String?    @db.VarChar(255)
+  created_at                  DateTime   @db.Timestamp(0)
+  updated_at                  DateTime   @db.Timestamp(0)
+  deleted_at                  DateTime?  @db.Timestamp(0)
+  document                    document[]
 }

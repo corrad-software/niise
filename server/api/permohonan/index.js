@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     ) {
       whereCondition = {
         status_permohonan: {
-          in: ["Permohonan Diterima"],
+          in: ["Permohonan Diterima", "Permohonan Diluluskan", "Permohonan Ditolak"],
         },
       };
     } else {
@@ -39,11 +39,7 @@ export default defineEventHandler(async (event) => {
         status_permohonan: true,
         pemohon: {
           select: {
-            user: {
-              select: {
-                userFullName: true,
-              },
-            },
+            nama_pemohon: true,
           },
         },
       },

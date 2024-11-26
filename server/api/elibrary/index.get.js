@@ -1,33 +1,37 @@
 export default defineEventHandler(async (event) => {
   try {
-    const logs = await prisma.temujanji_log.findMany({
+    const elibrary = await prisma.elibrary.findMany({
       select: {
-        temujanjiLogID: true,
-        temujanjiID: true,
-        jenisSemakan: true,
-        tarikh: true,
-        namaPemilik: true,
-        noDokumen: true,
-        dapatan: true,
+        elibraryID: true,
+        elibrary_jenisDokumen: true,
+        elibrary_negaraPengeluaran: true,
+        elibrary_tahunPengeluaran: true,
+        elibrary_ketulenan: true,
+        elibrary_maklumatTerperinci: true,
+        elibrary_ulasan: true,
+        created_at: true,
       },
       orderBy: {
-        tarikh: "desc",
+        created_at: "desc",
       },
     });
 
-    const formattedLogs = logs.map((log) => ({
-      noSiri: log.temujanjiID.toString(),
-      pengguna: log.namaPemilik || "N/A",
-      subjek: log.jenisSemakan || "N/A",
-      tarikh: log.tarikh
-        ? new Date(log.tarikh).toLocaleDateString("ms-MY")
-        : "N/A",
-      aksi: { noSiri: log.temujanjiID.toString() },
+    const formattedData = elibrary.map((item) => ({
+      id: item.elibraryID,
+      jenisDokumen: item.elibrary_jenisDokumen,
+      negaraPengeluaran: item.elibrary_negaraPengeluaran,
+      tahunPengeluaran: item.elibrary_tahunPengeluaran.toString(),
+      ketulenan: item.elibrary_ketulenan,
+      perincian: {
+        maklumatTerperinci: item.elibrary_maklumatTerperinci || "-",
+        ulasan: item.elibrary_ulasan || "-",
+      },
+      tindakan: { id: item.elibraryID },
     }));
 
     return {
       statusCode: 200,
-      data: formattedLogs,
+      data: formattedData,
     };
   } catch (error) {
     console.error("Error fetching e-library data:", error);

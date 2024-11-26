@@ -12,11 +12,7 @@ export default defineEventHandler(async (event) => {
         // Include related fields if necessary
         pemohon: {
           select: {
-            user: {
-              select: {
-                userFullName: true,
-              },
-            },
+            nama_pemohon: true,
             pangkat_pemohon: true,
             no_pegawai_pemohon: true,
           },
