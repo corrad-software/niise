@@ -18,9 +18,33 @@ export default defineEventHandler(async (event) => {
     ) {
       whereCondition = {
         status_permohonan: {
-          in: ["Permohonan Diterima", "Permohonan Diluluskan", "Permohonan Ditolak"],
+          in: [
+            "Permohonan Diterima",
+            "Permohonan Diluluskan",
+            "Permohonan Ditolak",
+          ],
         },
       };
+
+      // Additional filter for Pegawai Forensik to only show assigned cases
+      if (roles.includes("Pegawai Forensik")) {
+        whereCondition = {
+          AND: [
+            {
+              status_permohonan: {
+                in: ["Permohonan Diterima", "Permohonan Diluluskan"],
+              },
+            },
+            {
+              permohonan_assign_forensik: {
+                some: {
+                  pegawai_forensikID: userID,
+                },
+              },
+            },
+          ],
+        };
+      }
     } else {
       // Default condition for other roles
       whereCondition = {
