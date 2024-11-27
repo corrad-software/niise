@@ -174,7 +174,7 @@ onMounted(() => {
           }"
           :options-advanced="{
             sortable: true,
-            filterable: true,
+            filterable: false,
           }"
           advanced
         >
@@ -200,7 +200,7 @@ onMounted(() => {
                 class="p-1"
                 title="Muat Naik"
               >
-                <Icon name="ic:baseline-upload" size="1.2rem" />
+                Muat Naik
               </rs-button>
               <rs-button
                 @click="updateItem(value.id)"
@@ -209,7 +209,7 @@ onMounted(() => {
                 class="p-1"
                 title="Kemaskini"
               >
-                <Icon name="ic:baseline-edit" size="1.2rem" />
+                Kemaskini
               </rs-button>
             </div>
           </template>

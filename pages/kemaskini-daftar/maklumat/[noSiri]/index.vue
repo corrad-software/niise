@@ -569,11 +569,11 @@ const closeSemakKetuaModal = () => {
         <template v-slot:tindakan="data">
           <rs-button
             @click="generateReport(data.text)"
-            variant="ghost"
             size="sm"
-            class="text-primary hover:text-primary-dark"
+            variant="primary"
+            class="py-1 px-2"
           >
-            <Icon name="mdi:file-report-outline" size="1.5rem" />
+            Laporan
           </rs-button>
         </template>
       </rs-table>

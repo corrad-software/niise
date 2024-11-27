@@ -63,6 +63,23 @@ export default [
           },
         },
       },
+      {
+        title: "FOR-04",
+        icon: "ph:number-circle-four-fill",
+        child: [
+          {
+            title: "Dokumen Library",
+            path: "/dokumen-library",
+            child: [],
+            meta: {},
+          },
+        ],
+        meta: {
+          auth: {
+            role: ["Pegawai Forensik"],
+          },
+        },
+      },
     ],
   },
 ];

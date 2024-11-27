@@ -19,19 +19,22 @@ model audit {
 model document {
   documentID                                  Int                            @id @default(autoincrement())
   userID                                      Int?
+  elibraryID                                  Int?
+  dokumenLibraryID                            Int?
+  isDokumenLibraryImage                       Boolean?                       @default(dbgenerated("b'0'")) @db.Bit(1)
+  isElibraryImage                             Boolean?                       @default(dbgenerated("b'0'")) @db.Bit(1)
   documentName                                String?                        @db.VarChar(255)
   documentURL                                 String?                        @db.Text
   documentType                                String?                        @db.VarChar(255)
   documentExtension                           String?                        @db.VarChar(255)
   imageMIMEType                               String?                        @db.VarChar(255)
   documentSize                                Int?
-  elibraryID                                  Int?
-  isElibraryImage                             Boolean?                       @default(dbgenerated("b'0'")) @db.Bit(1)
   documentStatus                              String?                        @default("ACTIVE") @db.VarChar(255)
   documentCreatedDate                         String?                        @db.VarChar(255)
   documentModifiedDate                        String?                        @db.VarChar(255)
   user                                        user?                          @relation(fields: [userID], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "document_ibfk_1")
   elibrary                                    elibrary?                      @relation(fields: [elibraryID], references: [elibraryID], onDelete: NoAction, onUpdate: NoAction, map: "document_ibfk_2")
+  dokumen_library                             dokumen_library?               @relation(fields: [dokumenLibraryID], references: [dokumenLibraryID], onDelete: NoAction, onUpdate: NoAction, map: "document_ibfk_3")
   permohonan_forensik_checking                permohonan_forensik_checking[]
   report                                      report[]
   report_doc_support                          report_doc_support[]
@@ -42,6 +45,7 @@ model document {
 
   @@index([userID], map: "userID")
   @@index([elibraryID], map: "elibraryID")
+  @@index([dokumenLibraryID], map: "dokumenLibraryID")
 }
 
 model lookup {
@@ -257,6 +261,7 @@ model report {
   create_at                          DateTime?            @db.DateTime(0)
   modified_by                        Int?
   modified_at                        DateTime?            @db.DateTime(0)
+  dokumen_library                    dokumen_library[]
   document                           document?            @relation(fields: [gambarID], references: [documentID], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_2")
   lookup_report_dapatanTolookup      lookup?              @relation("report_dapatanTolookup", fields: [dapatan], references: [lookupID], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_3")
   lookup_report_jenis_barangTolookup lookup               @relation("report_jenis_barangTolookup", fields: [jenis_barang], references: [lookupID], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_4")
@@ -431,6 +436,8 @@ model user {
   userCreatedDate                                     DateTime?                    @db.DateTime(0)
   userModifiedDate                                    DateTime?                    @db.DateTime(0)
   document                                            document[]
+  dokumen_library_dokumen_library_create_byTouser     dokumen_library[]            @relation("dokumen_library_create_byTouser")
+  dokumen_library_dokumen_library_modified_byTouser   dokumen_library[]            @relation("dokumen_library_modified_byTouser")
   pemohon                                             pemohon[]
   permohonan_permohonan_create_byTouser               permohonan[]                 @relation("permohonan_create_byTouser")
   permohonan_permohonan_modified_byTouser             permohonan[]                 @relation("permohonan_modified_byTouser")
@@ -473,4 +480,30 @@ model elibrary {
   updated_at                  DateTime   @db.Timestamp(0)
   deleted_at                  DateTime?  @db.Timestamp(0)
   document                    document[]
+}
+
+model dokumen_library {
+  dokumenLibraryID                       Int        @id @default(autoincrement())
+  reportID                               Int?
+  negaraPengeluaran                      String?    @db.VarChar(255)
+  tahunPengeluaran                       String?    @db.VarChar(4)
+  mukaSurat                              String?    @db.VarChar(255)
+  noDocument                             String?    @db.VarChar(255)
+  namaPemilik                            String?    @db.VarChar(255)
+  peralatanDigunakan                     String?    @db.VarChar(255)
+  caraSemakan                            String?    @db.VarChar(255)
+  dapatan                                String?    @db.VarChar(255)
+  ulasan                                 String?    @db.Text
+  create_by                              Int?
+  create_at                              DateTime?  @default(now()) @db.DateTime(0)
+  modified_by                            Int?
+  modified_at                            DateTime?  @db.DateTime(0)
+  document                               document[]
+  report                                 report?    @relation(fields: [reportID], references: [reportID], onDelete: Cascade, onUpdate: NoAction, map: "dokumen_library_ibfk_1")
+  user_dokumen_library_create_byTouser   user?      @relation("dokumen_library_create_byTouser", fields: [create_by], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "dokumen_library_ibfk_2")
+  user_dokumen_library_modified_byTouser user?      @relation("dokumen_library_modified_byTouser", fields: [modified_by], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "dokumen_library_ibfk_3")
+
+  @@index([create_by], map: "idx_create_by")
+  @@index([modified_by], map: "idx_modified_by")
+  @@index([reportID], map: "idx_reportID")
 }

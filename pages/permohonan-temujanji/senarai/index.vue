@@ -29,6 +29,10 @@ const kemaskini = (noSiri) => {
   navigateTo(`/permohonan-temujanji/kemaskini/${noSiri}`);
 };
 
+const lihatMaklumat = (noSiri) => {
+  navigateTo(`/permohonan-temujanji/maklumat/${noSiri}`);
+};
+
 // Function to delete a permohonan by its noSiri
 const hapus = async (noSiri) => {
   const confirmation = await $swal.fire({
@@ -144,7 +148,7 @@ onMounted(() => {
               @click="kemaskini(data.value.noSiri)"
               variant="primary"
               size="sm"
-              class="p-1"
+              class="p-1 px-2"
               title="Kemaskini"
             >
               Kemaskini
@@ -155,10 +159,21 @@ onMounted(() => {
               @click="hapus(data.value.noSiri)"
               variant="danger"
               size="sm"
-              class="p-1"
+              class="p-1 px-2"
               title="Hapus"
             >
               Hapus
+            </rs-button>
+          </div>
+
+          <div v-else-if="data.value.status === 'Permohonan Diluluskan'">
+            <rs-button
+              variant="info"
+              size="sm"
+              class="p-1 px-2"
+              @click="lihatMaklumat(data.value.noSiri)"
+            >
+              Lihat
             </rs-button>
           </div>
 
