@@ -109,7 +109,39 @@ onMounted(() => {
   fetchAppointment(kesID.value);
 });
 
-// Modify submitForm to ensure proper date format
+// Helper function to convert File to base64
+const fileToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+};
+
+// Add this after the fileToBase64 function
+const validateFile = (file) => {
+  // Check if file exists
+  if (!file) {
+    return "Fail tidak dipilih";
+  }
+
+  // Check file size (max 5MB)
+  const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+  if (file.size > maxSize) {
+    return "Saiz fail tidak boleh melebihi 5MB";
+  }
+
+  // Check file type
+  const allowedTypes = ["application/pdf", "image/jpeg", "image/jpg"];
+  if (!allowedTypes.includes(file.type)) {
+    return "Format fail tidak sah. Sila muat naik fail PDF atau JPG sahaja";
+  }
+
+  return true;
+};
+
+// Then modify the submitForm function to use validation
 const submitForm = async () => {
   try {
     // Convert files to base64 if they exist
@@ -146,16 +178,6 @@ const submitForm = async () => {
   } catch (error) {
     $swal.fire("Ralat!", error.message, "error");
   }
-};
-
-// Helper function to convert File to base64
-const fileToBase64 = (file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
-  });
 };
 
 // Go back to the previous page

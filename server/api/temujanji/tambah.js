@@ -110,16 +110,20 @@ export default defineEventHandler(async (event) => {
         tarikh: new Date(tarikh),
         masa: new Date(`${tarikh}T${masa}:00`),
         status: "Temujanji Diterima",
-        document_temujanji_gambarSubjekTodocument: {
-          connect: {
-            documentID: savedDocuments.gambarSubjek,
+        ...(savedDocuments.gambarSubjek && {
+          document_temujanji_gambarSubjekTodocument: {
+            connect: {
+              documentID: savedDocuments.gambarSubjek,
+            },
           },
-        },
-        document_temujanji_gambarCapJariTodocument: {
-          connect: {
-            documentID: savedDocuments.gambarCapJari,
+        }),
+        ...(savedDocuments.gambarCapJari && {
+          document_temujanji_gambarCapJariTodocument: {
+            connect: {
+              documentID: savedDocuments.gambarCapJari,
+            },
           },
-        },
+        }),
         pemohon: {
           create: {
             userID: userID,

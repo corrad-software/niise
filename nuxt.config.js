@@ -539,5 +539,15 @@ export default defineNuxtConfig({
         requestSizeLimiter: false,
       },
     },
+    "/api/temujanji/**": {
+      security: {
+        requestSizeLimiter: false,
+      },
+    },
+    "/api/permohonan/**": {
+      security: {
+        requestSizeLimiter: false,
+      },
+    },
   },
 });
