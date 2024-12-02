@@ -32,6 +32,9 @@ const login = async () => {
       // Save token to pinia store
       userStore.setUsername(data.data.username);
       userStore.setRoles(data.data.roles);
+      userStore.setRank(data.data.rank || null);
+      userStore.setName(data.data.name || null);
+      userStore.setOfficerNumber(data.data.officerNumber || null);
       userStore.setIsAuthenticated(true);
 
       $swal.fire({

@@ -1,288 +1,28 @@
-<template>
-  <div>
-    <div class="flex justify-between items-center">
-      <h1>Permohonan Baru</h1>
-    </div>
-
-    <rs-card class="mt-4 p-4">
-      <FormKit type="form" :actions="false" @submit="submitForm">
-        <!-- Nama Pemohon Input -->
-        <FormKit
-          type="text"
-          label="Nama Pemohon"
-          v-model="namaPemohon"
-          validation="required"
-        />
-
-        <!-- Pangkat Pemohon Input -->
-        <FormKit
-          type="text"
-          label="Pangkat Pemohon"
-          v-model="pangkatPemohon"
-          validation="required"
-        />
-
-        <!-- No Pegawai Pemohon Input -->
-        <FormKit
-          type="text"
-          label="No Pegawai Pemohon"
-          v-model="noPegawaiPemohon"
-          validation="required"
-        />
-
-        <!-- Checkbox: Apply Pemohon info to Penghantar -->
-        <FormKit
-          type="checkbox"
-          label="Penghantar Sama seperti Pemohon"
-          v-model="isPenghantarSameAsPemohon"
-        />
-
-        <!-- Conditionally render Nama Penghantar field if checkbox is not checked -->
-        <FormKit
-          v-if="!isPenghantarSameAsPemohon"
-          type="text"
-          label="Nama Penghantar"
-          v-model="namaPenghantar"
-          validation="required"
-        />
-
-        <!-- Conditionally render Pangkat Penghantar field if checkbox is not checked -->
-        <FormKit
-          v-if="!isPenghantarSameAsPemohon"
-          type="text"
-          label="Pangkat Penghantar"
-          v-model="pangkatPenghantar"
-          validation="required"
-        />
-
-        <!-- Conditionally render No Pegawai Penghantar field if checkbox is not checked -->
-        <FormKit
-          v-if="!isPenghantarSameAsPemohon"
-          type="text"
-          label="No Pegawai Penghantar"
-          v-model="noPegawaiPenghantar"
-          validation="required"
-        />
-
-        <!-- Ringkasan Kenyataan Kes Input -->
-        <FormKit
-          type="textarea"
-          label="Ringkasan Kenyataan Kes"
-          v-model="ringkasanKenyataanKes"
-          validation="required"
-        />
-
-        <!-- Bilangan Input -->
-        <FormKit
-          type="number"
-          label="Bilangan"
-          v-model="bilangan"
-          validation="required|number"
-        />
-
-        <!-- Barang Section -->
-
-        <div class="mb-4">
-          <h3 class="mb-2">Senarai Barang</h3>
-          <table
-            v-if="barangList.length > 0"
-            class="w-full border-collapse border border-gray-300 mb-2"
-          >
-            <thead>
-              <tr class="bg-gray-100">
-                <th class="border border-gray-300 p-2">Jenis Barang</th>
-                <th class="border border-gray-300 p-2">Kuantiti</th>
-                <th class="border border-gray-300 p-2">Tindakan</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(barang, index) in barangList" :key="index">
-                <td class="border border-gray-300 p-2">
-                  {{
-                    barang.jenisBarangDetailLabel
-                      ? barang.jenisBarangDetailLabel
-                      : barang.jenisBarangDetail
-                  }}
-                </td>
-                <td class="border border-gray-300 p-2">
-                  {{ barang.kuantitiBarang }}
-                </td>
-                <td class="border border-gray-300 p-2">
-                  <rs-button
-                    type="button"
-                    @click="editBarang(index)"
-                    variant="secondary"
-                    class="mr-2"
-                  >
-                    Edit
-                  </rs-button>
-                  <rs-button
-                    type="button"
-                    @click="removeBarang(index)"
-                    variant="danger"
-                  >
-                    Buang
-                  </rs-button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div v-else class="text-gray-500 mb-2">Tiada barang ditambah</div>
-          <rs-button type="button" @click="openBarangModal" variant="primary">
-            Tambah Barang
-          </rs-button>
-        </div>
-
-        <!-- No Kertas Siasatan Input -->
-        <FormKit
-          type="text"
-          label="No Kertas Siasatan"
-          v-model="noKertasSiasatan"
-          validation="required"
-        />
-
-        <!-- No Laporan Polis Input -->
-        <FormKit
-          type="text"
-          label="No Laporan Polis"
-          v-model="noLaporanPolis"
-          validation="required"
-        />
-
-        <!-- Tarikh Temujanji Input -->
-        <FormKit
-          type="date"
-          label="Tarikh temujanji"
-          v-model="tarikhTemujanji"
-          validation="required|date|after:today"
-          :validation-messages="{
-            after: 'Tarikh temujanji harus selepas hari ini',
-          }"
-        />
-
-        <!-- Slot Masa Input -->
-        <FormKit
-          type="time"
-          label="Slot masa"
-          v-model="slotMasa"
-          validation="required"
-        />
-
-        <!-- Action Buttons -->
-        <div class="flex justify-end gap-2 mt-4">
-          <rs-button @click="navigateBack" variant="danger">Kembali</rs-button>
-          <rs-button @click.prevent="simpan" variant="primary"
-            >Simpan</rs-button
-          >
-          <rs-button btn-type="submit" variant="success">Hantar</rs-button>
-        </div>
-      </FormKit>
-    </rs-card>
-
-    <!-- Barang Modal -->
-    <div
-      v-if="isBarangModalOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
-    >
-      <div class="bg-white p-6 rounded-lg w-full max-w-2xl">
-        <h2 class="text-2xl font-bold mb-4">
-          {{ editingBarangIndex === null ? "Tambah" : "Edit" }} Barang
-        </h2>
-
-        <FormKit
-          type="form"
-          :actions="false"
-          @submit="saveBarangModal"
-          #default="{ state: formState }"
-        >
-          <FormKit
-            type="select"
-            name="jenisBarangDetail"
-            label="Jenis Barang"
-            v-model="currentBarang.jenisBarangDetail"
-            :options="jenisBarangDetailOptions"
-            validation="required"
-            :validation-messages="{
-              required: 'Jenis Barang diperlukan',
-            }"
-          />
-
-          <FormKit
-            type="text"
-            name="tandaBarang"
-            label="Tanda Barang"
-            v-model="currentBarang.tandaBarang"
-            validation="required"
-            :validation-messages="{
-              required: 'Tanda Barang diperlukan',
-            }"
-          />
-
-          <FormKit
-            type="text"
-            name="keadaanBarang"
-            label="Keadaan Barang"
-            v-model="currentBarang.keadaanBarang"
-            validation="required"
-            :validation-messages="{
-              required: 'Keadaan Barang diperlukan',
-            }"
-          />
-
-          <FormKit
-            type="number"
-            name="kuantitiBarang"
-            label="Kuantiti Barang"
-            v-model="currentBarang.kuantitiBarang"
-            validation="required|number|min:1"
-            :validation-messages="{
-              required: 'Kuantiti Barang diperlukan',
-              number: 'Kuantiti Barang mesti nombor',
-              min: 'Kuantiti Barang mesti sekurang-kurangnya 1',
-            }"
-          />
-
-          <FormKit
-            type="select"
-            name="jenisBarangSiber"
-            label="Jenis Barang Siber"
-            v-model="currentBarang.jenisBarangSiber"
-            :options="jenisBarangSiberOptions"
-            validation="required"
-            :validation-messages="{
-              required: 'Jenis Barang Siber diperlukan',
-            }"
-          />
-
-          <div class="flex justify-end gap-2 mt-4">
-            <rs-button
-              type="button"
-              btn-type="reset"
-              @click="cancelBarangModal"
-              variant="danger"
-              >Batal</rs-button
-            >
-            <rs-button
-              type="submit"
-              btn-type="submit"
-              variant="success"
-              :disabled="!formState.valid"
-              >Simpan</rs-button
-            >
-          </div>
-        </FormKit>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup>
+import { useUserStore } from "~/stores/user";
+
+definePageMeta({
+  title: "Permohonan Baru",
+  middleware: ["auth"],
+  breadcrumb: [
+    {
+      name: "Permohonan",
+      path: "/permohonan-temujanji/senarai",
+    },
+    {
+      name: "Baru",
+      type: "current",
+    },
+  ],
+});
+
 const { $swal } = useNuxtApp();
 const router = useRouter();
+const userStore = useUserStore();
 
-const namaPemohon = ref("");
-const pangkatPemohon = ref("");
-const noPegawaiPemohon = ref("");
+const namaPemohon = ref(userStore.name);
+const pangkatPemohon = ref(userStore.rank);
+const noPegawaiPemohon = ref(userStore.officerNumber);
 const namaPenghantar = ref("");
 const pangkatPenghantar = ref("");
 const noPegawaiPenghantar = ref("");
@@ -402,8 +142,6 @@ const isFormValid = () => {
     bilangan,
     noKertasSiasatan,
     noLaporanPolis,
-    tarikhTemujanji,
-    slotMasa,
   ];
 
   const areRequiredFieldsFilled = requiredFields.every(
@@ -498,23 +236,331 @@ const getJenisBarangLabel = (value) => {
 };
 </script>
 
-<style lang="scss" scoped>
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
+<template>
+  <div>
+    <Breadcrumb />
 
-button {
-  padding: 0.5rem 1rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
+    <div class="flex items-center justify-between space-y-2">
+      <div>
+        <h3 class="text-2xl font-bold tracking-tight">Permohonan Baru</h3>
+      </div>
+    </div>
 
-button:hover {
-  background-color: #0056b3;
-}
-</style>
+    <rs-card class="mt-4 px-4 py-6">
+      <FormKit type="form" :actions="false" @submit="submitForm">
+        <div class="grid gap-6 md:grid-cols-3">
+          <!-- Nama Pemohon Input -->
+          <FormKit
+            type="text"
+            label="Nama Pemohon"
+            v-model="namaPemohon"
+            validation="required"
+            :disabled="true"
+          />
+
+          <!-- Pangkat Pemohon Input -->
+          <FormKit
+            type="text"
+            label="Pangkat Pemohon"
+            v-model="pangkatPemohon"
+            validation="required"
+            :disabled="true"
+          />
+
+          <!-- No Pegawai Pemohon Input -->
+          <FormKit
+            type="text"
+            label="No Pegawai Pemohon"
+            v-model="noPegawaiPemohon"
+            validation="required"
+            :disabled="true"
+          />
+        </div>
+
+        <!-- Checkbox: Apply Pemohon info to Penghantar -->
+        <FormKit
+          type="checkbox"
+          label="Penghantar Sama seperti Pemohon"
+          v-model="isPenghantarSameAsPemohon"
+          label-class="mb-0"
+        />
+
+        <div class="grid gap-6 md:grid-cols-3">
+          <!-- Conditionally render Nama Penghantar field if checkbox is not checked -->
+          <FormKit
+            v-if="!isPenghantarSameAsPemohon"
+            type="text"
+            label="Nama Penghantar"
+            v-model="namaPenghantar"
+            validation="required"
+          />
+
+          <!-- Conditionally render Pangkat Penghantar field if checkbox is not checked -->
+          <FormKit
+            v-if="!isPenghantarSameAsPemohon"
+            type="text"
+            label="Pangkat Penghantar"
+            v-model="pangkatPenghantar"
+            validation="required"
+          />
+
+          <!-- Conditionally render No Pegawai Penghantar field if checkbox is not checked -->
+          <FormKit
+            v-if="!isPenghantarSameAsPemohon"
+            type="text"
+            label="No Pegawai Penghantar"
+            v-model="noPegawaiPenghantar"
+            validation="required"
+          />
+        </div>
+
+        <div class="grid gap-6 md:grid-cols-2">
+          <!-- Tarikh Temujanji Input -->
+          <FormKit
+            type="date"
+            label="Tarikh temujanji"
+            v-model="tarikhTemujanji"
+            validation="date|after:today"
+            :validation-messages="{
+              after: 'Tarikh temujanji harus selepas hari ini',
+            }"
+          />
+
+          <!-- Slot Masa Input -->
+          <FormKit type="time" label="Slot masa" v-model="slotMasa" />
+        </div>
+
+        <!-- No Kertas Siasatan Input -->
+        <FormKit
+          type="text"
+          label="No Kertas Siasatan"
+          v-model="noKertasSiasatan"
+          validation="required"
+        />
+
+        <!-- No Laporan Polis Input -->
+        <FormKit
+          type="text"
+          label="No Laporan Polis"
+          v-model="noLaporanPolis"
+          validation="required"
+        />
+
+        <!-- Ringkasan Kenyataan Kes Input -->
+        <FormKit
+          type="textarea"
+          label="Ringkasan Kenyataan Kes"
+          v-model="ringkasanKenyataanKes"
+          validation="required"
+        />
+
+        <!-- Bilangan Input -->
+        <FormKit
+          type="number"
+          label="Bilangan"
+          v-model="bilangan"
+          validation="required|number"
+        />
+
+        <!-- Barang Section -->
+        <div class="pt-4 pb-2">
+          <div
+            class="flex flex-col md:flex-row items-center justify-between mb-2"
+          >
+            <h3 class="mb-2">Senarai Barang</h3>
+            <rs-button type="button" @click="openBarangModal" variant="primary">
+              <Icon name="ph:plus" class="w-4 h-4 mr-2" />
+              Tambah Barang
+            </rs-button>
+          </div>
+          <table
+            v-if="barangList.length > 0"
+            class="w-full border-collapse border border-gray-300 mb-2"
+          >
+            <thead>
+              <tr class="bg-gray-100">
+                <th class="border border-gray-300 p-2">Jenis Barang</th>
+                <th class="border border-gray-300 p-2">Kuantiti</th>
+                <th class="border border-gray-300 p-2">Tindakan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(barang, index) in barangList" :key="index">
+                <td class="border border-gray-300 p-2">
+                  {{
+                    barang.jenisBarangDetailLabel
+                      ? barang.jenisBarangDetailLabel
+                      : barang.jenisBarangDetail
+                  }}
+                </td>
+                <td class="border border-gray-300 p-2">
+                  {{ barang.kuantitiBarang }}
+                </td>
+                <td class="border border-gray-300 p-2">
+                  <div class="flex gap-2">
+                    <rs-button
+                      type="button"
+                      @click="editBarang(index)"
+                      variant="secondary"
+                      class="mr-2"
+                    >
+                      <Icon name="ph:pencil" class="w-4 h-4 mr-2" />
+                      Kemaskini
+                    </rs-button>
+                    <rs-button
+                      type="button"
+                      @click="removeBarang(index)"
+                      variant="danger"
+                    >
+                      <Icon name="ph:trash" class="w-4 h-4 mr-2" />
+                      Buang
+                    </rs-button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <table
+            v-else
+            class="w-full border-collapse border border-gray-300 mb-2"
+          >
+            <thead>
+              <tr class="bg-gray-100">
+                <th class="border border-gray-300 p-2">Jenis Barang</th>
+                <th class="border border-gray-300 p-2">Kuantiti</th>
+                <th class="border border-gray-300 p-2">Tindakan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="3" class="border border-gray-300 p-2 text-center">
+                  Tiada barang ditambah
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-end gap-2 mt-8">
+          <rs-button @click="navigateBack" variant="danger">
+            <Icon name="pajamas:reply" class="w-4 h-4 mr-2" />
+            Kembali</rs-button
+          >
+          <rs-button @click.prevent="simpan" variant="primary">
+            <Icon name="ci:save" class="w-4 h-4 mr-2" />
+            Simpan
+          </rs-button>
+          <rs-button btn-type="submit" variant="success">
+            <Icon
+              name="streamline:interface-upload-laptop-arrow-computer-download-internet-laptop-network-server-up-upload"
+              class="w-4 h-4 mr-2"
+            />
+            Hantar
+          </rs-button>
+        </div>
+      </FormKit>
+    </rs-card>
+
+    <!-- Barang Modal -->
+    <div
+      v-if="isBarangModalOpen"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+    >
+      <div class="bg-white p-6 rounded-lg w-full max-w-2xl">
+        <h2 class="text-2xl font-bold mb-4">
+          {{ editingBarangIndex === null ? "Tambah" : "Edit" }} Barang
+        </h2>
+
+        <FormKit
+          type="form"
+          :actions="false"
+          @submit="saveBarangModal"
+          #default="{ state: formState }"
+        >
+          <FormKit
+            type="select"
+            name="jenisBarangDetail"
+            label="Jenis Barang"
+            v-model="currentBarang.jenisBarangDetail"
+            :options="jenisBarangDetailOptions"
+            validation="required"
+            :validation-messages="{
+              required: 'Jenis Barang diperlukan',
+            }"
+          />
+
+          <FormKit
+            type="text"
+            name="tandaBarang"
+            label="Tanda Barang"
+            v-model="currentBarang.tandaBarang"
+            validation="required"
+            :validation-messages="{
+              required: 'Tanda Barang diperlukan',
+            }"
+          />
+
+          <FormKit
+            type="text"
+            name="keadaanBarang"
+            label="Keadaan Barang"
+            v-model="currentBarang.keadaanBarang"
+            validation="required"
+            :validation-messages="{
+              required: 'Keadaan Barang diperlukan',
+            }"
+          />
+
+          <FormKit
+            type="number"
+            name="kuantitiBarang"
+            label="Kuantiti Barang"
+            v-model="currentBarang.kuantitiBarang"
+            validation="required|number|min:1"
+            :validation-messages="{
+              required: 'Kuantiti Barang diperlukan',
+              number: 'Kuantiti Barang mesti nombor',
+              min: 'Kuantiti Barang mesti sekurang-kurangnya 1',
+            }"
+          />
+
+          <!-- <FormKit
+            type="select"
+            name="jenisBarangSiber"
+            label="Jenis Barang Siber"
+            v-model="currentBarang.jenisBarangSiber"
+            :options="jenisBarangSiberOptions"
+            validation="required"
+            :validation-messages="{
+              required: 'Jenis Barang Siber diperlukan',
+            }"
+          /> -->
+
+          <div class="flex justify-end gap-2 mt-4">
+            <rs-button
+              type="button"
+              btn-type="reset"
+              @click="cancelBarangModal"
+              variant="danger"
+            >
+              <Icon name="ph:x" class="w-4 h-4 mr-2" />
+              Batal
+            </rs-button>
+            <rs-button
+              type="submit"
+              btn-type="submit"
+              variant="success"
+              :disabled="!formState.valid"
+            >
+              <Icon name="ci:save" class="w-4 h-4 mr-2" />
+              Simpan
+            </rs-button>
+          </div>
+        </FormKit>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style lang="scss" scoped></style>

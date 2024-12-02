@@ -4,8 +4,8 @@ export default [
     description: "",
     child: [
       {
-        title: "FOR-01",
-        icon: "ph:number-circle-one-fill",
+        title: "Semakan Forensik",
+        icon: "ph:user-list-duotone",
         child: [
           {
             title: "Permohonan Temujanji",
@@ -13,28 +13,28 @@ export default [
             child: [],
             meta: {
               auth: {
-                role: ["PDRM"],
+                role: ["Admin", "Pegawai Penyiasat"],
               },
             },
           },
           {
-            title: "Kaunter Semakan ",
+            title: "Kaunter Semakan",
             path: "/kemaskini-daftar/senarai",
             child: [],
             meta: {
               auth: {
-                role: ["Pegawai Kaunter", "Ketua Bahagian", "Pegawai Forensik"],
+                role: ["Admin", "Pegawai Kaunter", "Ketua Bahagian", "Pegawai Forensik"],
               },
             },
           },
         ],
       },
       {
-        title: "FOR-02",
-        icon: "ph:number-circle-two-fill",
+        title: "Pengesanan Penyamaran",
+        icon: "ph:user-rectangle-duotone",
         child: [
           {
-            title: "Pengesanan Penyamaran",
+            title: "Senarai",
             path: "/pengesanan-penyamaran/senarai",
             child: [],
             meta: {},
@@ -42,16 +42,16 @@ export default [
         ],
         meta: {
           auth: {
-            role: ["PDRM", "Pegawai Forensik"],
+            role: ["Admin", "Pegawai Penyiasat", "Pegawai Forensik"],
           },
         },
       },
       {
-        title: "FOR-03",
-        icon: "ph:number-circle-two-fill",
+        title: "e-Library",
+        icon: "ph:address-book-duotone",
         child: [
           {
-            title: "e-library",
+            title: "Senarai",
             path: "/e-library",
             child: [],
             meta: {},
@@ -59,16 +59,16 @@ export default [
         ],
         meta: {
           auth: {
-            role: ["Pegawai Forensik"],
+            role: ["Admin", "Pegawai Forensik"],
           },
         },
       },
       {
-        title: "FOR-04",
-        icon: "ph:number-circle-four-fill",
+        title: "Dokumen e-Library",
+        icon: "ph:file-archive-duotone",
         child: [
           {
-            title: "Dokumen Library",
+            title: "Senarai",
             path: "/dokumen-library",
             child: [],
             meta: {},
@@ -76,7 +76,7 @@ export default [
         ],
         meta: {
           auth: {
-            role: ["Pegawai Forensik"],
+            role: ["Admin", "Pegawai Forensik"],
           },
         },
       },

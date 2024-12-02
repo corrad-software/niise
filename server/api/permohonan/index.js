@@ -81,12 +81,11 @@ export default defineEventHandler(async (event) => {
           item.create_at.getTime() + 8 * 60 * 60 * 1000
         );
         return {
-          no: index + 1,
+          bil: index + 1,
           noSiri: item.no_siri,
           tarikhMasa: gmt8Date.toISOString().replace("T", " ").slice(0, 19),
           status: item.status_permohonan,
-          pemohon: item.pemohon?.nama_pemohon || "-",
-          butiran: item.id,
+          tindakan: item.id,
         };
       }),
     };

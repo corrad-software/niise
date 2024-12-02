@@ -2,6 +2,7 @@
 
 export default defineEventHandler(async (event) => {
   const { noSiri } = event.context.params;
+  const { roles } = event.context.user;
 
   try {
     const permohonan = await prisma.permohonan.findUnique({
@@ -20,13 +21,22 @@ export default defineEventHandler(async (event) => {
     }
 
     // Map reports to the frontend format
-    const reports = permohonan.report.map((report) => ({
-      jenisBarang: report.lookup_report_jenis_barangTolookup.lookupValue,
-      tagNo: report.tanda_barang,
-      keadaan: report.keadaan_barang,
-      kuantiti: report.kuantiti_barang,
-      tindakan: report.reportID,
-    }));
+    const reports = permohonan.report.map((report, index) => {
+      const baseReport = {
+        bil: index + 1,
+        jenisBarang: report.lookup_report_jenis_barangTolookup.lookupValue,
+        tagNo: report.tanda_barang,
+        keadaan: report.keadaan_barang,
+        kuantiti: report.kuantiti_barang,
+      };
+
+      // Only add tindakan field if user has Pegawai Forensik role
+      if (roles.includes("Pegawai Forensik")) {
+        baseReport.tindakan = report.reportID;
+      }
+
+      return baseReport;
+    });
 
     return {
       statusCode: 200,

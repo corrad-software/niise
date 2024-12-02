@@ -66,8 +66,9 @@ export default defineEventHandler(async (event) => {
         })),
         noKertasSiasatan: permohonan.no_kertas_siasatan || "",
         noLaporanPolis: permohonan.no_laporan_polis || "",
-        tarikhTemujanji:
-          permohonan.tarikh_temujanji?.toISOString().split("T")[0] || "",
+        tarikhTemujanji: permohonan.tarikh_temujanji
+          ? permohonan.tarikh_temujanji?.toISOString().split("T")[0]
+          : "",
         slotMasa: permohonan.slot_masa
           ? new Date(permohonan.slot_masa).toLocaleTimeString("en-US", {
               hour: "2-digit",

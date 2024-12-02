@@ -127,6 +127,7 @@ model permohonan {
   permohonan_assign_forensik        permohonan_assign_forensik[]
   permohonan_jenis_barang           permohonan_jenis_barang[]
   permohonan_penerimaan             permohonan_penerimaan?
+  permohonan_penolakan              permohonan_penolakan?
   permohonan_semakan                permohonan_semakan?
   report                            report[]
 
@@ -209,14 +210,15 @@ model permohonan_penerimaan {
 }
 
 model permohonan_penolakan {
-  penolakanID     Int       @id @default(autoincrement())
-  permohonanID    Int       @unique(map: "permohonanID")
+  penolakanID     Int        @id @default(autoincrement())
+  permohonanID    Int        @unique(map: "permohonanID")
   sebab_penolakan Int
-  lain_sebab      String?   @db.VarChar(255)
-  create_at       DateTime? @db.DateTime(0)
+  lain_sebab      String?    @db.VarChar(255)
+  create_at       DateTime?  @db.DateTime(0)
   ditolak_oleh    Int?
-  lookup          lookup    @relation(fields: [sebab_penolakan], references: [lookupID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_penolakan_ibfk_1")
-  user            user?     @relation(fields: [ditolak_oleh], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_penolakan_ibfk_2")
+  lookup          lookup     @relation(fields: [sebab_penolakan], references: [lookupID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_penolakan_ibfk_1")
+  user            user?      @relation(fields: [ditolak_oleh], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_penolakan_ibfk_2")
+  permohonan      permohonan @relation(fields: [permohonanID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_penolakan_ibfk_3")
 
   @@index([ditolak_oleh], map: "ditolak_oleh")
   @@index([sebab_penolakan], map: "sebab_penolakan")
@@ -432,6 +434,8 @@ model user {
   userFullName                                        String?                      @db.VarChar(255)
   userEmail                                           String?                      @db.VarChar(255)
   userPhone                                           String?                      @db.VarChar(255)
+  userRank                                            String?                      @db.VarChar(255)
+  userOfficerNumber                                   String?                      @db.VarChar(255)
   userStatus                                          String?                      @db.VarChar(255)
   userCreatedDate                                     DateTime?                    @db.DateTime(0)
   userModifiedDate                                    DateTime?                    @db.DateTime(0)

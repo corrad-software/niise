@@ -15,6 +15,26 @@ export default defineEventHandler(async (event) => {
                 user: true,
               },
             },
+            permohonan_penerimaan: {
+              include: {
+                user: true,
+              },
+            },
+            permohonan_penolakan: {
+              include: {
+                user: true,
+              },
+            },
+            permohonan_approval: {
+              include: {
+                user: true,
+              },
+            },
+            permohonan_assign_forensik: {
+              include: {
+                user: true,
+              },
+            },
           },
         },
         lookup_report_jenis_barangTolookup: true,
@@ -48,39 +68,50 @@ export default defineEventHandler(async (event) => {
       return { statusCode: 404, message: "Report not found" };
     }
 
-    // Format the data for the frontend
+    const counterOfficer =
+      report.permohonan.permohonan_penerimaan?.user ||
+      report.permohonan.permohonan_penolakan?.user;
+
+    const headOfDivision = report.permohonan.permohonan_approval?.[0]?.user;
+
     const reportData = {
       kesId: report.permohonan.no_siri,
       tagNo: report.tanda_barang,
       jenisBrg: report.lookup_report_jenis_barangTolookup.lookupValue,
       jenisPemeriksaan: "Forensik",
       pegawai: {
-        PENYIASAT: {
-          nama: report.permohonan.pemohon?.nama_pemohon || "",
-          pangkat: report.permohonan.pemohon?.pangkat_pemohon || "",
-          noPegawai: report.permohonan.pemohon?.no_pegawai_pemohon || "",
+        PEGAWAI_PEMOHON: {
+          nama: report.permohonan.pemohon?.user?.userFullName || "",
+          pangkat: report.permohonan.pemohon?.user?.userRank || "",
+          noPegawai: report.permohonan.pemohon?.user?.userOfficerNumber || "",
         },
-        PENGHANTAR: {
+        PEGAWAI_PENGHANTAR: {
           nama: report.permohonan.penghantar_sama_dengan_pemohon
-            ? report.permohonan.pemohon?.nama_pemohon || ""
+            ? report.permohonan.pemohon?.user?.userFullName || ""
             : report.permohonan.penghantar?.nama_penghantar || "",
           pangkat: report.permohonan.penghantar_sama_dengan_pemohon
-            ? report.permohonan.pemohon?.pangkat_pemohon || ""
+            ? report.permohonan.pemohon?.user?.userRank || ""
             : report.permohonan.penghantar?.pangkat_penghantar || "",
           noPegawai: report.permohonan.penghantar_sama_dengan_pemohon
-            ? report.permohonan.pemohon?.no_pegawai_pemohon || ""
+            ? report.permohonan.pemohon?.user?.userOfficerNumber || ""
             : report.permohonan.penghantar?.no_pegawai_penghantar || "",
         },
-        PEMERIKSA: {
-          nama: report.permohonan.pemeriksa?.nama_pemeriksa || "",
-          pangkat: report.permohonan.pemeriksa?.pangkat_pemeriksa || "",
-          noPegawai: report.permohonan.pemeriksa?.no_pegawai_pemeriksa || "",
+        PEGAWAI_PENERIMA: {
+          nama:
+            report.permohonan.permohonan_penerimaan?.user?.userFullName || "",
+          pangkat:
+            report.permohonan.permohonan_penerimaan?.user?.userRank || "",
+          noPegawai:
+            report.permohonan.permohonan_penerimaan?.user?.userOfficerNumber ||
+            "",
         },
-        PENERIMA: {
-          nama: report.permohonan.penerima?.nama_penerima || "",
-          pangkat: report.permohonan.penerima?.pangkat_penerima || "",
-          noPegawai: report.permohonan.penerima?.no_pegawai_penerima || "",
-        },
+        PEGAWAI_FORENSIK: report.permohonan.permohonan_assign_forensik.map(
+          (assignment) => ({
+            nama: assignment.user?.userFullName || "",
+            pangkat: assignment.user?.userRank || "",
+            noPegawai: assignment.user?.userOfficerNumber || "",
+          })
+        ),
       },
       peralatan: report.peralatan,
       langkah2: report.langkah_langkah,
@@ -88,7 +119,6 @@ export default defineEventHandler(async (event) => {
         value: report.lookup_report_dapatanTolookup?.lookupID,
         label: report.lookup_report_dapatanTolookup?.lookupValue,
       },
-      // Transform document data to include preview information
       documentTambahan: report.report_doc_support.map((doc) => ({
         nama: doc.document.documentName,
         keterangan: doc.keterangan || "",

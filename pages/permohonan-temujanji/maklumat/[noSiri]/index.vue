@@ -1,4 +1,19 @@
 <script setup>
+definePageMeta({
+  title: "Maklumat Permohonan",
+  middleware: ["auth"],
+  breadcrumb: [
+    {
+      name: "Permohonan",
+      path: "/permohonan-temujanji/senarai",
+    },
+    {
+      name: "Maklumat",
+      type: "current",
+    },
+  ],
+});
+
 const route = useRoute();
 const noSiri = ref(route.params.noSiri);
 const { $swal } = useNuxtApp();
@@ -149,45 +164,43 @@ onMounted(async () => {
 
 <template>
   <div>
-    <div class="flex justify-between items-center">
-      <h1>Maklumat Permohonan</h1>
+    <Breadcrumb />
+
+    <div class="flex items-center justify-between space-y-2">
+      <div>
+        <h3 class="text-2xl font-bold tracking-tight">Maklumat Permohonan</h3>
+      </div>
     </div>
 
-    <rs-card class="mt-4 p-4">
+    <rs-card class="mt-4 px-4 py-6">
       <!-- Pemohon Section -->
-      <div class="mb-6">
-        <h2 class="text-lg font-semibold mb-4">Maklumat Pemohon</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700"
-              >Nama Pemohon</label
-            >
-            <div class="mt-1 p-2 bg-gray-50 rounded">{{ namaPemohon }}</div>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700"
-              >Pangkat Pemohon</label
-            >
-            <div class="mt-1 p-2 bg-gray-50 rounded">{{ pangkatPemohon }}</div>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700"
-              >No Pegawai Pemohon</label
-            >
-            <div class="mt-1 p-2 bg-gray-50 rounded">
-              {{ noPegawaiPemohon }}
-            </div>
-          </div>
+      <div class="grid gap-6 md:grid-cols-3">
+        <div>
+          <label class="block text-sm font-medium text-gray-700"
+            >Nama Pemohon</label
+          >
+          <div class="mt-1 p-2 bg-gray-50 rounded">{{ namaPemohon }}</div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700"
+            >Pangkat Pemohon</label
+          >
+          <div class="mt-1 p-2 bg-gray-50 rounded">{{ pangkatPemohon }}</div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700"
+            >No Pegawai Pemohon</label
+          >
+          <div class="mt-1 p-2 bg-gray-50 rounded">{{ noPegawaiPemohon }}</div>
         </div>
       </div>
 
       <!-- Penghantar Section -->
-      <div class="mb-6">
-        <h2 class="text-lg font-semibold mb-4">Maklumat Penghantar</h2>
+      <div class="mt-6">
         <div v-if="isPenghantarSameAsPemohon" class="text-gray-600 italic">
-          Sama seperti pemohon
+          Penghantar Sama seperti Pemohon
         </div>
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div v-else class="grid gap-6 md:grid-cols-3">
           <div>
             <label class="block text-sm font-medium text-gray-700"
               >Nama Penghantar</label
@@ -213,24 +226,25 @@ onMounted(async () => {
         </div>
       </div>
 
+      <!-- Temujanji Section -->
+      <div class="grid gap-6 md:grid-cols-2 border-t mt-6 pt-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700"
+            >Tarikh Temujanji</label
+          >
+          <div class="mt-1 p-2 bg-gray-50 rounded">{{ tarikhTemujanji }}</div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700"
+            >Slot Masa</label
+          >
+          <div class="mt-1 p-2 bg-gray-50 rounded">{{ slotMasa }}</div>
+        </div>
+      </div>
+
       <!-- Case Details Section -->
-      <div class="mb-6">
-        <h2 class="text-lg font-semibold mb-4">Maklumat Kes</h2>
-        <div class="grid grid-cols-1 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700"
-              >Ringkasan Kenyataan Kes</label
-            >
-            <div class="mt-1 p-2 bg-gray-50 rounded whitespace-pre-wrap">
-              {{ ringkasanKenyataanKes }}
-            </div>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700"
-              >Bilangan</label
-            >
-            <div class="mt-1 p-2 bg-gray-50 rounded">{{ bilangan }}</div>
-          </div>
+      <div class="border-t mt-6 pt-4">
+        <div class="grid gap-6">
           <div>
             <label class="block text-sm font-medium text-gray-700"
               >No Kertas Siasatan</label
@@ -245,12 +259,30 @@ onMounted(async () => {
             >
             <div class="mt-1 p-2 bg-gray-50 rounded">{{ noLaporanPolis }}</div>
           </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700"
+              >Ringkasan Kenyataan Kes</label
+            >
+            <div class="mt-1 p-2 bg-gray-50 rounded whitespace-pre-wrap">
+              {{ ringkasanKenyataanKes }}
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700"
+              >Bilangan</label
+            >
+            <div class="mt-1 p-2 bg-gray-50 rounded">{{ bilangan }}</div>
+          </div>
         </div>
       </div>
 
       <!-- Barang Section -->
-      <div class="mb-6">
-        <h2 class="text-lg font-semibold mb-4">Senarai Barang</h2>
+      <div class="border-t mt-6 pt-4">
+        <div
+          class="flex flex-col md:flex-row items-center justify-between mb-4"
+        >
+          <h3 class="text-lg font-semibold">Senarai Barang</h3>
+        </div>
         <rs-table
           v-if="barangList.length > 0"
           :data="barangList"
@@ -261,46 +293,29 @@ onMounted(async () => {
           }"
         >
           <template #tindakan="{ text }">
-            <div class="flex gap-2">
-              <rs-button
-                variant="primary"
-                size="sm"
-                @click="showDocumentDetails(text)"
-              >
-                Lihat
-              </rs-button>
-            </div>
+            <rs-button
+              variant="primary"
+              size="sm"
+              @click="showDocumentDetails(text)"
+            >
+              <Icon name="ph:eye" class="w-4 h-4 mr-2" />
+              Lihat
+            </rs-button>
           </template>
         </rs-table>
         <div v-else class="text-gray-500">Tiada barang ditambah</div>
       </div>
 
-      <!-- Appointment Details Section -->
-      <div class="mb-6">
-        <h2 class="text-lg font-semibold mb-4">Maklumat Temujanji</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700"
-              >Tarikh Temujanji</label
-            >
-            <div class="mt-1 p-2 bg-gray-50 rounded">{{ tarikhTemujanji }}</div>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700"
-              >Slot Masa</label
-            >
-            <div class="mt-1 p-2 bg-gray-50 rounded">{{ slotMasa }}</div>
-          </div>
-        </div>
-      </div>
-
       <!-- Action Buttons -->
-      <div class="flex justify-end gap-2 mt-4">
-        <rs-button @click="$router.back()" variant="danger">Kembali</rs-button>
+      <div class="flex justify-end gap-2 mt-8 border-t pt-4">
+        <rs-button @click="$router.back()" variant="danger">
+          <Icon name="pajamas:reply" class="w-4 h-4 mr-2" />
+          Kembali
+        </rs-button>
       </div>
     </rs-card>
 
-    <!-- Update the Modal for Document Details -->
+    <!-- Document Modal -->
     <rs-modal
       v-model="showDocumentModal"
       title="Maklumat Dokumen"
@@ -405,6 +420,7 @@ onMounted(async () => {
                 size="sm"
                 @click="previewAllImages(selectedDocument)"
               >
+                <Icon name="ph:images" class="w-4 h-4 mr-2" />
                 Papar Semua Gambar
               </rs-button>
             </div>

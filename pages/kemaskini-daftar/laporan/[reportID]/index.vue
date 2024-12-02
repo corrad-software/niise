@@ -3,6 +3,21 @@ import { useRoute } from "vue-router";
 import { ref, onMounted } from "vue";
 import { jsPDF } from "jspdf";
 
+definePageMeta({
+  title: "Laporan Bahan Bukti",
+  middleware: ["auth"],
+  breadcrumb: [
+    {
+      name: "Kaunter Semakan",
+      path: "/kemaskini-daftar/senarai",
+    },
+    {
+      name: "Maklumat",
+      type: "/",
+    },
+  ],
+});
+
 const { $swal } = useNuxtApp();
 const route = useRoute();
 const reportID = route.params.reportID;
@@ -13,10 +28,10 @@ const generatedData = ref({
   jenisBrg: "",
   jenisPemeriksaan: "",
   pegawai: {
-    PENYIASAT: { nama: "", pangkat: "", noPegawai: "" },
-    PENGHANTAR: { nama: "", pangkat: "", noPegawai: "" },
-    PEMERIKSA: { nama: "", pangkat: "", noPegawai: "" },
-    PENERIMA: { nama: "", pangkat: "", noPegawai: "" },
+    PEGAWAI_PEMOHON: { nama: "", pangkat: "", noPegawai: "" },
+    PEGAWAI_PENGHANTAR: { nama: "", pangkat: "", noPegawai: "" },
+    PEGAWAI_PENERIMA: { nama: "", pangkat: "", noPegawai: "" },
+    PEGAWAI_FORENSIK: [],
   },
   peralatan: "",
   langkah2: "",
@@ -174,17 +189,88 @@ const generatePDF = async () => {
 
   doc.setFontSize(normalSize);
   let yPos = 110;
-  for (const [role, officer] of Object.entries(generatedData.value.pegawai)) {
-    doc.text(`${role}:`, 30, yPos);
-    doc.text(`Nama: ${officer.nama}`, 40, yPos + 10);
-    doc.text(`Pangkat: ${officer.pangkat}`, 40, yPos + 20);
-    doc.text(`No Pegawai: ${officer.noPegawai}`, 40, yPos + 30);
-    yPos += 45;
+
+  // Pegawai Pemohon
+  doc.text("Pegawai Pemohon:", 30, yPos);
+  doc.text(
+    `Nama: ${generatedData.value.pegawai.PEGAWAI_PEMOHON.nama}`,
+    40,
+    yPos + 10
+  );
+  doc.text(
+    `Pangkat: ${generatedData.value.pegawai.PEGAWAI_PEMOHON.pangkat}`,
+    40,
+    yPos + 20
+  );
+  doc.text(
+    `No Pegawai: ${generatedData.value.pegawai.PEGAWAI_PEMOHON.noPegawai}`,
+    40,
+    yPos + 30
+  );
+  yPos += 45;
+
+  // Pegawai Penghantar
+  doc.text("Pegawai Penghantar:", 30, yPos);
+  doc.text(
+    `Nama: ${generatedData.value.pegawai.PEGAWAI_PENGHANTAR.nama}`,
+    40,
+    yPos + 10
+  );
+  doc.text(
+    `Pangkat: ${generatedData.value.pegawai.PEGAWAI_PENGHANTAR.pangkat}`,
+    40,
+    yPos + 20
+  );
+  doc.text(
+    `No Pegawai: ${generatedData.value.pegawai.PEGAWAI_PENGHANTAR.noPegawai}`,
+    40,
+    yPos + 30
+  );
+  yPos += 45;
+
+  // Pegawai Penerima
+  doc.text("Pegawai Penerima:", 30, yPos);
+  doc.text(
+    `Nama: ${generatedData.value.pegawai.PEGAWAI_PENERIMA.nama}`,
+    40,
+    yPos + 10
+  );
+  doc.text(
+    `Pangkat: ${generatedData.value.pegawai.PEGAWAI_PENERIMA.pangkat}`,
+    40,
+    yPos + 20
+  );
+  doc.text(
+    `No Pegawai: ${generatedData.value.pegawai.PEGAWAI_PENERIMA.noPegawai}`,
+    40,
+    yPos + 30
+  );
+  yPos += 45;
+
+  // Pegawai Forensik (if any)
+  if (generatedData.value.pegawai.PEGAWAI_FORENSIK.length > 0) {
+    generatedData.value.pegawai.PEGAWAI_FORENSIK.forEach((officer, index) => {
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+      doc.text(`Pegawai Forensik ${index + 1}:`, 30, yPos);
+      doc.text(`Nama: ${officer.nama}`, 40, yPos + 10);
+      doc.text(`Pangkat: ${officer.pangkat}`, 40, yPos + 20);
+      doc.text(`No Pegawai: ${officer.noPegawai}`, 40, yPos + 30);
+      yPos += 45;
+    });
   }
 
-  // Add examination details
+  // Add examination details (check if we need a new page)
+  if (yPos > 250) {
+    doc.addPage();
+    yPos = 20;
+  }
+
   doc.setFontSize(subtitleSize);
   doc.text("Butiran Pemeriksaan", 20, yPos);
+  yPos += 20;
 
   doc.setFontSize(normalSize);
   // Use splitTextToSize to handle long text
@@ -198,10 +284,10 @@ const generatePDF = async () => {
   );
   const dapatanText = `Dapatan: ${generatedData.value.dapatan?.label || "N/A"}`;
 
-  yPos += 10;
+  // Add the text lines
   peralatanLines.forEach((line) => {
     if (yPos > 280) {
-      doc.addPage("p", "mm", "a4");
+      doc.addPage();
       yPos = 20;
     }
     doc.text(line, 30, yPos);
@@ -211,7 +297,7 @@ const generatePDF = async () => {
   yPos += 5;
   langkahLines.forEach((line) => {
     if (yPos > 280) {
-      doc.addPage("p", "mm", "a4");
+      doc.addPage();
       yPos = 20;
     }
     doc.text(line, 30, yPos);
@@ -220,16 +306,16 @@ const generatePDF = async () => {
 
   yPos += 5;
   if (yPos > 280) {
-    doc.addPage("p", "mm", "a4");
+    doc.addPage();
     yPos = 20;
   }
   doc.text(dapatanText, 30, yPos);
 
-  // Add document attachments section
+  // Add document attachments section if any
   if (generatedData.value.documentTambahan?.length > 0) {
     yPos += 20;
     if (yPos > 280) {
-      doc.addPage("p", "mm", "a4");
+      doc.addPage();
       yPos = 20;
     }
     doc.setFontSize(subtitleSize);
@@ -249,13 +335,13 @@ const generatePDF = async () => {
 
       docInfo.forEach((line) => {
         if (yPos > 280) {
-          doc.addPage("p", "mm", "a4");
+          doc.addPage();
           yPos = 20;
         }
         doc.text(line, 30, yPos);
         yPos += 10;
       });
-      yPos += 5; // Add space between documents
+      yPos += 5;
     });
   }
 
@@ -319,15 +405,15 @@ const formatDate = (dateString) => {
 </script>
 
 <template>
-  <div class="container mx-auto p-4">
+  <div class="space-y-6">
+    <Breadcrumb />
+
     <div class="flex justify-between items-center mb-4">
       <h1 class="text-2xl font-bold">Laporan Bahan Bukti</h1>
-      <button
-        @click="generatePDF"
-        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-      >
+      <rs-button variant="primary" @click="generatePDF">
+        <Icon name="mdi:file-pdf" class="mr-2 w-4 h-4" />
         Jana PDF
-      </button>
+      </rs-button>
     </div>
 
     <rs-card class="p-4">
@@ -379,44 +465,140 @@ const formatDate = (dateString) => {
         </div>
 
         <!-- BUTIRAN PEGAWAI -->
-        <div class="space-y-4">
+        <div class="space-y-4 mb-4">
           <h2 class="text-xl font-semibold">Butiran Pegawai</h2>
-          <div
-            v-for="role in ['PENYIASAT', 'PENGHANTAR', 'PEMERIKSA', 'PENERIMA']"
-            :key="role"
-            class="grid grid-cols-1 md:grid-cols-3 gap-4"
+
+          <!-- Pegawai Pemohon -->
+          <rs-card class="p-4">
+            <h3 class="text-lg font-medium mb-4">Pegawai Pemohon</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormKit
+                type="text"
+                name="pegawai.PEGAWAI_PEMOHON.nama"
+                label="Nama"
+                v-model="generatedData.pegawai.PEGAWAI_PEMOHON.nama"
+                disabled
+              />
+              <FormKit
+                type="text"
+                name="pegawai.PEGAWAI_PEMOHON.pangkat"
+                label="Pangkat"
+                v-model="generatedData.pegawai.PEGAWAI_PEMOHON.pangkat"
+                disabled
+              />
+              <FormKit
+                type="text"
+                name="pegawai.PEGAWAI_PEMOHON.noPegawai"
+                label="No Pegawai"
+                v-model="generatedData.pegawai.PEGAWAI_PEMOHON.noPegawai"
+                disabled
+              />
+            </div>
+          </rs-card>
+
+          <!-- Pegawai Penghantar -->
+          <rs-card class="p-4">
+            <h3 class="text-lg font-medium mb-4">Pegawai Penghantar</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormKit
+                type="text"
+                name="pegawai.PEGAWAI_PENGHANTAR.nama"
+                label="Nama"
+                v-model="generatedData.pegawai.PEGAWAI_PENGHANTAR.nama"
+                disabled
+              />
+              <FormKit
+                type="text"
+                name="pegawai.PEGAWAI_PENGHANTAR.pangkat"
+                label="Pangkat"
+                v-model="generatedData.pegawai.PEGAWAI_PENGHANTAR.pangkat"
+                disabled
+              />
+              <FormKit
+                type="text"
+                name="pegawai.PEGAWAI_PENGHANTAR.noPegawai"
+                label="No Pegawai"
+                v-model="generatedData.pegawai.PEGAWAI_PENGHANTAR.noPegawai"
+                disabled
+              />
+            </div>
+          </rs-card>
+
+          <!-- Pegawai Penerima -->
+          <rs-card class="p-4">
+            <h3 class="text-lg font-medium mb-4">Pegawai Penerima</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormKit
+                type="text"
+                name="pegawai.PEGAWAI_PENERIMA.nama"
+                label="Nama"
+                v-model="generatedData.pegawai.PEGAWAI_PENERIMA.nama"
+                disabled
+              />
+              <FormKit
+                type="text"
+                name="pegawai.PEGAWAI_PENERIMA.pangkat"
+                label="Pangkat"
+                v-model="generatedData.pegawai.PEGAWAI_PENERIMA.pangkat"
+                disabled
+              />
+              <FormKit
+                type="text"
+                name="pegawai.PEGAWAI_PENERIMA.noPegawai"
+                label="No Pegawai"
+                v-model="generatedData.pegawai.PEGAWAI_PENERIMA.noPegawai"
+                disabled
+              />
+            </div>
+          </rs-card>
+
+          <!-- Pegawai Forensik -->
+          <rs-card
+            class="p-4"
+            v-if="generatedData.pegawai.PEGAWAI_FORENSIK.length > 0"
           >
-            <FormKit
-              type="text"
-              :name="`pegawai.${role}.nama`"
-              :label="`${role} - Nama`"
-              v-model="generatedData.pegawai[role].nama"
-              disabled
-            />
-            <FormKit
-              type="text"
-              :name="`pegawai.${role}.pangkat`"
-              :label="`${role} - Pangkat`"
-              v-model="generatedData.pegawai[role].pangkat"
-              disabled
-            />
-            <FormKit
-              type="text"
-              :name="`pegawai.${role}.noPegawai`"
-              :label="`${role} - No Pegawai`"
-              v-model="generatedData.pegawai[role].noPegawai"
-              disabled
-            />
-          </div>
+            <h3 class="text-lg font-medium mb-4">Pegawai Forensik</h3>
+            <div class="grid grid-cols-1 gap-4">
+              <div
+                v-for="(officer, index) in generatedData.pegawai
+                  .PEGAWAI_FORENSIK"
+                :key="index"
+              >
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <FormKit
+                    type="text"
+                    :name="`pegawai.PEGAWAI_FORENSIK.${index}.nama`"
+                    label="Nama"
+                    v-model="officer.nama"
+                    disabled
+                  />
+                  <FormKit
+                    type="text"
+                    :name="`pegawai.PEGAWAI_FORENSIK.${index}.pangkat`"
+                    label="Pangkat"
+                    v-model="officer.pangkat"
+                    disabled
+                  />
+                  <FormKit
+                    type="text"
+                    :name="`pegawai.PEGAWAI_FORENSIK.${index}.noPegawai`"
+                    label="No Pegawai"
+                    v-model="officer.noPegawai"
+                    disabled
+                  />
+                </div>
+              </div>
+            </div>
+          </rs-card>
         </div>
 
         <!-- Peralatan and Langkah2 -->
-        <div class="space-y-4">
+        <div class="space-y-4 mb-4">
           <FormKit
             v-model="generatedData.peralatan"
             type="textarea"
             name="peralatan"
-            label="Peralatan"
+            label="Peralatan yang digunakan"
             validation="required"
             :validation-messages="{ required: 'Peralatan diperlukan' }"
             :rows="3"
@@ -425,9 +607,9 @@ const formatDate = (dateString) => {
             v-model="generatedData.langkah2"
             type="textarea"
             name="langkah2"
-            label="Langkah-langkah"
+            label="Langkah Pemeriksaan"
             validation="required"
-            :validation-messages="{ required: 'Langkah-langkah diperlukan' }"
+            :validation-messages="{ required: 'Langkah diperlukan' }"
             :rows="5"
           />
         </div>
@@ -435,7 +617,7 @@ const formatDate = (dateString) => {
         <!-- Dapatan -->
         <FormKit
           v-model="generatedData.dapatan.value"
-          type="radio"
+          type="select"
           name="dapatan"
           label="Dapatan"
           :options="dapatanOptions"
@@ -511,8 +693,6 @@ const formatDate = (dateString) => {
                   type="text"
                   name="nama"
                   label="Nama Dokumen"
-                  validation="required"
-                  :validation-messages="{ required: 'Nama dokumen diperlukan' }"
                   placeholder="Contoh: Laporan Analisis"
                 />
                 <div class="space-y-2">
@@ -520,11 +700,7 @@ const formatDate = (dateString) => {
                     type="file"
                     name="file"
                     label="Fail"
-                    validation="required"
                     accept=".pdf,.jpg,.jpeg"
-                    :validation-messages="{
-                      required: 'Fail diperlukan',
-                    }"
                     help="Format yang dibenarkan: PDF, JPG"
                   />
                 </div>

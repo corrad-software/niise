@@ -73,6 +73,9 @@ export default defineEventHandler(async (event) => {
       data: {
         username: user.userUsername,
         roles: roleNames,
+        rank: user.userRank,
+        name: user.userFullName,
+        officerNumber: user.userOfficerNumber,
       },
     };
   } catch (error) {

@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
       showButtonObj.kemaskini = true;
     }
 
-    if (roles.includes("PDRM")) {
+    if (roles.includes("Pegawai Penyiasat")) {
       showButtonObj.tambah = true;
       showButtonObj.keputusan = true;
     }

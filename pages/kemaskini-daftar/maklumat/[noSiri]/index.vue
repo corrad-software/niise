@@ -2,7 +2,18 @@
 import { useUserStore } from "~/stores/user";
 
 definePageMeta({
-  layout: "default",
+  title: "Maklumat Permohonan",
+  middleware: ["auth"],
+  breadcrumb: [
+    {
+      name: "Kaunter Semakan",
+      path: "/kemaskini-daftar/senarai",
+    },
+    {
+      name: "Butiran",
+      type: "current",
+    },
+  ],
 });
 
 const route = useRoute();
@@ -41,6 +52,12 @@ const buttonPermissions = ref({
   terima: false,
   tolak: false,
 });
+
+// Add these refs
+const appointmentData = ref(null);
+
+// Add this ref
+const timelineEvents = ref([]);
 
 // Fetch the status data
 const fetchStatusData = async () => {
@@ -129,6 +146,34 @@ const fetchSebabPenolakanOptions = async () => {
     }
   } catch (error) {
     $swal.fire("Error", "Failed to load lookup data", "error");
+  }
+};
+
+// Add this function to fetch appointment data
+const fetchAppointmentData = async () => {
+  try {
+    const response = await useFetch(
+      `/api/kemaskini-daftar/appointment/${route.params.noSiri}`
+    );
+    if (response.data.value?.statusCode === 200) {
+      appointmentData.value = response.data.value.data;
+    }
+  } catch (error) {
+    console.error("Error fetching appointment data:", error);
+  }
+};
+
+// Add this function to fetch timeline data
+const fetchTimelineData = async () => {
+  try {
+    const response = await useFetch(
+      `/api/kemaskini-daftar/timeline/${route.params.noSiri}`
+    );
+    if (response.data.value?.statusCode === 200) {
+      timelineEvents.value = response.data.value.data;
+    }
+  } catch (error) {
+    console.error("Error fetching timeline data:", error);
   }
 };
 
@@ -349,6 +394,8 @@ onMounted(() => {
   fetchStatusData();
   fetchAssignedOfficers();
   fetchReports(); // Fetch reports related to the permohonan
+  fetchAppointmentData(); // Add this line
+  fetchTimelineData(); // Add this line
 });
 
 const generateReport = (bahanBukti) => {
@@ -409,35 +456,117 @@ const openSemakModal = () => {
 const closeSemakKetuaModal = () => {
   showSemakKetuaModal.value = false;
 };
+
+// Compute which officers to show based on role
+const visibleOfficers = computed(() => {
+  switch (roles[0]) {
+    case "Pegawai Kaunter":
+      return [
+        {
+          title: "Maklumat Pegawai",
+          officers: [
+            {
+              bil: 1,
+              nama: appointmentData.value?.pegawaiPemohon?.nama || "-",
+              pangkat: appointmentData.value?.pegawaiPemohon?.pangkat || "-",
+              noPegawai:
+                appointmentData.value?.pegawaiPemohon?.noPegawai || "-",
+            },
+            {
+              bil: 2,
+              nama: appointmentData.value?.pegawaiPenghantar?.nama || "-",
+              pangkat: appointmentData.value?.pegawaiPenghantar?.pangkat || "-",
+              noPegawai:
+                appointmentData.value?.pegawaiPenghantar?.noPegawai || "-",
+            },
+          ],
+        },
+      ];
+    case "Ketua Bahagian":
+      return [
+        {
+          title: "Maklumat Pegawai",
+          officers: [
+            {
+              bil: 1,
+              nama: appointmentData.value?.pegawaiPemohon?.nama || "-",
+              pangkat: appointmentData.value?.pegawaiPemohon?.pangkat || "-",
+              noPegawai:
+                appointmentData.value?.pegawaiPemohon?.noPegawai || "-",
+            },
+            {
+              bil: 2,
+              nama: appointmentData.value?.pegawaiPenghantar?.nama || "-",
+              pangkat: appointmentData.value?.pegawaiPenghantar?.pangkat || "-",
+              noPegawai:
+                appointmentData.value?.pegawaiPenghantar?.noPegawai || "-",
+            },
+            {
+              bil: 3,
+              nama: appointmentData.value?.pegawaiKaunter?.nama || "-",
+              pangkat: appointmentData.value?.pegawaiKaunter?.pangkat || "-",
+              noPegawai:
+                appointmentData.value?.pegawaiKaunter?.noPegawai || "-",
+            },
+          ],
+        },
+      ];
+    case "Pegawai Forensik":
+      return [
+        {
+          title: "Maklumat Pegawai",
+          officers: [
+            {
+              bil: 1,
+              nama: appointmentData.value?.pegawaiPemohon?.nama || "-",
+              pangkat: appointmentData.value?.pegawaiPemohon?.pangkat || "-",
+              noPegawai:
+                appointmentData.value?.pegawaiPemohon?.noPegawai || "-",
+            },
+            {
+              bil: 2,
+              nama: appointmentData.value?.pegawaiPenghantar?.nama || "-",
+              pangkat: appointmentData.value?.pegawaiPenghantar?.pangkat || "-",
+              noPegawai:
+                appointmentData.value?.pegawaiPenghantar?.noPegawai || "-",
+            },
+            {
+              bil: 3,
+              nama: appointmentData.value?.pegawaiKaunter?.nama || "-",
+              pangkat: appointmentData.value?.pegawaiKaunter?.pangkat || "-",
+              noPegawai:
+                appointmentData.value?.pegawaiKaunter?.noPegawai || "-",
+            },
+            {
+              bil: 4,
+              nama: appointmentData.value?.ketuaBahagian?.nama || "-",
+              pangkat: appointmentData.value?.ketuaBahagian?.pangkat || "-",
+              noPegawai: appointmentData.value?.ketuaBahagian?.noPegawai || "-",
+            },
+          ],
+        },
+      ];
+    default:
+      return [];
+  }
+});
 </script>
 
 <template>
   <div class="space-y-6">
-    <!-- CARD: Status Semakan & Status Penerimaan -->
-    <rs-card class="p-6">
-      <div class="flex justify-between items-center">
-        <h3 class="text-lg font-semibold">Status Semakan</h3>
-        <rs-badge
-          :variant="statusSemakan === 'Selesai' ? 'success' : 'warning'"
-        >
-          {{ statusSemakan }}
-        </rs-badge>
-      </div>
-      <div class="flex justify-between items-center mt-4">
-        <h3 class="text-lg font-semibold">Status Penerimaan</h3>
-        <rs-badge
-          :variant="statusPenerimaan === 'Diterima' ? 'success' : 'danger'"
-        >
-          {{ statusPenerimaan }}
-        </rs-badge>
-      </div>
+    <Breadcrumb />
 
-      <div class="flex gap-2 mt-5">
+    <div class="flex items-center justify-between space-y-2">
+      <div>
+        <h3 class="text-2xl font-bold tracking-tight">Status Permohonan</h3>
+      </div>
+      <div class="flex gap-x-2">
         <rs-button
           v-if="buttonPermissions.semak"
           @click="openSemakModal"
           variant="primary"
         >
+          <Icon name="ph:check" class="mr-2 w-4 h-4" />
           Semak
         </rs-button>
         <rs-button
@@ -445,6 +574,7 @@ const closeSemakKetuaModal = () => {
           @click="openTerimaModal"
           variant="success"
         >
+          <Icon name="ph:check" class="mr-2 w-4 h-4" />
           Terima
         </rs-button>
         <rs-button
@@ -452,24 +582,96 @@ const closeSemakKetuaModal = () => {
           @click="openTolakModal"
           variant="danger"
         >
+          <Icon name="ph:x" class="mr-2 w-4 h-4" />
           Tolak
         </rs-button>
       </div>
+    </div>
+
+    <!-- CARD: Status Semakan & Status Penerimaan -->
+    <rs-card class="p-6">
+      <div class="flex justify-between items-center">
+        <h3 class="text-lg font-semibold">Status Penyerahan</h3>
+        <rs-badge
+          :variant="statusSemakan === 'Selesai' ? 'success' : 'warning'"
+        >
+          {{ statusSemakan }}
+        </rs-badge>
+      </div>
     </rs-card>
 
-    <!-- LIST: Pegawai Forensic Yang Terlibat -->
-    <rs-card class="p-6" v-if="showForensicOfficersSection">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold">Pegawai Forensik Yang Terlibat</h3>
-        <rs-button
-          v-if="isKetuaBahagian"
-          @click="openAddModal"
-          variant="primary"
-          size="sm"
+    <rs-card class="p-6">
+      <div class="flex justify-between items-center">
+        <h3 class="text-lg font-semibold">Status Penerimaan</h3>
+        <rs-badge
+          :variant="statusPenerimaan === 'Diterima' ? 'success' : 'danger'"
         >
-          Tambah Pegawai
-        </rs-button>
+          {{ statusPenerimaan }}
+        </rs-badge>
       </div>
+    </rs-card>
+
+    <!-- Header section with improved spacing and hierarchy -->
+    <div class="flex items-center justify-between space-y-2">
+      <div>
+        <h3 class="text-2xl font-bold tracking-tight">
+          Maklumat Status Permohonan
+        </h3>
+      </div>
+    </div>
+
+    <!-- Add this section after the status cards -->
+    <template v-for="(section, index) in visibleOfficers" :key="index">
+      <rs-card class="py-6">
+        <rs-table
+          :data="section.officers"
+          :field="['bil', 'nama', 'pangkat', 'noPegawai']"
+          :options="{
+            variant: 'default',
+            striped: true,
+            borderless: false,
+          }"
+          :options-advanced="{
+            sortable: true,
+            filterable: false,
+          }"
+          advanced
+        >
+        </rs-table>
+      </rs-card>
+    </template>
+
+    <!-- Add this section where you want to display the timeline -->
+    <div class="flex items-center justify-between space-y-2">
+      <div>
+        <h3 class="text-2xl font-bold tracking-tight">
+          Garis Masa Status Permohonan
+        </h3>
+      </div>
+    </div>
+
+    <rs-card class="p-6">
+      <Timeline :events="timelineEvents" />
+    </rs-card>
+
+    <!-- Header section with improved spacing and hierarchy -->
+    <div
+      v-if="showForensicOfficersSection"
+      class="flex items-center justify-between space-y-2"
+    >
+      <div>
+        <h3 class="text-2xl font-bold tracking-tight">
+          Pegawai Forensik Yang Terlibat
+        </h3>
+      </div>
+      <rs-button v-if="isKetuaBahagian" @click="openAddModal" variant="primary">
+        <Icon name="ph:plus" class="mr-2 w-4 h-4" />
+        Tambah Pegawai
+      </rs-button>
+    </div>
+
+    <!-- LIST: Pegawai Forensic Yang Terlibat -->
+    <rs-card class="py-6" v-if="showForensicOfficersSection">
       <rs-table
         v-if="forensicOfficers.length > 0"
         :data="forensicOfficers"
@@ -509,6 +711,7 @@ const closeSemakKetuaModal = () => {
               variant="info"
               size="sm"
             >
+              <Icon name="ph:pencil" class="mr-2 w-4 h-4" />
               Kemaskini
             </rs-button>
             <rs-button
@@ -516,6 +719,7 @@ const closeSemakKetuaModal = () => {
               variant="danger"
               size="sm"
             >
+              <Icon name="ph:trash" class="mr-2 w-4 h-4" />
               Hapus
             </rs-button>
           </div>
@@ -526,9 +730,15 @@ const closeSemakKetuaModal = () => {
       </div>
     </rs-card>
 
+    <!-- Header section with improved spacing and hierarchy -->
+    <div class="flex items-center justify-between space-y-2">
+      <div>
+        <h3 class="text-2xl font-bold tracking-tight">Bahan Bukti</h3>
+      </div>
+    </div>
+
     <!-- LIST: Bahan Bukti -->
-    <rs-card class="p-6">
-      <h3 class="text-lg font-semibold mb-4">Bahan Bukti</h3>
+    <rs-card class="py-6">
       <rs-table
         v-if="evidences.length > 0"
         :data="evidences"
@@ -544,16 +754,6 @@ const closeSemakKetuaModal = () => {
         }"
         advanced
       >
-        <template v-slot:header>
-          <tr>
-            <th>No</th>
-            <th>Jenis Barang</th>
-            <th>Tag No.</th>
-            <th>Keadaan</th>
-            <th>Kuantiti</th>
-            <th>Tindakan</th>
-          </tr>
-        </template>
         <template v-slot:jenisBarang="data">
           {{ data.text }}
         </template>
@@ -569,11 +769,11 @@ const closeSemakKetuaModal = () => {
         <template v-slot:tindakan="data">
           <rs-button
             @click="generateReport(data.text)"
-            size="sm"
             variant="primary"
-            class="py-1 px-2"
+            size="sm"
           >
-            Laporan
+            <Icon name="ph:file" class="mr-2 w-4 h-4" />
+            Jana Laporan
           </rs-button>
         </template>
       </rs-table>
@@ -604,8 +804,14 @@ const closeSemakKetuaModal = () => {
           />
 
           <div class="flex justify-end gap-2">
-            <rs-button variant="secondary" @click="closeModal">Tutup</rs-button>
-            <rs-button variant="primary" btn-type="submit"> Simpan </rs-button>
+            <rs-button variant="secondary" @click="closeModal">
+              <Icon name="ph:x" class="mr-2 w-4 h-4" />
+              Tutup
+            </rs-button>
+            <rs-button variant="primary" btn-type="submit">
+              <Icon name="ci:save" class="mr-2 w-4 h-4" />
+              Simpan
+            </rs-button>
           </div>
         </FormKit>
       </template>

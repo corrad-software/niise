@@ -5,6 +5,9 @@ export const useUserStore = defineStore({
   state: () => ({
     username: null,
     roles: null,
+    rank: null,
+    name: null,
+    officerNumber: null,
     isAuth: false,
   }),
   persist: true,
@@ -15,8 +18,17 @@ export const useUserStore = defineStore({
     setRoles(roles) {
       this.roles = roles;
     },
+    setRank(rank) {
+      this.rank = rank;
+    },
     setIsAuthenticated(isAuth) {
       this.isAuth = isAuth;
+    },
+    setName(name) {
+      this.name = name;
+    },
+    setOfficerNumber(officerNumber) {
+      this.officerNumber = officerNumber;
     },
   },
 });

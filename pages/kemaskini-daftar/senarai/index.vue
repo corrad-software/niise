@@ -1,12 +1,96 @@
 <script setup>
-const { $swal } = useNuxtApp();
+import { useUserStore } from "~/stores/user";
 
 definePageMeta({
-  title: "Senarai Permohonan",
+  title: "Senarai Kaunter Permohonan",
+  middleware: ["auth"],
+  breadcrumb: [
+    {
+      name: "Kaunter",
+      type: "current",
+    },
+  ],
 });
+
+const { $swal } = useNuxtApp();
+const userStore = useUserStore();
 
 // Reactive variable to store table data
 const tableData = ref([]);
+
+// Add new reactive variables for summary based on roles
+const summaryData = ref({
+  // For Pegawai Kaunter
+  jumlahPermohonan: 0,
+  jumlahPermohonanDihantar: 0,
+  jumlahPermohonanDisemak: 0,
+  // For Pegawai Forensik
+  jumlahSemakanHariIni: 0,
+  // For Ketua Bahagian
+  jumlahPermohonanDiluluskan: 0,
+});
+
+// Add filter states
+const filters = ref({
+  status: "",
+  startDate: "",
+  endDate: "",
+});
+
+// Status options for Pegawai Kaunter
+const statusOptions = [
+  { label: "Semua", value: "" },
+  { label: "Permohonan Draf", value: "Permohonan Draf" },
+  { label: "Permohonan Dihantar", value: "Permohonan Dihantar" },
+  { label: "Permohonan Disemak", value: "Permohonan Disemak" },
+];
+
+const statusOptionsKetuaBahagian = [
+  { label: "Semua", value: "" },
+  { label: "Permohonan Diluluskan", value: "Permohonan Diluluskan" },
+];
+
+const statusOptionsPegawaiForensik = [{ label: "Semua", value: "" }];
+
+// Format date for API
+const formatDate = (date) => {
+  if (!date) return "";
+  return new Date(date).toISOString().split("T")[0];
+};
+
+// Fetch summary data
+const fetchSummary = async () => {
+  try {
+    const queryParams = new URLSearchParams();
+    if (filters.value.status) {
+      queryParams.append("status", filters.value.status);
+    }
+    if (filters.value.startDate) {
+      queryParams.append("startDate", formatDate(filters.value.startDate));
+    }
+    if (filters.value.endDate) {
+      queryParams.append("endDate", formatDate(filters.value.endDate));
+    }
+
+    const response = await useFetch(
+      `/api/kemaskini-daftar/summary?${queryParams.toString()}`
+    );
+    if (response.data.value?.statusCode === 200) {
+      summaryData.value = response.data.value.data;
+    }
+  } catch (error) {
+    console.error("Error fetching summary:", error);
+  }
+};
+
+// Watch for filter changes
+watch(
+  filters,
+  () => {
+    fetchSummary();
+  },
+  { deep: true }
+);
 
 // Fetch permohonan list from API
 const fetchPermohonan = async () => {
@@ -71,13 +155,144 @@ const hapus = async (noSiri) => {
 // Fetch the permohonan list when the component is mounted
 onMounted(() => {
   fetchPermohonan();
+  fetchSummary();
 });
 </script>
 
 <template>
-  <div>
-    <div class="flex justify-between items-center">
-      <h1>Senarai Permohonan</h1>
+  <div class="space-y-6">
+    <Breadcrumb />
+
+    <!-- Title -->
+    <div class="flex items-center justify-between space-y-2">
+      <div>
+        <h3 class="text-2xl font-bold tracking-tight">Ringkasan Permohonan</h3>
+      </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div class="space-y-2">
+        <FormKit
+          type="select"
+          v-model="filters.status"
+          :options="
+            userStore.roles.includes('Pegawai Kaunter')
+              ? statusOptions
+              : userStore.roles.includes('Pegawai Forensik')
+              ? statusOptionsPegawaiForensik
+              : statusOptionsKetuaBahagian
+          "
+          label="Status"
+          placeholder="Pilih Status"
+        />
+      </div>
+
+      <div class="space-y-2">
+        <FormKit type="date" v-model="filters.startDate" label="Tarikh Mula" />
+      </div>
+
+      <div class="space-y-2">
+        <FormKit type="date" v-model="filters.endDate" label="Tarikh Akhir" />
+      </div>
+    </div>
+
+    <!-- Summary Cards Section -->
+    <div
+      class="grid gap-4 md:grid-cols-2"
+      :class="
+        userStore.roles.includes('Pegawai Forensik') ||
+        userStore.roles.includes('Ketua Bahagian')
+          ? 'lg:grid-cols-2'
+          : 'lg:grid-cols-3'
+      "
+    >
+      <!-- Pegawai Kaunter Stats -->
+      <rs-card v-if="userStore.roles.includes('Pegawai Kaunter')" class="p-4">
+        <div class="space-y-2">
+          <h3 class="text-sm font-medium text-muted-foreground">
+            Jumlah Permohonan
+          </h3>
+          <div class="text-2xl font-bold">
+            {{ summaryData.jumlahPermohonan }}
+          </div>
+        </div>
+      </rs-card>
+
+      <rs-card v-if="userStore.roles.includes('Pegawai Kaunter')" class="p-4">
+        <div class="space-y-2">
+          <h3 class="text-sm font-medium text-muted-foreground">
+            Jumlah Permohonan Dihantar
+          </h3>
+          <div class="text-2xl font-bold text-blue-600">
+            {{ summaryData.jumlahPermohonanDihantar }}
+          </div>
+        </div>
+      </rs-card>
+
+      <rs-card v-if="userStore.roles.includes('Pegawai Kaunter')" class="p-4">
+        <div class="space-y-2">
+          <h3 class="text-sm font-medium text-muted-foreground">
+            Jumlah Permohonan Disemak
+          </h3>
+          <div class="text-2xl font-bold text-green-600">
+            {{ summaryData.jumlahPermohonanDisemak }}
+          </div>
+        </div>
+      </rs-card>
+
+      <!-- Pegawai Forensik Stats -->
+      <rs-card v-if="userStore.roles.includes('Pegawai Forensik')" class="p-4">
+        <div class="space-y-2">
+          <h3 class="text-sm font-medium text-muted-foreground">
+            Jumlah Permohonan
+          </h3>
+          <div class="text-2xl font-bold">
+            {{ summaryData.jumlahPermohonan }}
+          </div>
+        </div>
+      </rs-card>
+
+      <rs-card v-if="userStore.roles.includes('Pegawai Forensik')" class="p-4">
+        <div class="space-y-2">
+          <h3 class="text-sm font-medium text-muted-foreground">
+            Jumlah Semakan Hari Ini
+          </h3>
+          <div class="text-2xl font-bold text-blue-600">
+            {{ summaryData.jumlahSemakanHariIni }}
+          </div>
+        </div>
+      </rs-card>
+
+      <!-- Ketua Bahagian Stats -->
+      <rs-card v-if="userStore.roles.includes('Ketua Bahagian')" class="p-4">
+        <div class="space-y-2">
+          <h3 class="text-sm font-medium text-muted-foreground">
+            Jumlah Permohonan
+          </h3>
+          <div class="text-2xl font-bold">
+            {{ summaryData.jumlahPermohonan }}
+          </div>
+        </div>
+      </rs-card>
+
+      <rs-card v-if="userStore.roles.includes('Ketua Bahagian')" class="p-4">
+        <div class="space-y-2">
+          <h3 class="text-sm font-medium text-muted-foreground">
+            Jumlah Permohonan Diluluskan
+          </h3>
+          <div class="text-2xl font-bold text-green-600">
+            {{ summaryData.jumlahPermohonanDiluluskan }}
+          </div>
+        </div>
+      </rs-card>
+    </div>
+
+    <!-- Header section with improved spacing and hierarchy -->
+    <div class="flex items-center justify-between space-y-2">
+      <div>
+        <h3 class="text-2xl font-bold tracking-tight">Senarai Permohonan</h3>
+      </div>
     </div>
 
     <rs-card class="mt-4 py-2">
@@ -95,15 +310,6 @@ onMounted(() => {
         }"
         advanced
       >
-        <template v-slot:header>
-          <tr>
-            <th>No</th>
-            <th>No Siri</th>
-            <th>Tarikh & Masa</th>
-            <th>Status</th>
-            <th>Butiran</th>
-          </tr>
-        </template>
         <template v-slot:no="data">
           {{ data.text }}
         </template>
@@ -118,9 +324,11 @@ onMounted(() => {
             :variant="
               data.text === 'Permohonan Draf'
                 ? 'warning'
-                : data.text === 'Permohonan Dihantar' || data.text === 'Permohonan Disemak'
+                : data.text === 'Permohonan Dihantar' ||
+                  data.text === 'Permohonan Disemak'
                 ? 'info'
-                : data.text === 'Permohonan Diterima' || data.text === 'Permohonan Diluluskan'
+                : data.text === 'Permohonan Diterima' ||
+                  data.text === 'Permohonan Diluluskan'
                 ? 'success'
                 : 'danger'
             "
@@ -128,17 +336,17 @@ onMounted(() => {
             {{ data.text || "N/A" }}
           </rs-badge>
         </template>
-        <template v-slot:butiran="data">
-          <div class="flex flex-wrap gap-2">
+        <template v-slot:tindakan="data">
+          <div class="flex flex-wrap items-center gap-2">
             <!-- View Button -->
             <rs-button
               @click="lihat(data.value.noSiri)"
               variant="info"
               size="sm"
-              class="p-1 px-2"
-              title="Lihat"
+              class="px-3 inline-flex items-center justify-center w-[100px]"
             >
-              Lihat
+              <Icon name="ph:list" class="mr-2 w-4 h-4" />
+              Butiran
             </rs-button>
 
             <!-- Edit Button -->
@@ -146,9 +354,9 @@ onMounted(() => {
               @click="kemaskini(data.value.noSiri)"
               variant="primary"
               size="sm"
-              class="p-1 px-2"
-              title="Kemaskini"
+              class="px-3 inline-flex items-center justify-center w-[100px]"
             >
+              <Icon name="ph:pencil" class="mr-2 w-4 h-4" />
               Kemaskini
             </rs-button>
           </div>

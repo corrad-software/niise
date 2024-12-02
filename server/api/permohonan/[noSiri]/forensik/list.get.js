@@ -34,7 +34,8 @@ export default defineEventHandler(async (event) => {
 
     // Return the list of assigned forensic officers
     const forensicOfficers = permohonan.permohonan_assign_forensik.map(
-      (assignment) => ({
+      (assignment, index) => ({
+        bil: index + 1,
         nama: assignment.user.userFullName,
         tindakan: {
           userID: assignment.user.userID,

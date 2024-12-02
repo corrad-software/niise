@@ -1,116 +1,19 @@
-<template>
-  <div>
-    <div class="flex justify-between items-center">
-      <h1>Kemaskini Permohonan</h1>
-    </div>
-
-    <rs-card class="mt-4 p-4">
-      <FormKit type="form" :actions="false" @submit="submitForm">
-        <FormKit
-          type="text"
-          label="Nama Pemohon"
-          v-model="namaPemohon"
-          validation="required"
-          disabled
-        />
-        <FormKit
-          type="text"
-          label="Pangkat Pemohon"
-          v-model="pangkatPemohon"
-          validation="required"
-          disabled
-        />
-        <FormKit
-          type="text"
-          label="No Pegawai Pemohon"
-          v-model="noPegawaiPemohon"
-          validation="required"
-          disabled
-        />
-        <FormKit
-          type="text"
-          label="Nama Penghantar"
-          v-model="namaPenghantar"
-          validation="required"
-          disabled
-        />
-        <FormKit
-          type="text"
-          label="Pangkat Penghantar"
-          v-model="pangkatPenghantar"
-          validation="required"
-          disabled
-        />
-        <FormKit
-          type="textarea"
-          label="Ringkasan Kenyataan Kes"
-          v-model="ringkasanKenyataanKes"
-          validation="required"
-        />
-        <FormKit
-          type="number"
-          label="Bilangan"
-          v-model="bilangan"
-          validation="required|number"
-          disabled
-        />
-
-        <!-- Barang Section -->
-        <div class="mb-4">
-          <h3 class="mb-2">Senarai Barang</h3>
-          <table
-            v-if="barangList.length > 0"
-            class="w-full border-collapse border border-gray-300 mb-2"
-          >
-            <thead>
-              <tr class="bg-gray-100">
-                <th class="border border-gray-300 p-2">Jenis Barang</th>
-                <th class="border border-gray-300 p-2">Kuantiti</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(barang, index) in barangList" :key="index">
-                <td class="border border-gray-300 p-2">
-                  {{
-                    barang.jenisBarangDetailLabel
-                      ? barang.jenisBarangDetailLabel
-                      : barang.jenisBarangDetail
-                  }}
-                </td>
-                <td class="border border-gray-300 p-2">
-                  {{ barang.kuantitiBarang }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div v-else class="text-gray-500 mb-2">Tiada barang ditambah</div>
-        </div>
-
-        <FormKit
-          type="text"
-          label="No Kertas Siasatan"
-          v-model="noKertasSiasatan"
-        />
-        <FormKit
-          type="text"
-          label="No Laporan Polis"
-          v-model="noLaporanPolis"
-        />
-        <div class="flex justify-end gap-2 mt-4">
-          <rs-button type="button" @click="navigateBack" variant="danger"
-            >Kembali</rs-button
-          >
-          <!-- <rs-button type="button" @click="confirmBatal" variant="primary"
-            >Tolak</rs-button
-          > -->
-          <rs-button btn-type="submit" variant="success">Hantar</rs-button>
-        </div>
-      </FormKit>
-    </rs-card>
-  </div>
-</template>
-
 <script setup>
+definePageMeta({
+  title: "Kemaskini Permohonan",
+  middleware: ["auth"],
+  breadcrumb: [
+    {
+      name: "Kaunter Semakan",
+      path: "/kemaskini-daftar/senarai",
+    },
+    {
+      name: "Kemaskini",
+      type: "current",
+    },
+  ],
+});
+
 const router = useRouter();
 const route = useRoute();
 const { $swal } = useNuxtApp();
@@ -122,6 +25,7 @@ const pangkatPemohon = ref("");
 const noPegawaiPemohon = ref("");
 const namaPenghantar = ref("");
 const pangkatPenghantar = ref("");
+const noPegawaiPenghantar = ref("");
 const ringkasanKenyataanKes = ref("");
 const bilangan = ref(0);
 const barangList = ref([]);
@@ -147,9 +51,11 @@ const isFormValid = () => {
     noLaporanPolis,
   ];
 
-  return requiredFields.every(
+  const areRequiredFieldsFilled = requiredFields.every(
     (field) => field.value !== "" && field.value !== 0
   );
+
+  return areRequiredFieldsFilled;
 };
 
 const submitForm = async () => {
@@ -265,6 +171,7 @@ onMounted(async () => {
     noPegawaiPemohon.value = existingData.noPegawaiPemohon;
     namaPenghantar.value = existingData.namaPenghantar;
     pangkatPenghantar.value = existingData.pangkatPenghantar;
+    noPegawaiPenghantar.value = existingData.noPegawaiPenghantar;
     ringkasanKenyataanKes.value = existingData.ringkasanKenyataanKes;
     bilangan.value = existingData.bilangan;
     barangList.value = existingData.barangList;
@@ -283,23 +190,139 @@ const getJenisBarangLabel = (value) => {
 };
 </script>
 
-<style lang="scss" scoped>
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
+<template>
+  <div>
+    <Breadcrumb />
 
-button {
-  padding: 0.5rem 1rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
+    <div class="flex items-center justify-between space-y-2">
+      <div>
+        <h3 class="text-2xl font-bold tracking-tight">Kemaskini Permohonan</h3>
+      </div>
+    </div>
 
-button:hover {
-  background-color: #0056b3;
-}
-</style>
+    <rs-card class="mt-4 px-4 py-6">
+      <FormKit type="form" :actions="false" @submit="submitForm">
+        <!-- Pemohon Section -->
+        <div class="grid gap-6 md:grid-cols-3">
+          <FormKit
+            type="text"
+            label="Nama Pemohon"
+            v-model="namaPemohon"
+            validation="required"
+            disabled
+          />
+          <FormKit
+            type="text"
+            label="Pangkat Pemohon"
+            v-model="pangkatPemohon"
+            validation="required"
+            disabled
+          />
+          <FormKit
+            type="text"
+            label="No Pegawai Pemohon"
+            v-model="noPegawaiPemohon"
+            validation="required"
+            disabled
+          />
+        </div>
+
+        <!-- Penghantar Section -->
+        <div class="grid gap-6 md:grid-cols-3">
+          <FormKit
+            type="text"
+            label="Nama Penghantar"
+            v-model="namaPenghantar"
+            validation="required"
+            disabled
+          />
+          <FormKit
+            type="text"
+            label="Pangkat Penghantar"
+            v-model="pangkatPenghantar"
+            validation="required"
+            disabled
+          />
+          <FormKit
+            type="text"
+            label="No Pegawai Penghantar"
+            v-model="noPegawaiPenghantar"
+            validation="required"
+            disabled
+          />
+        </div>
+
+        <!-- No Kertas & Laporan Section -->
+        <FormKit
+          type="text"
+          label="No Kertas Siasatan"
+          v-model="noKertasSiasatan"
+        />
+        <FormKit
+          type="text"
+          label="No Laporan Polis"
+          v-model="noLaporanPolis"
+        />
+
+        <!-- Ringkasan Section -->
+        <FormKit
+          type="textarea"
+          label="Ringkasan Kenyataan Kes"
+          v-model="ringkasanKenyataanKes"
+        />
+
+        <!-- Bilangan Section -->
+        <FormKit
+          type="number"
+          label="Bilangan"
+          v-model="bilangan"
+          validation="required|number"
+          disabled
+        />
+
+        <!-- Barang Section -->
+        <div class="mb-4">
+          <h3 class="mb-2">Senarai Barang</h3>
+          <table
+            v-if="barangList.length > 0"
+            class="w-full border-collapse border border-gray-300 mb-2"
+          >
+            <thead>
+              <tr class="bg-gray-100">
+                <th class="border border-gray-300 p-2">Bil</th>
+                <th class="border border-gray-300 p-2">Jenis Barang</th>
+                <th class="border border-gray-300 p-2">Kuantiti</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(barang, index) in barangList" :key="index">
+                <td class="border border-gray-300 p-2">{{ index + 1 }}</td>
+                <td class="border border-gray-300 p-2">
+                  {{
+                    barang.jenisBarangDetailLabel || barang.jenisBarangDetail
+                  }}
+                </td>
+                <td class="border border-gray-300 p-2">
+                  {{ barang.kuantitiBarang }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div v-else class="text-gray-500 mb-2">Tiada barang ditambah</div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-end gap-2 mt-8">
+          <rs-button @click="navigateBack" variant="danger">
+            <Icon name="pajamas:reply" class="w-4 h-4 mr-2" />
+            Kembali
+          </rs-button>
+          <rs-button btn-type="submit" variant="success">
+            <Icon name="ci:save" class="w-4 h-4 mr-2" />
+            Hantar
+          </rs-button>
+        </div>
+      </FormKit>
+    </rs-card>
+  </div>
+</template>
