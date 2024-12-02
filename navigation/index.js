@@ -23,7 +23,12 @@ export default [
             child: [],
             meta: {
               auth: {
-                role: ["Admin", "Pegawai Kaunter", "Ketua Bahagian", "Pegawai Forensik"],
+                role: [
+                  "Admin",
+                  "Pegawai Kaunter",
+                  "Ketua Bahagian",
+                  "Pegawai Forensik",
+                ],
               },
             },
           },
@@ -31,15 +36,8 @@ export default [
       },
       {
         title: "Pengesanan Penyamaran",
+        path: "/pengesanan-penyamaran/senarai",
         icon: "ph:user-rectangle-duotone",
-        child: [
-          {
-            title: "Senarai",
-            path: "/pengesanan-penyamaran/senarai",
-            child: [],
-            meta: {},
-          },
-        ],
         meta: {
           auth: {
             role: ["Admin", "Pegawai Penyiasat", "Pegawai Forensik"],
@@ -48,15 +46,8 @@ export default [
       },
       {
         title: "e-Library",
+        path: "/e-library",
         icon: "ph:address-book-duotone",
-        child: [
-          {
-            title: "Senarai",
-            path: "/e-library",
-            child: [],
-            meta: {},
-          },
-        ],
         meta: {
           auth: {
             role: ["Admin", "Pegawai Forensik"],
@@ -65,15 +56,8 @@ export default [
       },
       {
         title: "Dokumen e-Library",
+        path: "/dokumen-library",
         icon: "ph:file-archive-duotone",
-        child: [
-          {
-            title: "Senarai",
-            path: "/dokumen-library",
-            child: [],
-            meta: {},
-          },
-        ],
         meta: {
           auth: {
             role: ["Admin", "Pegawai Forensik"],
