@@ -26,10 +26,6 @@ export default defineEventHandler(async (event) => {
     namaPemohon,
     pangkatPemohon,
     noPegawaiPemohon,
-    ringkasanKenyataanKes,
-    bilangan,
-    noKertasSiasatan,
-    noLaporanPolis,
     ...barangList,
   ];
 
@@ -114,7 +110,9 @@ export default defineEventHandler(async (event) => {
         penghantar_sama_dengan_pemohon: isPenghantarSameAsPemohon ? 1 : 0,
         no_kertas_siasatan: noKertasSiasatan,
         no_laporan_polis: noLaporanPolis,
-        tarikh_temujanji: tarikhTemujanji ? new Date(tarikhTemujanji) : undefined,
+        tarikh_temujanji: tarikhTemujanji
+          ? new Date(tarikhTemujanji)
+          : undefined,
         slot_masa: slotMasa ? new Date(`1970-01-01T${slotMasa}`) : undefined,
         user_permohonan_modified_byTouser: {
           connect: {

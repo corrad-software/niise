@@ -1,15 +1,19 @@
 <script setup>
+import { useUserStore } from "~/stores/user";
+
 const { $swal } = useNuxtApp();
 const router = useRouter();
+const userStore = useUserStore();
 
 const pemohon = ref({
-  nama: "",
-  jawatan: "",
-  noPegawai: "",
+  nama: userStore.name,
+  jawatan: userStore.rank,
+  noPegawai: userStore.officerNumber,
 });
 
-const jenisSemakan = ref("Subjek Hadir");
+const jenisSemakan = ref("");
 const jenisSemakanOptions = ref([
+  { label: "Sila Pilih", value: "" },
   { label: "Subjek Hadir", value: "Subjek Hadir" },
   { label: "Hantar Gambar", value: "Hantar Gambar" },
 ]);
@@ -86,162 +90,168 @@ const fileToBase64 = (file) => {
     reader.onerror = (error) => reject(error);
   });
 };
+
+definePageMeta({
+  title: "Pengesanan Penyamaran Baru",
+  middleware: ["auth"],
+  breadcrumb: [
+    {
+      name: "Pengesanan Penyamaran",
+      path: "/pengesanan-penyamaran/senarai",
+    },
+    {
+      name: "Baru",
+      type: "current",
+    },
+  ],
+});
 </script>
 
 <template>
   <div>
-    <h1>Tambah Temujanji</h1>
+    <Breadcrumb />
 
-    <rs-card class="mt-4 p-4">
+    <div class="flex items-center justify-between space-y-2">
+      <div>
+        <h3 class="text-2xl font-bold tracking-tight">
+          Pengesanan Penyamaran Baru
+        </h3>
+      </div>
+    </div>
+
+    <rs-card class="mt-4 px-4 py-6">
       <FormKit type="form" :actions="false" @submit="submitForm">
-        <!-- Maklumat Pemohon (Auto-filled) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Maklumat Pemohon section -->
+        <div class="grid gap-6 md:grid-cols-3">
           <FormKit
             type="text"
             label="Nama Pemohon"
             v-model="pemohon.nama"
             validation="required"
+            :disabled="true"
           />
           <FormKit
             type="text"
             label="Jawatan Pemohon"
             v-model="pemohon.jawatan"
             validation="required"
+            :disabled="true"
           />
           <FormKit
             type="text"
             label="No Pegawai Pemohon"
             v-model="pemohon.noPegawai"
             validation="required"
+            :disabled="true"
+          />
+        </div>
+        <!-- Date and Time section -->
+        <div class="grid gap-6 md:grid-cols-2">
+          <FormKit
+            type="date"
+            label="Tarikh"
+            v-model="tarikh"
+            validation="required|date"
+          />
+          <FormKit
+            type="time"
+            label="Masa"
+            v-model="masa"
+            validation="required"
           />
         </div>
 
-        <!-- Jenis Semakan Dropdown -->
+        <!-- Jenis Semakan section -->
         <FormKit
           type="select"
           label="Jenis Semakan"
           v-model="jenisSemakan"
           :options="jenisSemakanOptions"
-          validation="required"
         />
 
-        <!-- Conditional fields based on jenisSemakan -->
-        <template v-if="jenisSemakan === 'Subjek Hadir'">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <div v-if="subjekPreview" class="mt-2 flex justify-center mb-2">
-                <img
-                  :src="subjekPreview"
-                  alt="Preview Subjek"
-                  class="max-w-xs rounded-lg shadow-md"
-                />
-              </div>
-              <FormKit
-                type="file"
-                name="gambarSubjek"
-                label="Gambar Subjek"
-                accept="image/*"
-                v-model="gambarSubjek"
+        <!-- Image upload section -->
+        <div
+          v-if="
+            jenisSemakan === 'Subjek Hadir' || jenisSemakan === 'Hantar Gambar'
+          "
+          class="grid gap-6 md:grid-cols-2 mt-4"
+        >
+          <div>
+            <div v-if="subjekPreview" class="mb-4">
+              <img
+                :src="subjekPreview"
+                alt="Preview Subjek"
+                class="max-w-xs rounded-lg shadow-md mx-auto"
               />
             </div>
-            <div>
-              <div v-if="capJariPreview" class="mt-2 flex justify-center mb-2">
-                <img
-                  :src="capJariPreview"
-                  alt="Preview Cap Jari"
-                  class="max-w-xs rounded-lg shadow-md"
-                />
-              </div>
-              <FormKit
-                type="file"
-                name="gambarCapJari"
-                label="Gambar Cap Jari"
-                accept="image/*"
-                v-model="gambarCapJari"
+            <FormKit
+              type="file"
+              name="gambarSubjek"
+              label="Gambar Subjek"
+              accept="image/*"
+              :validation="jenisSemakan === 'Hantar Gambar' ? 'required' : ''"
+              v-model="gambarSubjek"
+            >
+              <template #label>
+                <label class="formkit-label">
+                  Gambar Subjek
+                  <span
+                    v-if="jenisSemakan === 'Hantar Gambar'"
+                    class="text-red-500"
+                    >*</span
+                  >
+                </label>
+              </template>
+            </FormKit>
+          </div>
+
+          <div>
+            <div v-if="capJariPreview" class="mb-4">
+              <img
+                :src="capJariPreview"
+                alt="Preview Cap Jari"
+                class="max-w-xs rounded-lg shadow-md mx-auto"
               />
             </div>
-          </div>
-        </template>
-
-        <template v-else-if="jenisSemakan === 'Hantar Gambar'">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <div v-if="subjekPreview" class="mt-2 flex justify-center mb-2">
-                <img
-                  :src="subjekPreview"
-                  alt="Preview Subjek"
-                  class="max-w-xs rounded-lg shadow-md"
-                />
-              </div>
-              <FormKit
-                type="file"
-                name="gambarSubjek"
-                label="Gambar Subjek"
-                accept="image/*"
-                validation="required"
-                v-model="gambarSubjek"
-              >
-                <template #label>
-                  <label
-                    class="formkit-label formkit-label-global formkit-outer-text"
+            <FormKit
+              type="file"
+              name="gambarCapJari"
+              label="Gambar Cap Jari"
+              accept="image/*"
+              :validation="jenisSemakan === 'Hantar Gambar' ? 'required' : ''"
+              v-model="gambarCapJari"
+            >
+              <template #label>
+                <label class="formkit-label">
+                  Gambar Cap Jari
+                  <span
+                    v-if="jenisSemakan === 'Hantar Gambar'"
+                    class="text-red-500"
+                    >*</span
                   >
-                    Gambar Subjek
-                    <span class="text-red-500">*</span>
-                  </label>
-                </template>
-              </FormKit>
-            </div>
-            <div>
-              <div v-if="capJariPreview" class="mt-2 flex justify-center mb-2">
-                <img
-                  :src="capJariPreview"
-                  alt="Preview Cap Jari"
-                  class="max-w-xs rounded-lg shadow-md"
-                />
-              </div>
-              <FormKit
-                type="file"
-                name="gambarCapJari"
-                label="Gambar Cap Jari"
-                accept="image/*"
-                validation="required"
-                v-model="gambarCapJari"
-              >
-                <template #label>
-                  <label
-                    class="formkit-label formkit-label-global formkit-outer-text"
-                  >
-                    Gambar Cap Jari
-                    <span class="text-red-500">*</span>
-                  </label>
-                </template>
-              </FormKit>
-            </div>
+                </label>
+              </template>
+            </FormKit>
           </div>
-        </template>
-
-        <!-- Date field -->
-        <FormKit
-          type="date"
-          label="Tarikh"
-          v-model="tarikh"
-          validation="required|date"
-        />
-
-        <!-- Time field -->
-        <FormKit
-          type="time"
-          label="Masa"
-          v-model="masa"
-          validation="required"
-        />
+        </div>
 
         <!-- Action Buttons -->
-        <div class="flex justify-end gap-2 mt-4">
-          <rs-button @click="goBack" variant="danger">Kembali</rs-button>
-          <rs-button btn-type="submit" variant="success">Hantar</rs-button>
+        <div class="flex justify-end gap-2 mt-8">
+          <rs-button @click="goBack" variant="danger">
+            <Icon name="pajamas:reply" class="w-4 h-4 mr-2" />
+            Kembali
+          </rs-button>
+          <rs-button btn-type="submit" variant="success">
+            <Icon
+              name="streamline:interface-upload-laptop-arrow-computer-download-internet-laptop-network-server-up-upload"
+              class="w-4 h-4 mr-2"
+            />
+            Hantar
+          </rs-button>
         </div>
       </FormKit>
     </rs-card>
   </div>
 </template>
+
+<style lang="scss" scoped></style>

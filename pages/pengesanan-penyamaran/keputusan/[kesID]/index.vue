@@ -1,15 +1,18 @@
 <script setup>
+import { useUserStore } from "~/stores/user";
+
 const { $swal } = useNuxtApp();
 const router = useRouter();
 const route = useRoute();
+const userStore = useUserStore();
 
 const temujanji = ref(null);
 const loading = ref(true);
 
 const pemohon = ref({
-  nama: "",
-  jawatan: "",
-  noPegawai: "",
+  nama: userStore.name,
+  jawatan: userStore.rank,
+  noPegawai: userStore.officerNumber,
 });
 
 const jenisSemakan = ref("");
@@ -129,18 +132,43 @@ const goBack = () => {
 
 // Fetch data on mount
 onMounted(fetchTemujanji);
+
+definePageMeta({
+  title: "Keputusan Pengesanan Penyamaran",
+  middleware: ["auth"],
+  breadcrumb: [
+    {
+      name: "Pengesanan Penyamaran",
+      path: "/pengesanan-penyamaran/senarai",
+    },
+    {
+      name: "Keputusan",
+      type: "current",
+    },
+  ],
+});
 </script>
 
 <template>
   <div>
-    <h1>Keputusan Temujanji</h1>
+    <Breadcrumb />
 
-    <rs-card class="mt-4 p-4">
-      <div v-if="loading">Loading...</div>
+    <div class="flex items-center justify-between space-y-2">
+      <div>
+        <h3 class="text-2xl font-bold tracking-tight">
+          Keputusan Pengesanan Penyamaran
+        </h3>
+      </div>
+    </div>
+
+    <rs-card class="mt-4 px-4 py-6">
+      <div v-if="loading" class="flex justify-center items-center py-8">
+        Loading...
+      </div>
       <div v-else>
         <FormKit type="form" :actions="false" @submit="submitForm">
-          <!-- Maklumat Pemohon -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Maklumat Pemohon section -->
+          <div class="grid gap-6 md:grid-cols-3">
             <FormKit
               type="text"
               label="Nama Pemohon"
@@ -164,60 +192,8 @@ onMounted(fetchTemujanji);
             />
           </div>
 
-          <!-- Jenis Semakan -->
-          <FormKit
-            type="select"
-            label="Jenis Semakan"
-            v-model="jenisSemakan"
-            :options="jenisSemakanOptions"
-            validation="required"
-            :disabled="true"
-          />
-
-          <!-- Images section -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div>
-              <h6 v-if="jenisSemakan !== 'Subjek Hadir'">Gambar Subjek</h6>
-              <div class="mt-2 flex justify-center mb-2">
-                <img
-                  v-if="subjekPreview"
-                  :src="subjekPreview"
-                  alt="Preview Subjek"
-                  class="max-w-xs rounded-lg shadow-md"
-                />
-              </div>
-              <FormKit
-                v-if="jenisSemakan === 'Subjek Hadir'"
-                type="file"
-                name="gambarSubjek"
-                label="Gambar Subjek"
-                accept="image/*"
-                v-model="gambarSubjek"
-              />
-            </div>
-            <div>
-              <h6 v-if="jenisSemakan !== 'Subjek Hadir'">Gambar Cap Jari</h6>
-              <div class="mt-2 flex justify-center mb-2">
-                <img
-                  v-if="capJariPreview"
-                  :src="capJariPreview"
-                  alt="Preview Cap Jari"
-                  class="max-w-xs rounded-lg shadow-md"
-                />
-              </div>
-              <FormKit
-                v-if="jenisSemakan === 'Subjek Hadir'"
-                type="file"
-                name="gambarCapJari"
-                label="Gambar Cap Jari"
-                accept="image/*"
-                v-model="gambarCapJari"
-              />
-            </div>
-          </div>
-
-          <!-- Date and Time -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <!-- Date and Time section -->
+          <div class="grid gap-6 md:grid-cols-2">
             <FormKit
               type="date"
               label="Tarikh"
@@ -234,18 +210,104 @@ onMounted(fetchTemujanji);
             />
           </div>
 
+          <!-- Jenis Semakan section -->
+          <FormKit
+            type="select"
+            label="Jenis Semakan"
+            v-model="jenisSemakan"
+            :options="jenisSemakanOptions"
+            :disabled="true"
+          />
+
+          <!-- Image upload section -->
+          <div
+            v-if="
+              jenisSemakan === 'Subjek Hadir' ||
+              jenisSemakan === 'Hantar Gambar'
+            "
+            class="grid gap-6 md:grid-cols-2 mt-4"
+          >
+            <div>
+              <div v-if="subjekPreview" class="mb-4">
+                <img
+                  :src="subjekPreview"
+                  alt="Preview Subjek"
+                  class="max-w-xs rounded-lg shadow-md mx-auto"
+                />
+              </div>
+              <FormKit
+                v-if="jenisSemakan === 'Subjek Hadir'"
+                type="file"
+                name="gambarSubjek"
+                label="Gambar Subjek"
+                accept="image/*"
+                v-model="gambarSubjek"
+              >
+                <template #label>
+                  <label class="formkit-label">
+                    Gambar Subjek
+                    <span
+                      v-if="jenisSemakan === 'Hantar Gambar'"
+                      class="text-red-500"
+                      >*</span
+                    >
+                  </label>
+                </template>
+              </FormKit>
+            </div>
+
+            <div>
+              <div v-if="capJariPreview" class="mb-4">
+                <img
+                  :src="capJariPreview"
+                  alt="Preview Cap Jari"
+                  class="max-w-xs rounded-lg shadow-md mx-auto"
+                />
+              </div>
+              <FormKit
+                v-if="jenisSemakan === 'Subjek Hadir'"
+                type="file"
+                name="gambarCapJari"
+                label="Gambar Cap Jari"
+                accept="image/*"
+                v-model="gambarCapJari"
+              >
+                <template #label>
+                  <label class="formkit-label">
+                    Gambar Cap Jari
+                    <span
+                      v-if="jenisSemakan === 'Hantar Gambar'"
+                      class="text-red-500"
+                      >*</span
+                    >
+                  </label>
+                </template>
+              </FormKit>
+            </div>
+          </div>
+
           <!-- Action Buttons -->
-          <div class="flex justify-end gap-2 mt-4">
-            <rs-button @click="goBack" variant="danger">Kembali</rs-button>
+          <div class="flex justify-end gap-2 mt-8">
+            <rs-button @click="goBack" variant="danger">
+              <Icon name="pajamas:reply" class="w-4 h-4 mr-2" />
+              Kembali
+            </rs-button>
             <rs-button
               v-if="jenisSemakan === 'Subjek Hadir'"
               btn-type="submit"
               variant="success"
-              >Kemaskini</rs-button
             >
+              <Icon
+                name="streamline:interface-upload-laptop-arrow-computer-download-internet-laptop-network-server-up-upload"
+                class="w-4 h-4 mr-2"
+              />
+              Kemaskini
+            </rs-button>
           </div>
         </FormKit>
       </div>
     </rs-card>
   </div>
 </template>
+
+<style lang="scss" scoped></style>

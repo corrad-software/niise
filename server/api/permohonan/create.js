@@ -25,10 +25,6 @@ export default defineEventHandler(async (event) => {
     namaPemohon,
     pangkatPemohon,
     noPegawaiPemohon,
-    ringkasanKenyataanKes,
-    bilangan,
-    noKertasSiasatan,
-    noLaporanPolis,
     ...barangList,
   ];
 

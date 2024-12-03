@@ -1,6 +1,30 @@
 export default defineEventHandler(async (event) => {
   try {
     const { roles } = event.context.user;
+    // Get query parameters
+    const query = getQuery(event);
+    const status = query.status;
+    const startDate = query.startDate ? new Date(query.startDate) : null;
+    const endDate = query.endDate ? new Date(query.endDate) : null;
+
+    // Build where conditions
+    let whereConditions = {};
+
+    // Add status filter
+    if (status) {
+      whereConditions.status = status;
+    }
+
+    // Add date filter conditions
+    if (startDate || endDate) {
+      whereConditions.create_at = {};
+      if (startDate) {
+        whereConditions.create_at.gte = startDate;
+      }
+      if (endDate) {
+        whereConditions.create_at.lte = endDate;
+      }
+    }
 
     let showButtonObj = {
       tambah: false,
@@ -19,19 +43,20 @@ export default defineEventHandler(async (event) => {
     }
 
     const appointments = await prisma.temujanji.findMany({
+      where: whereConditions,
       include: {
         pemohon: {
           include: {
             user: true,
           },
-        }, // Join with pemohon table to get applicant details
+        },
       },
     });
 
     return {
       statusCode: 200,
       data: appointments.map((appointment, index) => ({
-        no: index + 1,
+        bil: index + 1,
         kesId: appointment.temujanjiID,
         namaPemohon: appointment.pemohon.nama_pemohon,
         caraSemakan: appointment.jenisSemakan,

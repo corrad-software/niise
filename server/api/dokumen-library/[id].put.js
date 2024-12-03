@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     if (!id) {
       return {
         statusCode: 400,
-        message: "ID dokumen library diperlukan"
+        message: "ID dokumen library diperlukan",
       };
     }
 
@@ -27,20 +27,20 @@ export default defineEventHandler(async (event) => {
     ) {
       return {
         statusCode: 400,
-        message: "Sila isi semua medan yang diperlukan"
+        message: "Sila isi semua medan yang diperlukan",
       };
     }
 
     // Check if dokumen library exists
     const existingDokumenLibrary = await prisma.dokumen_library.findUnique({
       where: {
-        dokumenLibraryID: parseInt(id)
-      }
+        dokumenLibraryID: parseInt(id),
+      },
     });
 
     // Create or update dokumen library record first
     let dokumenLibraryData;
-    
+
     if (!existingDokumenLibrary) {
       // Create new record
       dokumenLibraryData = await prisma.dokumen_library.create({
@@ -57,14 +57,14 @@ export default defineEventHandler(async (event) => {
           ulasan: body.ulasan,
           create_by: body.modified_by || null,
           create_at: new Date(),
-          reportID: body.reportID || null
-        }
+          reportID: body.reportID || null,
+        },
       });
     } else {
       // Update existing record
       dokumenLibraryData = await prisma.dokumen_library.update({
         where: {
-          dokumenLibraryID: parseInt(id)
+          dokumenLibraryID: parseInt(id),
         },
         data: {
           negaraPengeluaran: body.negaraPengeluaran,
@@ -77,8 +77,8 @@ export default defineEventHandler(async (event) => {
           dapatan: body.dapatan,
           ulasan: body.ulasan,
           modified_by: body.modified_by || null,
-          modified_at: new Date()
-        }
+          modified_at: new Date(),
+        },
       });
     }
 
@@ -86,7 +86,11 @@ export default defineEventHandler(async (event) => {
     const savedDocuments = [];
     if (body.images && body.images.length > 0) {
       // Ensure uploads directory exists
-      const uploadsDir = join(process.cwd(), "public", "uploads");
+      const uploadsDir = join(
+        process.env.SERVER == "true"
+          ? join(process.cwd(), "../public/uploads")
+          : join(process.cwd(), "public/uploads")
+      );
       try {
         await mkdir(uploadsDir, { recursive: true });
       } catch (err) {
@@ -117,8 +121,8 @@ export default defineEventHandler(async (event) => {
             dokumenLibraryID: dokumenLibraryData.dokumenLibraryID,
             isDokumenLibraryImage: true,
             documentStatus: "ACTIVE",
-            documentCreatedDate: new Date().toISOString()
-          }
+            documentCreatedDate: new Date().toISOString(),
+          },
         });
 
         savedDocuments.push(savedDocument);
@@ -128,12 +132,12 @@ export default defineEventHandler(async (event) => {
     // Fetch the complete data with relations
     const completeData = await prisma.dokumen_library.findUnique({
       where: {
-        dokumenLibraryID: dokumenLibraryData.dokumenLibraryID
+        dokumenLibraryID: dokumenLibraryData.dokumenLibraryID,
       },
       include: {
         document: true,
-        report: true
-      }
+        report: true,
+      },
     });
 
     const action = existingDokumenLibrary ? "dikemaskini" : "ditambah";
@@ -143,15 +147,15 @@ export default defineEventHandler(async (event) => {
       message: `Dokumen library berjaya ${action}`,
       data: {
         dokumenLibrary: completeData,
-        newDocuments: savedDocuments
-      }
+        newDocuments: savedDocuments,
+      },
     };
   } catch (error) {
     console.error("Error updating dokumen library:", error);
     return {
       statusCode: 500,
       message: "Ralat semasa mengemaskini dokumen library",
-      error: error.message
+      error: error.message,
     };
   }
-}); 
+});

@@ -15,42 +15,34 @@ definePageMeta({
 const { $swal } = useNuxtApp();
 const userStore = useUserStore();
 
-// Reactive variable to store table data
+// Reactive variables
 const tableData = ref([]);
+const isLoading = ref(false);
 
-// Add new reactive variables for summary based on roles
+// Summary data structure
 const summaryData = ref({
-  // For Pegawai Kaunter
   jumlahPermohonan: 0,
   jumlahPermohonanDihantar: 0,
   jumlahPermohonanDisemak: 0,
-  // For Pegawai Forensik
   jumlahSemakanHariIni: 0,
-  // For Ketua Bahagian
   jumlahPermohonanDiluluskan: 0,
 });
 
-// Add filter states
+// Add filter states with ISO date string format
 const filters = ref({
   status: "",
   startDate: "",
   endDate: "",
 });
 
-// Status options for Pegawai Kaunter
-const statusOptions = [
-  { label: "Semua", value: "" },
-  { label: "Permohonan Draf", value: "Permohonan Draf" },
-  { label: "Permohonan Dihantar", value: "Permohonan Dihantar" },
-  { label: "Permohonan Disemak", value: "Permohonan Disemak" },
-];
+// Add date validation rules
+const startDateRules = computed(() => ({
+  date_before: filters.value.endDate || undefined,
+}));
 
-const statusOptionsKetuaBahagian = [
-  { label: "Semua", value: "" },
-  { label: "Permohonan Diluluskan", value: "Permohonan Diluluskan" },
-];
-
-const statusOptionsPegawaiForensik = [{ label: "Semua", value: "" }];
+const endDateRules = computed(() => ({
+  date_after: filters.value.startDate || undefined,
+}));
 
 // Format date for API
 const formatDate = (date) => {
@@ -58,7 +50,37 @@ const formatDate = (date) => {
   return new Date(date).toISOString().split("T")[0];
 };
 
-// Fetch summary data
+// Update fetchPermohonan to use filters
+const fetchPermohonan = async () => {
+  isLoading.value = true;
+  try {
+    const queryParams = new URLSearchParams();
+    if (filters.value.status) {
+      queryParams.append("status", filters.value.status);
+    }
+    if (filters.value.startDate) {
+      queryParams.append("startDate", formatDate(filters.value.startDate));
+    }
+    if (filters.value.endDate) {
+      queryParams.append("endDate", formatDate(filters.value.endDate));
+    }
+
+    const response = await useFetch(
+      `/api/permohonan?${queryParams.toString()}`
+    );
+    if (response.data.value?.statusCode === 200) {
+      tableData.value = response.data.value.data;
+    } else {
+      console.error(response.data.value?.message);
+    }
+  } catch (error) {
+    console.error("Error fetching permohonan data:", error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// Update fetchSummary to use the correct API endpoint
 const fetchSummary = async () => {
   try {
     const queryParams = new URLSearchParams();
@@ -83,29 +105,29 @@ const fetchSummary = async () => {
   }
 };
 
-// Watch for filter changes
+// Watch for filter changes to trigger both fetches
 watch(
   filters,
   () => {
+    fetchPermohonan();
     fetchSummary();
   },
   { deep: true }
 );
 
-// Fetch permohonan list from API
-const fetchPermohonan = async () => {
-  try {
-    const response = await useFetch("/api/permohonan");
-    if (response.data.value.statusCode === 200) {
-      // Populate tableData with the fetched permohonan list
-      tableData.value = response.data.value.data;
-    } else {
-      console.error(response.data.value.message);
-    }
-  } catch (error) {
-    console.error("Error fetching permohonan data:", error);
-  }
-};
+// Status options for Pegawai Kaunter
+const statusOptions = [
+  { label: "Semua", value: "" },
+  { label: "Permohonan Dihantar", value: "Permohonan Dihantar" },
+  { label: "Permohonan Disemak", value: "Permohonan Disemak" },
+];
+
+const statusOptionsKetuaBahagian = [
+  { label: "Semua", value: "" },
+  { label: "Permohonan Diluluskan", value: "Permohonan Diluluskan" },
+];
+
+const statusOptionsPegawaiForensik = [{ label: "Semua", value: "" }];
 
 const permohonanBaru = () => {
   navigateTo("/permohonan-temujanji/baru");
@@ -189,11 +211,29 @@ onMounted(() => {
       </div>
 
       <div class="space-y-2">
-        <FormKit type="date" v-model="filters.startDate" label="Tarikh Mula" />
+        <FormKit
+          type="date"
+          v-model="filters.startDate"
+          label="Tarikh Mula"
+          :validation="`date_before:${filters.endDate}`"
+          validation-visibility="live"
+          :validation-messages="{
+            date_before: 'Tarikh mula tidak boleh melebihi tarikh akhir',
+          }"
+        />
       </div>
 
       <div class="space-y-2">
-        <FormKit type="date" v-model="filters.endDate" label="Tarikh Akhir" />
+        <FormKit
+          type="date"
+          v-model="filters.endDate"
+          label="Tarikh Akhir"
+          :validation="`date_after:${filters.startDate}`"
+          validation-visibility="live"
+          :validation-messages="{
+            date_after: 'Tarikh akhir tidak boleh kurang dari tarikh mula',
+          }"
+        />
       </div>
     </div>
 
@@ -296,7 +336,12 @@ onMounted(() => {
     </div>
 
     <rs-card class="mt-4 py-2">
+      <div v-if="isLoading" class="flex justify-center py-8">
+        <Icon name="ph:spinner" class="w-8 h-8 animate-spin" />
+      </div>
+
       <rs-table
+        v-else
         :data="tableData"
         :options="{
           variant: 'default',
@@ -305,7 +350,6 @@ onMounted(() => {
         }"
         :options-advanced="{
           sortable: true,
-
           filterable: false,
         }"
         advanced

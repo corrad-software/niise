@@ -3,55 +3,66 @@ export default defineEventHandler(async (event) => {
   try {
     const { userID, roles } = event.context.user;
 
-    let whereCondition = {};
+    // Get query parameters
+    const query = getQuery(event);
+    const status = query.status;
+    const startDate = query.startDate ? new Date(query.startDate) : null;
+    const endDate = query.endDate ? new Date(query.endDate) : null;
 
-    // Role-based filtering
+    let whereCondition = {};
+    const dateCondition = {};
+
+    // Add date filters if provided
+    if (startDate || endDate) {
+      if (startDate) {
+        dateCondition.gte = startDate;
+      }
+      if (endDate) {
+        dateCondition.lte = endDate;
+      }
+      whereCondition.create_at = dateCondition;
+    }
+
+    // Role-based filtering combined with status filter
     if (roles.includes("Pegawai Kaunter")) {
-      whereCondition = {
-        status_permohonan: {
-          in: ["Permohonan Dihantar", "Permohonan Disemak"],
-        },
-      };
+      whereCondition.status_permohonan = status
+        ? { equals: status }
+        : { in: ["Permohonan Dihantar", "Permohonan Disemak"] };
     } else if (
       roles.includes("Ketua Bahagian") ||
       roles.includes("Pegawai Forensik")
     ) {
-      whereCondition = {
-        status_permohonan: {
-          in: [
-            "Permohonan Diterima",
-            "Permohonan Diluluskan",
-            "Permohonan Ditolak",
-          ],
-        },
-      };
-
-      // Additional filter for Pegawai Forensik to only show assigned cases
       if (roles.includes("Pegawai Forensik")) {
-        whereCondition = {
-          AND: [
-            {
-              status_permohonan: {
-                in: ["Permohonan Diterima", "Permohonan Diluluskan"],
+        whereCondition.AND = [
+          {
+            status_permohonan: status
+              ? { equals: status }
+              : { in: ["Permohonan Diterima", "Permohonan Diluluskan"] },
+          },
+          {
+            permohonan_assign_forensik: {
+              some: {
+                pegawai_forensikID: userID,
               },
             },
-            {
-              permohonan_assign_forensik: {
-                some: {
-                  pegawai_forensikID: userID,
-                },
-              },
-            },
-          ],
-        };
+          },
+        ];
+      } else {
+        whereCondition.status_permohonan = status
+          ? { equals: status }
+          : {
+              in: [
+                "Permohonan Diterima",
+                "Permohonan Diluluskan",
+                "Permohonan Ditolak",
+              ],
+            };
       }
     } else {
       // Default condition for other roles
-      whereCondition = {
-        status_permohonan: {
-          notIn: ["Permohonan Ditolak"],
-        },
-      };
+      whereCondition.status_permohonan = status
+        ? { equals: status }
+        : { notIn: ["Permohonan Ditolak"] };
     }
 
     const permohonan = await prisma.permohonan.findMany({

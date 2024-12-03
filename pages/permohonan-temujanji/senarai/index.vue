@@ -62,9 +62,19 @@ const statusOptions = [
 const fetchPermohonan = async () => {
   isLoading.value = true;
   try {
-    const response = await $fetch("/api/permohonan");
+    const queryParams = new URLSearchParams();
+    if (filters.value.status) {
+      queryParams.append("status", filters.value.status);
+    }
+    if (filters.value.startDate) {
+      queryParams.append("startDate", formatDate(filters.value.startDate));
+    }
+    if (filters.value.endDate) {
+      queryParams.append("endDate", formatDate(filters.value.endDate));
+    }
+
+    const response = await $fetch(`/api/permohonan?${queryParams.toString()}`);
     if (response.statusCode === 200) {
-      // Populate tableData with the fetched permohonan list
       tableData.value = response.data;
     } else {
       console.error(response.message);
@@ -101,10 +111,11 @@ const fetchSummary = async () => {
   }
 };
 
-// Watch for filter changes
+// Watch for filter changes to trigger both fetches
 watch(
   filters,
   () => {
+    fetchPermohonan();
     fetchSummary();
   },
   { deep: true }
@@ -287,7 +298,7 @@ onMounted(() => {
     <rs-card class="px-0 py-4">
       <!-- Add loading state -->
       <div v-if="isLoading" class="flex justify-center py-8">
-        <Icon name="line-md:loading-spinner" class="w-8 h-8 animate-spin" />
+        <Icon name="ph:spinner" class="w-8 h-8 animate-spin" />
       </div>
 
       <rs-table

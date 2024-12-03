@@ -155,10 +155,11 @@ model permohonan_approval {
 
 model permohonan_assign_forensik {
   assignID                     Int                            @id @default(autoincrement())
-  permohonanID                 Int
-  pegawai_forensikID           Int
-  permohonan                   permohonan                     @relation(fields: [permohonanID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_assign_forensik_ibfk_2")
-  user                         user                           @relation(fields: [pegawai_forensikID], references: [userID], onUpdate: Restrict, map: "permohonan_assign_forensik_ibfk_3")
+  permohonanID                 Int?
+  pegawai_forensikID           Int?
+  modified_at                  DateTime?                      @db.DateTime(0)
+  permohonan                   permohonan?                    @relation(fields: [permohonanID], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_assign_forensik_ibfk_2")
+  user                         user?                          @relation(fields: [pegawai_forensikID], references: [userID], onDelete: Restrict, onUpdate: Restrict, map: "permohonan_assign_forensik_ibfk_3")
   permohonan_forensik_checking permohonan_forensik_checking[]
 
   @@index([pegawai_forensikID], map: "pegawai_forensikID")

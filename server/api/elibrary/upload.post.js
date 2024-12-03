@@ -22,7 +22,11 @@ export default defineEventHandler(async (event) => {
     }
 
     // Ensure uploads directory exists
-    const uploadsDir = join(process.cwd(), "public", "uploads");
+    const uploadsDir = join(
+      process.env.SERVER == "true"
+        ? join(process.cwd(), "../public/uploads")
+        : join(process.cwd(), "public/uploads")
+    );
     try {
       await mkdir(uploadsDir, { recursive: true });
     } catch (err) {

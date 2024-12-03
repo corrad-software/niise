@@ -182,10 +182,6 @@ const isFormValid = () => {
     namaPenghantar,
     pangkatPenghantar,
     noPegawaiPenghantar,
-    ringkasanKenyataanKes,
-    bilangan,
-    noKertasSiasatan,
-    noLaporanPolis,
   ];
 
   const areRequiredFieldsFilled = requiredFields.every(
@@ -375,7 +371,6 @@ const getJenisBarangLabel = (value) => {
           type="text"
           label="No Kertas Siasatan"
           v-model="noKertasSiasatan"
-          validation="required"
         />
 
         <!-- No Laporan Polis Input -->
@@ -383,7 +378,6 @@ const getJenisBarangLabel = (value) => {
           type="text"
           label="No Laporan Polis"
           v-model="noLaporanPolis"
-          validation="required"
         />
 
         <!-- Ringkasan Kenyataan Kes Input -->
@@ -391,16 +385,15 @@ const getJenisBarangLabel = (value) => {
           type="textarea"
           label="Ringkasan Kenyataan Kes"
           v-model="ringkasanKenyataanKes"
-          validation="required"
         />
 
         <!-- Bilangan Input -->
-        <FormKit
+        <!-- <FormKit
           type="number"
           label="Bilangan"
           v-model="bilangan"
           validation="required|number"
-        />
+        /> -->
 
         <!-- Barang Section -->
         <div class="pt-4 pb-2">

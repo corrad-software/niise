@@ -38,7 +38,11 @@ export default defineEventHandler(async (event) => {
     // Handle document uploads
     if (body.documentTambahan?.length > 0) {
       // Ensure uploads directory exists
-      const uploadsDir = join(process.cwd(), "public", "uploads");
+      const uploadsDir = join(
+      process.env.SERVER == "true"
+        ? join(process.cwd(), "../public/uploads")
+        : join(process.cwd(), "public/uploads")
+    );
       await mkdir(uploadsDir, { recursive: true });
 
       for (const doc of body.documentTambahan) {

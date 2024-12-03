@@ -75,7 +75,7 @@ export default defineEventHandler(async (event) => {
           permohonan_assign_forensik: {
             some: {
               pegawai_forensikID: userID,
-              updated_at: {
+              modified_at: {
                 gte: today,
               },
             },

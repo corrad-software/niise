@@ -45,10 +45,6 @@ const isFormValid = () => {
     noPegawaiPemohon,
     namaPenghantar,
     pangkatPenghantar,
-    ringkasanKenyataanKes,
-    bilangan,
-    noKertasSiasatan,
-    noLaporanPolis,
   ];
 
   const areRequiredFieldsFilled = requiredFields.every(
@@ -272,13 +268,13 @@ const getJenisBarangLabel = (value) => {
         />
 
         <!-- Bilangan Section -->
-        <FormKit
+        <!-- <FormKit
           type="number"
           label="Bilangan"
           v-model="bilangan"
           validation="required|number"
           disabled
-        />
+        /> -->
 
         <!-- Barang Section -->
         <div class="mb-4">

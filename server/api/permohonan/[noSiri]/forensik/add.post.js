@@ -31,6 +31,7 @@ export default defineEventHandler(async (event) => {
       data: {
         permohonanID: permohonan.id,
         pegawai_forensikID: pegawaiID,
+        modified_at: new Date(),
       },
     });
 
