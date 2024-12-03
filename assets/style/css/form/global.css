@@ -3,7 +3,7 @@
 }
 
 .formkit-outer-global {
-  @apply mb-4 text-[rgb(var(--text-color))] formkit-disabled:opacity-50;
+  @apply mb-4 text-[rgb(var(--text-color))] formkit-disabled:opacity-90;
 }
 
 .formkit-help-global {

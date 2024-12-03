@@ -8,6 +8,11 @@ export default defineEventHandler(async (event) => {
         pemohon: true,
         document_temujanji_gambarSubjekTodocument: true,
         document_temujanji_gambarCapJariTodocument: true,
+        temujanji_detail: {
+          include: {
+            document: true,
+          }
+        }
       },
     });
 

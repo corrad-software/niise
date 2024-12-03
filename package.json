@@ -6,7 +6,8 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "prisma": "npx prisma db pull && npx prisma generate && nuxt dev"
+    "prisma": "npx prisma db pull && npx prisma generate && nuxt dev",
+    "deploy": "npx prisma generate && nuxt build && pm2 restart all || pm2 start 'yarn preview' --name niise"
   },
   "devDependencies": {
     "@nuxtjs/tailwindcss": "^6.8.0",

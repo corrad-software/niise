@@ -1,22 +1,41 @@
 <script setup>
+// Imports and app setup
 const { $swal } = useNuxtApp();
 const router = useRouter();
 const route = useRoute();
 
-const kesID = ref(route.params.kesID);
+// Page meta definition
+definePageMeta({
+  title: "Kemaskini Pengesanan Penyamaran",
+  middleware: ["auth"],
+  breadcrumb: [
+    {
+      name: "Pengesanan Penyamaran",
+      path: "/pengesanan-penyamaran/senarai",
+    },
+    {
+      name: "Kemaskini",
+      type: "current",
+    },
+  ],
+});
 
-// Reactive variables for form data
+// State management
+const kesID = ref(route.params.kesID);
+const currentDocument = ref(null);
+
+// Form data and options
 const formData = ref({
   jenisDokumen: "Passport",
-  negara: "Malaysia",
+  negara: "",
   namaPemilik: "",
   noDokumen: "",
-  kewarganegaraan: "Malaysia",
+  kewarganegaraan: "",
   tarikhLahir: "",
-  jantina: "Lelaki",
+  jantina: "",
   tarikhLuputDokumen: "",
-  skorPersamaanMuka: 0,
-  skorPersamaanCapJari: 0,
+  skorPersamaanMuka: null,
+  skorPersamaanCapJari: null,
   umur: null,
   tinggi: null,
   warnaRambut: "",
@@ -31,16 +50,12 @@ const formData = ref({
   sejarahPerjalanan: "",
   persamaanTandaTangan: "",
   pemeriksaanLain: "",
-  dapatan: "Sama",
+  dapatan: "",
   laporanTdb: null,
 });
 
-// Dropdown options
-const jenisDokumenOptions = ref([
-  { label: "Sila Pilih", value: "" },
-  { label: "Passport", value: "Passport" },
-  { label: "Kad Pengenalan", value: "Kad Pengenalan" },
-]);
+// Dropdown options (moved together)
+const jenisDokumenOptions = ref([{ label: "Passport", value: "Passport" }]);
 
 const negaraOptions = ref([
   { label: "Sila Pilih", value: "" },
@@ -71,17 +86,44 @@ const dapatanOptions = ref([
   { label: "Tidak Dapat Dikenalpasti", value: "Tidak Dapat Dikenalpasti" },
 ]);
 
-// Add new ref for current document
-const currentDocument = ref(null);
-
-// Add date formatting helper function
+// Helper functions
 const formatDate = (dateString) => {
   if (!dateString) return "";
   const date = new Date(dateString);
   return date.toISOString().split("T")[0]; // Returns YYYY-MM-DD format
 };
 
-// Modify fetchAppointment to format dates
+const fileToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+};
+
+const validateFile = (file) => {
+  // Check if file exists
+  if (!file) {
+    return "Fail tidak dipilih";
+  }
+
+  // Check file size (max 5MB)
+  const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+  if (file.size > maxSize) {
+    return "Saiz fail tidak boleh melebihi 5MB";
+  }
+
+  // Check file type
+  const allowedTypes = ["application/pdf", "image/jpeg", "image/jpg"];
+  if (!allowedTypes.includes(file.type)) {
+    return "Format fail tidak sah. Sila muat naik fail PDF atau JPG sahaja";
+  }
+
+  return true;
+};
+
+// API and data handling
 const fetchAppointment = async (kesID) => {
   try {
     const response = await $fetch(`/api/temujanji/${kesID}`, {
@@ -105,43 +147,6 @@ const fetchAppointment = async (kesID) => {
   }
 };
 
-onMounted(() => {
-  fetchAppointment(kesID.value);
-});
-
-// Helper function to convert File to base64
-const fileToBase64 = (file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
-  });
-};
-
-// Add this after the fileToBase64 function
-const validateFile = (file) => {
-  // Check if file exists
-  if (!file) {
-    return "Fail tidak dipilih";
-  }
-
-  // Check file size (max 5MB)
-  const maxSize = 5 * 1024 * 1024; // 5MB in bytes
-  if (file.size > maxSize) {
-    return "Saiz fail tidak boleh melebihi 5MB";
-  }
-
-  // Check file type
-  const allowedTypes = ["application/pdf", "image/jpeg", "image/jpg"];
-  if (!allowedTypes.includes(file.type)) {
-    return "Format fail tidak sah. Sila muat naik fail PDF atau JPG sahaja";
-  }
-
-  return true;
-};
-
-// Then modify the submitForm function to use validation
 const submitForm = async () => {
   try {
     // Convert files to base64 if they exist
@@ -180,12 +185,11 @@ const submitForm = async () => {
   }
 };
 
-// Go back to the previous page
+// UI interaction handlers
 const goBack = () => {
   router.back();
 };
 
-// Add method to preview document
 const previewDocument = () => {
   if (!currentDocument.value) return;
 
@@ -205,209 +209,302 @@ const previewDocument = () => {
     });
   }
 };
+
+// Lifecycle hooks
+onMounted(() => {
+  fetchAppointment(kesID.value);
+});
+
+// Add these helper functions in the script section
+const formatFileSize = (bytes) => {
+  if (!bytes) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+};
 </script>
 
 <template>
   <div>
-    <div class="flex justify-between items-center">
-      <h1>Kemaskini Maklumat Pengesanan Penyamaran</h1>
+    <Breadcrumb />
+
+    <div class="flex items-center justify-between space-y-2">
+      <div>
+        <h3 class="text-2xl font-bold tracking-tight">
+          Kemaskini Keputusan Pengesanan Penyamaran
+        </h3>
+      </div>
     </div>
 
     <rs-card class="mt-4 p-4">
       <FormKit type="form" :actions="false" @submit="submitForm">
-        <!-- Document Information Section -->
-        <FormKit type="group" name="documentInfo">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormKit
-              type="select"
-              label="Jenis Dokumen"
-              v-model="formData.jenisDokumen"
-              :options="jenisDokumenOptions"
-              validation="required"
-            />
-            <FormKit
-              type="select"
-              label="Negara"
-              v-model="formData.negara"
-              :options="negaraOptions"
-              validation="required"
-            />
-            <FormKit
-              type="text"
-              label="No Dokumen"
-              v-model="formData.noDokumen"
-              validation="required"
-            />
-            <FormKit
-              type="date"
-              label="Tarikh Luput Dokumen"
-              v-model="formData.tarikhLuputDokumen"
-              validation="required|date"
-              :validation-messages="{
-                date: 'Sila masukkan tarikh yang sah',
-              }"
-            />
-          </div>
-        </FormKit>
-
-        <!-- Personal Information Section -->
-        <FormKit type="group" name="personalInfo">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormKit
-              type="text"
-              label="Nama Pemilik"
-              v-model="formData.namaPemilik"
-              validation="required"
-            />
-            <FormKit
-              type="select"
-              label="Kewarganegaraan"
-              v-model="formData.kewarganegaraan"
-              :options="kewarganegaraanOptions"
-              validation="required"
-            />
-            <FormKit
-              type="date"
-              label="Tarikh Lahir"
-              v-model="formData.tarikhLahir"
-              validation="required|date"
-              :validation-messages="{
-                date: 'Sila masukkan tarikh yang sah',
-              }"
-            />
-            <FormKit
-              type="select"
-              label="Jantina"
-              v-model="formData.jantina"
-              :options="jantinaOptions"
-              validation="required"
-            />
-          </div>
-        </FormKit>
-
-        <!-- Biometric Scores Section -->
-        <FormKit type="group" name="biometricScores">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormKit
-              type="number"
-              label="Skor Persamaan Muka"
-              v-model="formData.skorPersamaanMuka"
-              validation="required|number|min_value:0|max_value:100"
-              step="0.01"
-            />
-            <FormKit
-              type="number"
-              label="Skor Persamaan Cap Jari"
-              v-model="formData.skorPersamaanCapJari"
-              validation="required|number|min_value:0|max_value:100"
-              step="0.01"
-            />
-          </div>
-        </FormKit>
-
-        <!-- Physical Characteristics Section -->
-        <FormKit type="group" name="physicalCharacteristics">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <FormKit type="number" label="Umur" v-model="formData.umur" />
-            <FormKit
-              type="number"
-              label="Tinggi (cm)"
-              v-model="formData.tinggi"
-              step="0.01"
-            />
-            <FormKit
-              type="text"
-              label="Warna Rambut"
-              v-model="formData.warnaRambut"
-            />
-            <FormKit type="text" label="Bangsa" v-model="formData.bangsa" />
-            <FormKit type="text" label="Etnik" v-model="formData.etnik" />
-            <FormKit
-              type="text"
-              label="Bentuk Kepala"
-              v-model="formData.bentukKepala"
-            />
-          </div>
-        </FormKit>
-
-        <!-- Facial Features Section -->
-        <FormKit type="group" name="facialFeatures">
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <FormKit type="text" label="Mata" v-model="formData.mata" />
-            <FormKit type="text" label="Telinga" v-model="formData.telinga" />
-            <FormKit type="text" label="Hidung" v-model="formData.hidung" />
-            <FormKit type="text" label="Mulut" v-model="formData.mulut" />
-          </div>
-        </FormKit>
-
-        <!-- Additional Information Section -->
-        <FormKit type="group" name="additionalInfo">
-          <div class="grid grid-cols-1 gap-4">
-            <FormKit
-              type="text"
-              label="Parut, Tahi Lalat, Tatu, dsb."
-              v-model="formData.parut"
-            />
-            <FormKit
-              type="text"
-              label="Sejarah Perjalanan"
-              v-model="formData.sejarahPerjalanan"
-            />
-            <FormKit
-              type="text"
-              label="Persamaan Tanda Tangan"
-              v-model="formData.persamaanTandaTangan"
-            />
-            <FormKit
-              type="text"
-              label="Pemeriksaan Lain"
-              v-model="formData.pemeriksaanLain"
-            />
-          </div>
-        </FormKit>
-
-        <!-- Results Section -->
-        <FormKit type="group" name="results">
-          <div class="grid grid-cols-1 gap-4">
-            <FormKit
-              type="select"
-              label="Dapatan"
-              v-model="formData.dapatan"
-              :options="dapatanOptions"
-              validation="required"
-            />
-
-            <!-- Document Preview Section -->
-            <div class="space-y-2">
-              <label class="block text-sm font-medium text-gray-700">
-                Laporan Sistem TD&B (JPG/PDF)
-              </label>
-
-              <!-- Show current document if exists -->
-              <div v-if="currentDocument" class="flex items-center space-x-2">
-                <span class="text-sm text-gray-600">
-                  {{ currentDocument.documentName }}
-                </span>
-                <rs-button @click="previewDocument" variant="primary" size="sm">
-                  Papar Dokumen
-                </rs-button>
-              </div>
-
-              <!-- File upload input -->
+        <!-- Section 1: Document Information -->
+        <div class="mb-8">
+          <h4 class="text-lg font-semibold mb-4 pb-2 border-b">
+            Maklumat Dokumen
+          </h4>
+          <FormKit type="group" name="documentInfo">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormKit
-                v-model="formData.laporanTdb"
-                type="file"
-                label="Muat Naik Dokumen Baru"
-                validation="file|mimes:pdf,jpg"
-                :help="
-                  currentDocument
-                    ? 'Muat naik untuk menggantikan dokumen sedia ada'
-                    : ''
-                "
+                type="select"
+                label="Jenis Dokumen"
+                v-model="formData.jenisDokumen"
+                :options="jenisDokumenOptions"
+                validation="required"
+              />
+              <FormKit
+                type="select"
+                label="Negara"
+                v-model="formData.negara"
+                :options="negaraOptions"
+                validation="required"
+              />
+              <FormKit
+                type="text"
+                label="No Dokumen"
+                v-model="formData.noDokumen"
+                validation="required"
+              />
+              <FormKit
+                type="date"
+                label="Tarikh Luput Dokumen"
+                v-model="formData.tarikhLuputDokumen"
+                validation="required|date"
+                :validation-messages="{
+                  date: 'Sila masukkan tarikh yang sah',
+                }"
               />
             </div>
-          </div>
-        </FormKit>
+          </FormKit>
+        </div>
+
+        <!-- Section 2: Personal Information -->
+        <div class="mb-8">
+          <h4 class="text-lg font-semibold mb-4 pb-2 border-b">
+            Maklumat Peribadi
+          </h4>
+          <FormKit type="group" name="personalInfo">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormKit
+                type="text"
+                label="Nama Pemilik"
+                v-model="formData.namaPemilik"
+                validation="required"
+              />
+              <FormKit
+                type="select"
+                label="Kewarganegaraan"
+                v-model="formData.kewarganegaraan"
+                :options="kewarganegaraanOptions"
+                validation="required"
+              />
+              <FormKit
+                type="date"
+                label="Tarikh Lahir"
+                v-model="formData.tarikhLahir"
+                validation="required|date"
+                :validation-messages="{
+                  date: 'Sila masukkan tarikh yang sah',
+                }"
+              />
+              <FormKit
+                type="select"
+                label="Jantina"
+                v-model="formData.jantina"
+                :options="jantinaOptions"
+                validation="required"
+              />
+            </div>
+          </FormKit>
+        </div>
+
+        <!-- Section 3: Biometric Scores -->
+        <div class="mb-8">
+          <h4 class="text-lg font-semibold mb-4 pb-2 border-b">
+            Skor Biometrik
+          </h4>
+          <FormKit type="group" name="biometricScores">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormKit
+                type="number"
+                label="Skor Persamaan Muka"
+                v-model="formData.skorPersamaanMuka"
+                validation="required|number|min_value:0|max_value:100"
+                step="0.01"
+                help="Skor antara 0 hingga 100"
+              />
+              <FormKit
+                type="number"
+                label="Skor Persamaan Cap Jari"
+                v-model="formData.skorPersamaanCapJari"
+                validation="required|number|min_value:0|max_value:100"
+                step="0.01"
+                help="Skor antara 0 hingga 100"
+              />
+            </div>
+          </FormKit>
+        </div>
+
+        <!-- Section 4: Physical Characteristics -->
+        <div class="mb-8">
+          <h4 class="text-lg font-semibold mb-4 pb-2 border-b">
+            Ciri-ciri Fizikal
+          </h4>
+          <FormKit type="group" name="physicalCharacteristics">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormKit type="number" label="Umur" v-model="formData.umur" />
+              <FormKit
+                type="number"
+                label="Tinggi (cm)"
+                v-model="formData.tinggi"
+                step="0.01"
+              />
+              <FormKit
+                type="text"
+                label="Warna Rambut"
+                v-model="formData.warnaRambut"
+              />
+              <FormKit type="text" label="Bangsa" v-model="formData.bangsa" />
+              <FormKit type="text" label="Etnik" v-model="formData.etnik" />
+              <FormKit
+                type="text"
+                label="Bentuk Kepala"
+                v-model="formData.bentukKepala"
+              />
+            </div>
+          </FormKit>
+        </div>
+
+        <!-- Section 5: Facial Features -->
+        <div class="mb-8">
+          <h4 class="text-lg font-semibold mb-4 pb-2 border-b">
+            Ciri-ciri Wajah
+          </h4>
+          <FormKit type="group" name="facialFeatures">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <FormKit type="text" label="Mata" v-model="formData.mata" />
+              <FormKit type="text" label="Telinga" v-model="formData.telinga" />
+              <FormKit type="text" label="Hidung" v-model="formData.hidung" />
+              <FormKit type="text" label="Mulut" v-model="formData.mulut" />
+            </div>
+          </FormKit>
+        </div>
+
+        <!-- Section 6: Additional Information -->
+        <div class="mb-8">
+          <h4 class="text-lg font-semibold mb-4 pb-2 border-b">
+            Maklumat Tambahan
+          </h4>
+          <FormKit type="group" name="additionalInfo">
+            <div class="grid grid-cols-1 gap-4">
+              <FormKit
+                type="textarea"
+                label="Parut, Tahi Lalat, Tatu, dsb."
+                v-model="formData.parut"
+              />
+              <FormKit
+                type="textarea"
+                label="Sejarah Perjalanan"
+                v-model="formData.sejarahPerjalanan"
+              />
+              <FormKit
+                type="textarea"
+                label="Persamaan Tanda Tangan"
+                v-model="formData.persamaanTandaTangan"
+              />
+              <FormKit
+                type="textarea"
+                label="Pemeriksaan Lain"
+                v-model="formData.pemeriksaanLain"
+              />
+            </div>
+          </FormKit>
+        </div>
+
+        <!-- Section 7: Results and Report -->
+        <div class="mb-8">
+          <h4 class="text-lg font-semibold mb-4 pb-2 border-b">
+            Keputusan dan Laporan
+          </h4>
+          <FormKit type="group" name="results">
+            <div class="grid grid-cols-1 gap-4">
+              <FormKit
+                type="select"
+                label="Dapatan"
+                v-model="formData.dapatan"
+                :options="dapatanOptions"
+                validation="required"
+              />
+
+              <!-- TD&B System Report -->
+              <div class="mt-6">
+                <h4 class="text-lg font-semibold mb-4">Laporan Sistem TD&B</h4>
+
+                <!-- Current Document Display -->
+                <div
+                  v-if="currentDocument"
+                  class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4"
+                >
+                  <div
+                    class="border rounded-lg p-4 hover:shadow-lg transition-shadow"
+                  >
+                    <div class="flex flex-col">
+                      <div
+                        class="cursor-pointer mb-2 flex justify-center items-center h-40 bg-gray-100 rounded"
+                        @click="previewDocument"
+                      >
+                        <div class="flex flex-col items-center">
+                          <Icon
+                            name="mdi:file-pdf-box"
+                            class="w-16 h-16 text-red-500"
+                          />
+                          <span class="mt-2 text-sm"
+                            >Klik untuk lihat dokumen</span
+                          >
+                        </div>
+                      </div>
+
+                      <div class="space-y-1">
+                        <h4
+                          class="font-medium text-lg truncate"
+                          :title="currentDocument.documentName"
+                        >
+                          {{ currentDocument.documentName || "Laporan TD&B" }}
+                        </h4>
+                        <div class="text-xs text-gray-500">
+                          <p>
+                            Saiz:
+                            {{ formatFileSize(currentDocument.documentSize) }}
+                          </p>
+                          <p>
+                            Tarikh:
+                            {{
+                              formatDate(currentDocument.documentCreatedDate)
+                            }}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <FormKit
+                  v-model="formData.laporanTdb"
+                  type="file"
+                  label="Laporan Sistem TD&B (JPG/PDF)"
+                  validation="required"
+                  accept=".pdf,.jpg,.jpeg"
+                  :help="
+                    currentDocument
+                      ? 'Muat naik untuk menggantikan dokumen sedia ada'
+                      : ''
+                  "
+                />
+              </div>
+            </div>
+          </FormKit>
+        </div>
 
         <!-- Action Buttons -->
         <div class="flex justify-end gap-2 mt-4">
@@ -419,9 +516,16 @@ const previewDocument = () => {
   </div>
 </template>
 
-<style scoped>
-/* Add any custom styles here */
+<style lang="scss" scoped>
 .space-y-2 > * + * {
   margin-top: 0.5rem;
+}
+
+h4.text-lg {
+  @apply text-gray-700;
+}
+
+.border-b {
+  @apply border-gray-200;
 }
 </style>

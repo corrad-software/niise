@@ -121,132 +121,146 @@ definePageMeta({
 
     <rs-card class="mt-4 px-4 py-6">
       <FormKit type="form" :actions="false" @submit="submitForm">
-        <!-- Maklumat Pemohon section -->
-        <div class="grid gap-6 md:grid-cols-3">
-          <FormKit
-            type="text"
-            label="Nama Pemohon"
-            v-model="pemohon.nama"
-            validation="required"
-            :disabled="true"
-          />
-          <FormKit
-            type="text"
-            label="Jawatan Pemohon"
-            v-model="pemohon.jawatan"
-            validation="required"
-            :disabled="true"
-          />
-          <FormKit
-            type="text"
-            label="No Pegawai Pemohon"
-            v-model="pemohon.noPegawai"
-            validation="required"
-            :disabled="true"
-          />
-        </div>
-        <!-- Date and Time section -->
-        <div class="grid gap-6 md:grid-cols-2">
-          <FormKit
-            type="date"
-            label="Tarikh"
-            v-model="tarikh"
-            validation="required|date"
-          />
-          <FormKit
-            type="time"
-            label="Masa"
-            v-model="masa"
-            validation="required"
-          />
+        <!-- Section 1: Maklumat Pemohon -->
+        <div class="mb-8">
+          <h4 class="text-lg font-semibold mb-4 pb-2 border-b">
+            Maklumat Pemohon
+          </h4>
+          <div class="grid gap-6 md:grid-cols-3">
+            <FormKit
+              type="text"
+              label="Nama Pemohon"
+              v-model="pemohon.nama"
+              validation="required"
+              :disabled="true"
+            />
+            <FormKit
+              type="text"
+              label="Jawatan Pemohon"
+              v-model="pemohon.jawatan"
+              validation="required"
+              :disabled="true"
+            />
+            <FormKit
+              type="text"
+              label="No Pegawai Pemohon"
+              v-model="pemohon.noPegawai"
+              validation="required"
+              :disabled="true"
+            />
+          </div>
         </div>
 
-        <!-- Jenis Semakan section -->
-        <FormKit
-          type="select"
-          label="Jenis Semakan"
-          v-model="jenisSemakan"
-          :options="jenisSemakanOptions"
-        />
+        <!-- Section 2: Maklumat Temujanji -->
+        <div class="mb-8">
+          <h4 class="text-lg font-semibold mb-4 pb-2 border-b">
+            Maklumat Temujanji
+          </h4>
+          <div class="grid gap-6 md:grid-cols-2">
+            <FormKit
+              type="date"
+              label="Tarikh"
+              v-model="tarikh"
+              validation="required|date"
+            />
+            <FormKit
+              type="time"
+              label="Masa"
+              v-model="masa"
+              validation="required"
+            />
+          </div>
+          <div class="mt-4">
+            <FormKit
+              type="select"
+              label="Jenis Semakan"
+              v-model="jenisSemakan"
+              :options="jenisSemakanOptions"
+              validation="required"
+            />
+          </div>
+        </div>
 
-        <!-- Image upload section -->
+        <!-- Section 3: Gambar Pemeriksaan -->
         <div
           v-if="
             jenisSemakan === 'Subjek Hadir' || jenisSemakan === 'Hantar Gambar'
           "
-          class="grid gap-6 md:grid-cols-2 mt-4"
+          class="mb-8"
         >
-          <div>
-            <div v-if="subjekPreview" class="mb-4">
-              <img
-                :src="subjekPreview"
-                alt="Preview Subjek"
-                class="max-w-xs rounded-lg shadow-md mx-auto"
-              />
+          <h4 class="text-lg font-semibold mb-4 pb-2 border-b">
+            Gambar Pemeriksaan
+          </h4>
+          <div class="grid gap-6 md:grid-cols-2">
+            <div>
+              <div v-if="subjekPreview" class="mb-4">
+                <img
+                  :src="subjekPreview"
+                  alt="Preview Subjek"
+                  class="max-w-xs rounded-lg shadow-md mx-auto"
+                />
+              </div>
+              <FormKit
+                type="file"
+                name="gambarSubjek"
+                label="Muat Naik Gambar Subjek"
+                accept="image/*"
+                :validation="jenisSemakan === 'Hantar Gambar' ? 'required' : ''"
+                v-model="gambarSubjek"
+              >
+                <template #label>
+                  <label class="formkit-label">
+                    Gambar Subjek
+                    <span
+                      v-if="jenisSemakan === 'Hantar Gambar'"
+                      class="text-red-500"
+                      >*</span
+                    >
+                  </label>
+                </template>
+              </FormKit>
             </div>
-            <FormKit
-              type="file"
-              name="gambarSubjek"
-              label="Gambar Subjek"
-              accept="image/*"
-              :validation="jenisSemakan === 'Hantar Gambar' ? 'required' : ''"
-              v-model="gambarSubjek"
-            >
-              <template #label>
-                <label class="formkit-label">
-                  Gambar Subjek
-                  <span
-                    v-if="jenisSemakan === 'Hantar Gambar'"
-                    class="text-red-500"
-                    >*</span
-                  >
-                </label>
-              </template>
-            </FormKit>
-          </div>
 
-          <div>
-            <div v-if="capJariPreview" class="mb-4">
-              <img
-                :src="capJariPreview"
-                alt="Preview Cap Jari"
-                class="max-w-xs rounded-lg shadow-md mx-auto"
-              />
+            <div>
+              <div v-if="capJariPreview" class="mb-4">
+                <img
+                  :src="capJariPreview"
+                  alt="Preview Cap Jari"
+                  class="max-w-xs rounded-lg shadow-md mx-auto"
+                />
+              </div>
+              <FormKit
+                type="file"
+                name="gambarCapJari"
+                label="Muat Naik Gambar Cap Jari"
+                accept="image/*"
+                :validation="jenisSemakan === 'Hantar Gambar' ? 'required' : ''"
+                v-model="gambarCapJari"
+              >
+                <template #label>
+                  <label class="formkit-label">
+                    Gambar Cap Jari
+                    <span
+                      v-if="jenisSemakan === 'Hantar Gambar'"
+                      class="text-red-500"
+                      >*</span
+                    >
+                  </label>
+                </template>
+              </FormKit>
             </div>
-            <FormKit
-              type="file"
-              name="gambarCapJari"
-              label="Gambar Cap Jari"
-              accept="image/*"
-              :validation="jenisSemakan === 'Hantar Gambar' ? 'required' : ''"
-              v-model="gambarCapJari"
-            >
-              <template #label>
-                <label class="formkit-label">
-                  Gambar Cap Jari
-                  <span
-                    v-if="jenisSemakan === 'Hantar Gambar'"
-                    class="text-red-500"
-                    >*</span
-                  >
-                </label>
-              </template>
-            </FormKit>
           </div>
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex justify-end gap-2 mt-8">
+        <div class="flex justify-end gap-2 mt-4">
           <rs-button @click="goBack" variant="danger">
             <Icon name="pajamas:reply" class="w-4 h-4 mr-2" />
             Kembali
           </rs-button>
           <rs-button btn-type="submit" variant="success">
-            <Icon
-              name="streamline:interface-upload-laptop-arrow-computer-download-internet-laptop-network-server-up-upload"
-              class="w-4 h-4 mr-2"
-            />
-            Hantar
+            <Icon name="ci:save" class="w-4 h-4 mr-2" />
+            Simpan
           </rs-button>
         </div>
       </FormKit>
@@ -254,4 +268,16 @@ definePageMeta({
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.space-y-2 > * + * {
+  margin-top: 0.5rem;
+}
+
+h4.text-lg {
+  @apply text-gray-700;
+}
+
+.border-b {
+  @apply border-gray-200;
+}
+</style>
