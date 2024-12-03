@@ -50,8 +50,11 @@ export default defineEventHandler(async (event) => {
             user: true,
           },
         },
+        temujanji_detail: true,
       },
     });
+
+    console.log(appointments[0].temujanji_detail.dapatan);
 
     return {
       statusCode: 200,
@@ -61,7 +64,15 @@ export default defineEventHandler(async (event) => {
         namaPemohon: appointment.pemohon.nama_pemohon,
         caraSemakan: appointment.jenisSemakan,
         status: appointment.status || "Pending",
-        tindakan: appointment.temujanjiID,
+        tindakan: {
+          id: appointment.temujanjiID,
+          disabled:
+            appointment.temujanji_detail.dapatan != "Sama" &&
+            appointment.temujanji_detail.dapatan != "Tidak Sama" &&
+            appointment.temujanji_detail.dapatan != "Tidak Dapat Dikenalpasti"
+              ? true
+              : false,
+        },
       })),
       showButton: showButtonObj,
     };

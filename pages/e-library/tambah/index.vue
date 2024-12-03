@@ -1,7 +1,7 @@
 <script setup>
-// Update page meta definition to match pattern
+// Page meta definition
 definePageMeta({
-  title: "Kemaskini E-Library",
+  title: "Tambah E-Library",
   middleware: ["auth"],
   breadcrumb: [
     {
@@ -9,16 +9,14 @@ definePageMeta({
       path: "/e-library",
     },
     {
-      name: "Kemaskini",
+      name: "Tambah",
       type: "current",
     },
   ],
 });
 
-const route = useRoute();
 const router = useRouter();
 const { $swal } = useNuxtApp();
-const elibraryID = ref(route.params.elibraryID);
 const formData = ref({
   elibrary_jenisDokumen: "",
   elibrary_negaraPengeluaran: "",
@@ -30,7 +28,6 @@ const formData = ref({
 const uploadedFiles = ref([]);
 const uploadedImages = ref([]);
 const isSubmitting = ref(false);
-const existingImages = ref([]);
 
 const jenisDokumenOptions = [
   { label: "Sila Pilih", value: "" },
@@ -81,23 +78,6 @@ const tahunOptions = [
     value: (2024 - i).toString(),
   })),
 ];
-
-// Fetch existing data
-const fetchELibraryData = async () => {
-  try {
-    const { data: response } = await useFetch(
-      `/api/elibrary/${elibraryID.value}`
-    );
-    if (response.value && response.value.statusCode === 200) {
-      formData.value = response.value.data;
-      existingImages.value = response.value.data.document;
-    } else {
-      throw new Error(response.value?.message || "Failed to fetch data");
-    }
-  } catch (error) {
-    $swal.fire("Ralat!", error.message, "error");
-  }
-};
 
 // Watch for file changes
 watch(uploadedFiles, async (files) => {
@@ -155,8 +135,8 @@ const removeImage = (index) => {
 const submitForm = async () => {
   try {
     isSubmitting.value = true;
-    const { data } = await useFetch(`/api/elibrary/${elibraryID.value}`, {
-      method: "PUT",
+    const { data } = await useFetch("/api/elibrary/add", {
+      method: "POST",
       body: {
         ...formData.value,
         images: uploadedImages.value,
@@ -164,10 +144,10 @@ const submitForm = async () => {
     });
 
     if (data.value?.statusCode === 200) {
-      await $swal.fire("Berjaya!", "Maklumat berjaya dikemaskini", "success");
+      await $swal.fire("Berjaya!", "E-Library berjaya ditambah", "success");
       router.push("/e-library");
     } else {
-      throw new Error(data.value?.message || "Failed to update");
+      throw new Error(data.value?.message || "Failed to add");
     }
   } catch (error) {
     $swal.fire("Ralat!", error.message, "error");
@@ -179,79 +159,6 @@ const submitForm = async () => {
 const goBack = () => {
   router.push("/e-library");
 };
-
-// Function to preview image
-const previewImage = (image) => {
-  $swal.fire({
-    title: image.documentName,
-    imageUrl: image.documentURL,
-    imageWidth: 600,
-    imageHeight: 400,
-    imageAlt: image.documentName,
-    showConfirmButton: true,
-    confirmButtonText: "Tutup",
-  });
-};
-
-// Function to preview all images
-const previewAllImages = () => {
-  if (!existingImages.value || existingImages.value.length === 0) {
-    $swal.fire({
-      title: "Perhatian",
-      text: "Tiada gambar untuk dipaparkan",
-      icon: "warning",
-      confirmButtonText: "OK",
-    });
-    return;
-  }
-
-  let currentIndex = 0;
-
-  const showImage = (index) => {
-    $swal
-      .fire({
-        title: existingImages.value[index].documentName,
-        imageUrl: existingImages.value[index].documentURL,
-        imageWidth: 600,
-        imageHeight: 400,
-        imageAlt: existingImages.value[index].documentName,
-        showConfirmButton: true,
-        showDenyButton: true,
-        showCancelButton: true,
-        cancelButtonText: "Sebelumnya",
-        denyButtonText: "Seterusnya",
-        confirmButtonText: "Tutup",
-        // Hide buttons based on position
-        showCancelButton: index > 0,
-        showDenyButton: index < existingImages.value.length - 1,
-        // Customize button colors and positions
-        customClass: {
-          actions: "swal2-buttons-custom-class",
-        },
-        // Button colors
-        cancelButtonColor: "#3085d6", // Blue for Previous
-        denyButtonColor: "#3085d6", // Blue for Next
-        confirmButtonColor: "#d33", // Red for Close
-        allowOutsideClick: false,
-        reverseButtons: true, // This will help arrange buttons: Previous | Next | Close
-      })
-      .then((result) => {
-        if (result.isDenied && index < existingImages.value.length - 1) {
-          showImage(index + 1);
-        } else if (result.dismiss === $swal.DismissReason.cancel && index > 0) {
-          showImage(index - 1);
-        } else if (result.isConfirmed) {
-          return;
-        }
-      });
-  };
-
-  showImage(currentIndex);
-};
-
-onMounted(() => {
-  fetchELibraryData();
-});
 </script>
 
 <template>
@@ -261,44 +168,9 @@ onMounted(() => {
     <!-- Header section -->
     <div class="flex items-center justify-between space-y-2">
       <div>
-        <h3 class="text-2xl font-bold tracking-tight">Kemaskini E-Library</h3>
+        <h3 class="text-2xl font-bold tracking-tight">Tambah E-Library</h3>
       </div>
     </div>
-
-    <!-- Existing Images Section -->
-    <rs-card v-if="existingImages.length > 0" class="mt-6 p-4">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold">Gambar Sedia Ada</h3>
-        <rs-button
-          @click="previewAllImages"
-          variant="primary"
-          size="sm"
-          class="px-3 inline-flex items-center justify-center"
-        >
-          <Icon name="ic:baseline-collections" class="mr-2 w-4 h-4" />
-          Papar Semua Gambar
-        </rs-button>
-      </div>
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <div
-          v-for="image in existingImages"
-          :key="image.documentID"
-          class="relative group cursor-pointer"
-          @click="previewImage(image)"
-        >
-          <img
-            :src="image.documentURL"
-            :alt="image.documentName"
-            class="w-full h-32 object-cover rounded-lg"
-            @error="(e) => (e.target.style.display = 'none')"
-            @load="(e) => (e.target.style.display = '')"
-          />
-          <span class="text-xs text-gray-500 mt-1 block truncate">
-            {{ image.documentName }}
-          </span>
-        </div>
-      </div>
-    </rs-card>
 
     <!-- Form Section -->
     <rs-card class="p-4">
@@ -416,6 +288,7 @@ onMounted(() => {
               accept="image/*"
               multiple="true"
               v-model="uploadedFiles"
+              validation="required"
               :help="'Maximum 100 images, 5MB per image'"
               :validation-messages="{
                 required: 'Sila pilih sekurang-kurangnya satu gambar',
@@ -452,27 +325,21 @@ onMounted(() => {
 
           <!-- Form Actions -->
           <div class="flex justify-end gap-2 mt-6">
-            <rs-button
-              @click="goBack"
-              variant="danger"
-              size="sm"
-              class="px-4 py-2"
-            >
+            <rs-button @click="goBack" variant="danger" class="px-4 py-2">
               <Icon name="pajamas:reply" class="w-4 h-4 mr-2" />
               Kembali
             </rs-button>
             <rs-button
-              type="submit"
+              btn-type="submit"
               variant="primary"
               :disabled="isSubmitting"
-              size="sm"
               class="px-4 py-2"
             >
               <Icon
                 :name="isSubmitting ? 'eos-icons:loading' : 'ic:round-save'"
                 class="mr-2 w-4 h-4"
               />
-              {{ isSubmitting ? "Sedang Dikemaskini..." : "Simpan" }}
+              {{ isSubmitting ? "Sedang Ditambah..." : "Simpan" }}
             </rs-button>
           </div>
         </div>
@@ -502,13 +369,5 @@ onMounted(() => {
   .form-grid {
     @apply grid-cols-3;
   }
-}
-
-.text-muted-foreground {
-  @apply text-gray-500 dark:text-gray-400;
-}
-
-.text-muted {
-  @apply text-gray-500 dark:text-gray-400;
 }
 </style>

@@ -307,7 +307,7 @@ onMounted(async () => {
       </div>
 
       <!-- Action Buttons -->
-      <div class="flex justify-end gap-2 mt-8 border-t pt-4">
+      <div class="flex justify-end gap-4 mt-8 border-t pt-4">
         <rs-button @click="$router.back()" variant="danger">
           <Icon name="pajamas:reply" class="w-4 h-4 mr-2" />
           Kembali

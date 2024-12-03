@@ -270,6 +270,15 @@ const getJenisBarangLabel = (value) => {
   );
   return option ? option.label : value;
 };
+
+// Add this function before the template
+const getCurrentDate = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 </script>
 
 <template>
@@ -356,9 +365,9 @@ const getJenisBarangLabel = (value) => {
             type="date"
             label="Tarikh temujanji"
             v-model="tarikhTemujanji"
-            validation="date|after:today"
+            :validation="'date|date_after:' + getCurrentDate()"
             :validation-messages="{
-              after: 'Tarikh temujanji harus selepas hari ini',
+              date_after: 'Tarikh temujanji harus selepas hari ini',
             }"
           />
 
@@ -434,7 +443,7 @@ const getJenisBarangLabel = (value) => {
                     <rs-button
                       type="button"
                       @click="editBarang(index)"
-                      variant="secondary"
+                      variant="warning"
                       class="mr-2"
                     >
                       <Icon name="ph:pencil" class="w-4 h-4 mr-2" />
@@ -475,7 +484,7 @@ const getJenisBarangLabel = (value) => {
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex justify-end gap-2 mt-8">
+        <div class="flex justify-end gap-4 mt-8">
           <rs-button @click="navigateBack" variant="danger">
             <Icon name="pajamas:reply" class="w-4 h-4 mr-2" />
             Kembali</rs-button

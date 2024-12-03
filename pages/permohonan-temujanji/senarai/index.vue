@@ -346,7 +346,7 @@ onMounted(() => {
           >
             <rs-button
               @click="kemaskini(data.value.noSiri)"
-              variant="primary"
+              variant="warning"
               size="sm"
               class="px-3 inline-flex items-center justify-center w-[100px]"
             >

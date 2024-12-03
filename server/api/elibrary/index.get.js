@@ -1,23 +1,55 @@
 export default defineEventHandler(async (event) => {
   try {
+    const query = getQuery(event);
+
+    // Build where conditions
+    let whereConditions = {};
+
+    if (query.jenisDokumen) {
+      whereConditions.elibrary_jenisDokumen = query.jenisDokumen;
+    }
+
+    if (query.negaraPengeluaran) {
+      whereConditions.elibrary_negaraPengeluaran = {
+        contains: query.negaraPengeluaran,
+      };
+    }
+
+    if (query.tahunPengeluaran) {
+      whereConditions.elibrary_tahunPengeluaran = parseInt(
+        query.tahunPengeluaran
+      );
+    }
+
+    if (query.ketulenan) {
+      whereConditions.elibrary_ketulenan = query.ketulenan;
+    }
+
     const elibrary = await prisma.elibrary.findMany({
-      select: {
-        elibraryID: true,
-        elibrary_jenisDokumen: true,
-        elibrary_negaraPengeluaran: true,
-        elibrary_tahunPengeluaran: true,
-        elibrary_ketulenan: true,
-        elibrary_maklumatTerperinci: true,
-        elibrary_ulasan: true,
-        created_at: true,
+      where: whereConditions,
+      include: {
+        document: {
+          where: {
+            documentStatus: "ACTIVE",
+            isElibraryImage: true,
+          },
+          orderBy: {
+            documentCreatedDate: 'desc'
+          },
+          select: {
+            documentID: true,
+            documentName: true,
+            documentURL: true,
+          },
+        },
       },
       orderBy: {
         created_at: "desc",
       },
     });
 
-    const formattedData = elibrary.map((item) => ({
-      id: item.elibraryID,
+    const formattedData = elibrary.map((item, index) => ({
+      bil: index + 1,
       jenisDokumen: item.elibrary_jenisDokumen,
       negaraPengeluaran: item.elibrary_negaraPengeluaran,
       tahunPengeluaran: item.elibrary_tahunPengeluaran.toString(),
@@ -25,6 +57,7 @@ export default defineEventHandler(async (event) => {
       perincian: {
         maklumatTerperinci: item.elibrary_maklumatTerperinci || "-",
         ulasan: item.elibrary_ulasan || "-",
+        images: item.document || [],
       },
       tindakan: { id: item.elibraryID },
     }));

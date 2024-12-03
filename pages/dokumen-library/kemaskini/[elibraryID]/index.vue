@@ -26,11 +26,26 @@ const formData = ref({
   elibrary_ketulenan: "",
   elibrary_maklumatTerperinci: "",
   elibrary_ulasan: "",
+  elibrary_mukaSurat: "",
+  elibrary_noDocument: "",
+  elibrary_namaPemilik: "",
+  elibrary_peralatanDigunakan: "",
+  elibrary_caraSemakan: "",
+  elibrary_dapatan: "",
 });
 const uploadedFiles = ref([]);
 const uploadedImages = ref([]);
 const isSubmitting = ref(false);
 const existingImages = ref([]);
+
+// Dropdown options
+const tahunOptions = [
+  { label: "Sila Pilih", value: "" },
+  ...Array.from({ length: 124 }, (_, i) => ({
+    label: (2024 - i).toString(),
+    value: (2024 - i).toString(),
+  })),
+];
 
 const jenisDokumenOptions = [
   { label: "Sila Pilih", value: "" },
@@ -73,20 +88,21 @@ const negaraPengeluaranOptions = [
   { label: "Lain-lain", value: "Lain-lain" },
 ];
 
-// Dropdown options
-const tahunOptions = [
+const caraSemakanOptions = [
   { label: "Sila Pilih", value: "" },
-  ...Array.from({ length: 124 }, (_, i) => ({
-    label: (2024 - i).toString(),
-    value: (2024 - i).toString(),
-  })),
+  { label: "Cahaya biasa(Flood Light)", value: "Cahaya biasa(Flood Light)" },
+  {
+    label: "Cahaya UV(Ultraviolet Light 365nm)",
+    value: "Cahaya UV(Ultraviolet Light 365nm)",
+  },
+  { label: "Cahaya Infrared", value: "Cahaya Infrared" },
 ];
 
 // Fetch existing data
 const fetchELibraryData = async () => {
   try {
     const { data: response } = await useFetch(
-      `/api/elibrary/${elibraryID.value}`
+      `/api/dokumen-library/${elibraryID.value}`
     );
     if (response.value && response.value.statusCode === 200) {
       formData.value = response.value.data;
@@ -155,17 +171,20 @@ const removeImage = (index) => {
 const submitForm = async () => {
   try {
     isSubmitting.value = true;
-    const { data } = await useFetch(`/api/elibrary/${elibraryID.value}`, {
-      method: "PUT",
-      body: {
-        ...formData.value,
-        images: uploadedImages.value,
-      },
-    });
+    const { data } = await useFetch(
+      `/api/dokumen-library/${elibraryID.value}`,
+      {
+        method: "PUT",
+        body: {
+          ...formData.value,
+          images: uploadedImages.value,
+        },
+      }
+    );
 
     if (data.value?.statusCode === 200) {
       await $swal.fire("Berjaya!", "Maklumat berjaya dikemaskini", "success");
-      router.push("/e-library");
+      router.push("/dokumen-library");
     } else {
       throw new Error(data.value?.message || "Failed to update");
     }
@@ -177,7 +196,7 @@ const submitForm = async () => {
 };
 
 const goBack = () => {
-  router.push("/e-library");
+  router.push("/dokumen-library");
 };
 
 // Function to preview image
@@ -354,9 +373,78 @@ onMounted(() => {
           <!-- Document Details Section -->
           <div>
             <h3 class="text-lg font-semibold mb-4 border-b pb-2">
-              Maklumat Pemeriksaan
+              Butiran Dokumen
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <!-- No Document -->
+              <FormKit
+                type="text"
+                name="elibrary_noDocument"
+                label="No. Dokumen"
+                v-model="formData.elibrary_noDocument"
+                validation="required"
+                :validation-messages="{
+                  required: 'Sila masukkan no. dokumen',
+                }"
+              />
+
+              <!-- Muka Surat -->
+              <FormKit
+                type="text"
+                name="elibrary_mukaSurat"
+                label="Muka Surat"
+                v-model="formData.elibrary_mukaSurat"
+                validation="required"
+                :validation-messages="{
+                  required: 'Sila masukkan muka surat',
+                }"
+              />
+
+              <!-- Nama Pemilik -->
+              <FormKit
+                type="text"
+                name="elibrary_namaPemilik"
+                label="Nama Pemilik"
+                v-model="formData.elibrary_namaPemilik"
+                validation="required"
+                :validation-messages="{
+                  required: 'Sila masukkan nama pemilik',
+                }"
+              />
+            </div>
+          </div>
+
+          <!-- Inspection Details Section -->
+          <div>
+            <h3 class="text-lg font-semibold mb-4 border-b pb-2">
+              Maklumat Pemeriksaan
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Peralatan Digunakan -->
+              <FormKit
+                type="text"
+                name="elibrary_peralatanDigunakan"
+                label="Peralatan Digunakan"
+                v-model="formData.elibrary_peralatanDigunakan"
+                validation="required"
+                :validation-messages="{
+                  required: 'Sila masukkan peralatan yang digunakan',
+                }"
+              />
+
+              <!-- Cara Semakan -->
+              <FormKit
+                type="select"
+                name="elibrary_caraSemakan"
+                label="Cara Semakan"
+                v-model="formData.elibrary_caraSemakan"
+                :options="caraSemakanOptions"
+                validation="required"
+                :validation-messages="{
+                  required: 'Sila pilih cara semakan',
+                }"
+              />
+
               <!-- Ketulenan -->
               <FormKit
                 type="select"
@@ -367,6 +455,19 @@ onMounted(() => {
                 validation="required"
                 :validation-messages="{
                   required: 'Sila pilih ketulenan',
+                }"
+              />
+
+              <!-- Dapatan -->
+              <FormKit
+                type="select"
+                name="elibrary_dapatan"
+                label="Dapatan"
+                v-model="formData.elibrary_dapatan"
+                :options="ketulenanOptions"
+                validation="required"
+                :validation-messages="{
+                  required: 'Sila pilih dapatan',
                 }"
               />
             </div>
@@ -417,9 +518,6 @@ onMounted(() => {
               multiple="true"
               v-model="uploadedFiles"
               :help="'Maximum 100 images, 5MB per image'"
-              :validation-messages="{
-                required: 'Sila pilih sekurang-kurangnya satu gambar',
-              }"
             />
 
             <!-- Preview Images -->
@@ -439,7 +537,7 @@ onMounted(() => {
                 />
                 <button
                   @click.prevent="removeImage(index)"
-                  class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 flex items-center justify-center"
+                  class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6"
                 >
                   <Icon name="ic:round-close" class="w-4 h-4" />
                 </button>
@@ -452,27 +550,21 @@ onMounted(() => {
 
           <!-- Form Actions -->
           <div class="flex justify-end gap-2 mt-6">
-            <rs-button
-              @click="goBack"
-              variant="danger"
-              size="sm"
-              class="px-4 py-2"
-            >
-              <Icon name="pajamas:reply" class="w-4 h-4 mr-2" />
+            <rs-button variant="danger" @click="goBack" class="px-4 py-2">
+              <Icon name="ic:round-arrow-back" class="mr-2 w-4 h-4" />
               Kembali
             </rs-button>
             <rs-button
-              type="submit"
+              btn-type="submit"
               variant="primary"
               :disabled="isSubmitting"
-              size="sm"
               class="px-4 py-2"
             >
               <Icon
                 :name="isSubmitting ? 'eos-icons:loading' : 'ic:round-save'"
                 class="mr-2 w-4 h-4"
               />
-              {{ isSubmitting ? "Sedang Dikemaskini..." : "Simpan" }}
+              {{ isSubmitting ? "Sedang Dikemaskini..." : "Kemaskini" }}
             </rs-button>
           </div>
         </div>
@@ -502,13 +594,5 @@ onMounted(() => {
   .form-grid {
     @apply grid-cols-3;
   }
-}
-
-.text-muted-foreground {
-  @apply text-gray-500 dark:text-gray-400;
-}
-
-.text-muted {
-  @apply text-gray-500 dark:text-gray-400;
 }
 </style>

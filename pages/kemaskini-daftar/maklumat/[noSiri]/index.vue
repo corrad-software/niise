@@ -708,7 +708,7 @@ const visibleOfficers = computed(() => {
           <div class="flex gap-2">
             <rs-button
               @click="openEditModal(data.text.userID, data.text.assignID)"
-              variant="info"
+              variant="warning"
               size="sm"
             >
               <Icon name="ph:pencil" class="mr-2 w-4 h-4" />

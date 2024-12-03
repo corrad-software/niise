@@ -395,8 +395,12 @@ onMounted(() => {
 
             <!-- Edit Button -->
             <rs-button
+              v-if="
+                data.value.status === 'Permohonan Diterima' &&
+                !userStore.roles.includes('Ketua Bahagian')
+              "
               @click="kemaskini(data.value.noSiri)"
-              variant="primary"
+              variant="warning"
               size="sm"
               class="px-3 inline-flex items-center justify-center w-[100px]"
             >

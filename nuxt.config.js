@@ -549,5 +549,15 @@ export default defineNuxtConfig({
         requestSizeLimiter: false,
       },
     },
+    "/api/elibrary/**": {
+      security: {
+        requestSizeLimiter: false,
+      },
+    },
+    "/api/dokumen-library/**": {
+      security: {
+        requestSizeLimiter: false,
+      },
+    },
   },
 });

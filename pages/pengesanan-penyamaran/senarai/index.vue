@@ -368,6 +368,8 @@ onMounted(() => {
                 @click="resultAppointment(data.value.kesId)"
                 variant="primary"
                 size="sm"
+                class="px-3 inline-flex items-center justify-center w-[100px]"
+                :disabled="data.value.tindakan.disabled"
               >
                 <Icon name="ic:baseline-check-circle" class="mr-2 w-4 h-4" />
                 Keputusan
@@ -376,10 +378,9 @@ onMounted(() => {
               <rs-button
                 v-if="showButton.kemaskini"
                 @click="updateAppointment(data.value.kesId)"
-                variant="info"
+                variant="warning"
                 size="sm"
-                class="p-1 px-2"
-                title="Kemaskini"
+                class="px-3 inline-flex items-center justify-center w-[100px]"
               >
                 <Icon name="ph:pencil" class="mr-2 w-4 h-4" />
                 Kemaskini

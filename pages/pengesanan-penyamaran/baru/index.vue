@@ -253,7 +253,7 @@ definePageMeta({
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex justify-end gap-2 mt-4">
+        <div class="flex justify-end gap-4 mt-4">
           <rs-button @click="goBack" variant="danger">
             <Icon name="pajamas:reply" class="w-4 h-4 mr-2" />
             Kembali

@@ -481,6 +481,12 @@ model elibrary {
   elibrary_ketulenan          String     @db.VarChar(100)
   elibrary_maklumatTerperinci String?    @db.Text
   elibrary_ulasan             String?    @db.VarChar(255)
+  elibrary_mukaSurat          String?    @db.VarChar(255)
+  elibrary_noDocument         String?    @db.VarChar(255)
+  elibrary_namaPemilik        String?    @db.VarChar(255)
+  elibrary_peralatanDigunakan String?    @db.VarChar(255)
+  elibrary_caraSemakan        String?    @db.VarChar(255)
+  elibrary_dapatan            String?    @db.VarChar(255)
   created_at                  DateTime   @db.Timestamp(0)
   updated_at                  DateTime   @db.Timestamp(0)
   deleted_at                  DateTime?  @db.Timestamp(0)

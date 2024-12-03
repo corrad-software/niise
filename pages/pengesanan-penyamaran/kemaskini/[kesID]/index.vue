@@ -55,7 +55,10 @@ const formData = ref({
 });
 
 // Dropdown options (moved together)
-const jenisDokumenOptions = ref([{ label: "Passport", value: "Passport" }]);
+const jenisDokumenOptions = ref([
+  { label: "Sila Pilih", value: "" },
+  { label: "Passport", value: "Passport" },
+]);
 
 const negaraOptions = ref([
   { label: "Sila Pilih", value: "" },

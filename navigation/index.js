@@ -4,6 +4,11 @@ export default [
     description: "",
     child: [
       {
+        title: "Dashboard",
+        path: "/dashboard",
+        icon: "ph:house-duotone",
+      },
+      {
         title: "Semakan Forensik",
         icon: "ph:user-list-duotone",
         child: [

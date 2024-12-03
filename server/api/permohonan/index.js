@@ -27,7 +27,13 @@ export default defineEventHandler(async (event) => {
     if (roles.includes("Pegawai Kaunter")) {
       whereCondition.status_permohonan = status
         ? { equals: status }
-        : { in: ["Permohonan Dihantar", "Permohonan Disemak"] };
+        : {
+            in: [
+              "Permohonan Dihantar",
+              "Permohonan Disemak",
+              "Permohonan Diterima",
+            ],
+          };
     } else if (
       roles.includes("Ketua Bahagian") ||
       roles.includes("Pegawai Forensik")
