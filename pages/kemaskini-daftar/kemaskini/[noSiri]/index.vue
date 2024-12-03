@@ -4,7 +4,7 @@ definePageMeta({
   middleware: ["auth"],
   breadcrumb: [
     {
-      name: "Kaunter Semakan",
+      name: "Semak Permohonan",
       path: "/kemaskini-daftar/senarai",
     },
     {

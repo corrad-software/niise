@@ -1,12 +1,12 @@
 <script setup>
 // Update page meta definition to match pattern
 definePageMeta({
-  title: "Kemaskini E-Library",
+  title: "Kemaskini Dokumen E-Library",
   middleware: ["auth"],
   breadcrumb: [
     {
-      name: "E-Library",
-      path: "/e-library",
+      name: "Dokumen E-Library",
+      path: "/dokumen-library",
     },
     {
       name: "Kemaskini",

@@ -6,7 +6,7 @@ definePageMeta({
   middleware: ["auth"],
   breadcrumb: [
     {
-      name: "Kaunter Semakan",
+      name: "Semak Permohonan",
       path: "/kemaskini-daftar/senarai",
     },
     {
@@ -58,6 +58,10 @@ const appointmentData = ref(null);
 
 // Add this ref
 const timelineEvents = ref([]);
+
+// Add this to your script section where other refs are defined
+const kelulusanKetuaBahagian = ref(null);
+const ulasanKetuaBahagian = ref("");
 
 // Fetch the status data
 const fetchStatusData = async () => {
@@ -289,7 +293,16 @@ const deletePegawai = async (officer, assignID) => {
   }
 };
 
-// Submit Semak form
+// Add a new function to refetch all data
+const refetchAllData = async () => {
+  await fetchStatusData();
+  await fetchAssignedOfficers();
+  await fetchReports();
+  await fetchAppointmentData();
+  await fetchTimelineData();
+};
+
+// Update the handleSemakSubmit function
 const handleSemakSubmit = async (formData) => {
   try {
     const response = await useFetch(
@@ -301,7 +314,7 @@ const handleSemakSubmit = async (formData) => {
     );
     if (response.data.value.statusCode === 200) {
       $swal.fire("Berjaya", "Maklumat semakan telah disimpan", "success");
-      await fetchStatusData();
+      await refetchAllData(); // Replace fetchStatusData with refetchAllData
     } else {
       $swal.fire("Error", response.data.message, "error");
     }
@@ -311,6 +324,7 @@ const handleSemakSubmit = async (formData) => {
   closeSemakModal();
 };
 
+// Update the handleSemakSubmitKetua function
 const handleSemakSubmitKetua = async (formData) => {
   try {
     const response = await useFetch(
@@ -322,8 +336,7 @@ const handleSemakSubmitKetua = async (formData) => {
     );
     if (response.data.value.statusCode === 200) {
       $swal.fire("Berjaya", "Maklumat semakan telah disimpan", "success");
-      await fetchStatusData();
-      await fetchAssignedOfficers();
+      await refetchAllData(); // Replace multiple fetch calls with refetchAllData
     } else {
       $swal.fire("Error", response.data.message, "error");
     }
@@ -333,7 +346,7 @@ const handleSemakSubmitKetua = async (formData) => {
   closeSemakKetuaModal();
 };
 
-// Submit Terima form
+// Update the handleTerimaSubmit function
 const handleTerimaSubmit = async (formData) => {
   try {
     const response = await useFetch(
@@ -345,8 +358,7 @@ const handleTerimaSubmit = async (formData) => {
     );
     if (response.data.value.statusCode === 200) {
       $swal.fire("Berjaya", "Permohonan telah diterima", "success");
-      await fetchStatusData();
-      await fetchAssignedOfficers();
+      await refetchAllData(); // Replace multiple fetch calls with refetchAllData
     } else {
       $swal.fire("Error", response.data.message, "error");
     }
@@ -356,7 +368,7 @@ const handleTerimaSubmit = async (formData) => {
   closeTerimaModal();
 };
 
-// Submit Tolak form
+// Update the handleTolakSubmit function
 const handleTolakSubmit = async (formData) => {
   try {
     const response = await useFetch(
@@ -367,10 +379,8 @@ const handleTolakSubmit = async (formData) => {
       }
     );
     if (response.data.value.statusCode === 200) {
-      $swal.fire("Berjaya", "Permohonan telah ditolak", "success");
-      // navigateTo("/kemaskini-daftar/senarai");
-      await fetchStatusData();
-      // await fetchAssignedOfficers();
+      await $swal.fire("Berjaya", "Permohonan telah ditolak", "success");
+      navigateTo("/kemaskini-daftar/senarai");
     } else {
       $swal.fire("Error", response.data.message, "error");
     }
@@ -414,7 +424,7 @@ const closeSemakModal = () => {
 const userRole = ref("Pegawai Kaunter"); // Change this to 'Ketua Bahagian' to test the other form
 
 // For ketua bahagian form
-const kelulusanKetuaBahagian = ref(null);
+// const kelulusanKetuaBahagian = ref(null);
 
 // Terima Modal Controls
 const showTerimaModal = ref(false);
@@ -612,7 +622,10 @@ const visibleOfficers = computed(() => {
     </rs-card>
 
     <!-- Header section with improved spacing and hierarchy -->
-    <div class="flex items-center justify-between space-y-2">
+    <div
+      v-if="visibleOfficers.length > 0"
+      class="flex items-center justify-between space-y-2"
+    >
       <div>
         <h3 class="text-2xl font-bold tracking-tight">
           Maklumat Status Permohonan
@@ -990,7 +1003,9 @@ const visibleOfficers = computed(() => {
             type="select"
             name="kelulusanKetuaBahagian"
             label="Kelulusan Ketua Bahagian"
+            v-model="kelulusanKetuaBahagian"
             :options="[
+              { label: 'Sila Pilih', value: '' },
               { label: 'Diterima', value: 'Diterima' },
               { label: 'Ditolak', value: 'Ditolak' },
             ]"
@@ -1003,7 +1018,8 @@ const visibleOfficers = computed(() => {
             type="textarea"
             name="ulasanKetuaBahagian"
             label="Ulasan Ketua Bahagian"
-            validation="required"
+            v-model="ulasanKetuaBahagian"
+            :validation="kelulusanKetuaBahagian === 'Ditolak' ? 'required' : ''"
             :validation-messages="{
               required: 'Sila masukkan ulasan',
             }"

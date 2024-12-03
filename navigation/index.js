@@ -23,7 +23,7 @@ export default [
             },
           },
           {
-            title: "Kaunter Semakan",
+            title: "Semak Permohonan",
             path: "/kemaskini-daftar/senarai",
             child: [],
             meta: {
