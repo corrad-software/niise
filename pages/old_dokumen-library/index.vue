@@ -85,7 +85,7 @@ onMounted(() => {
             <!-- View Button -->
             <rs-button
               @click="lihat(data.value.noSiri)"
-              variant="primary"
+              variant="secondary-outline"
               size="sm"
               class="p-1 px-2"
               title="Lihat"

@@ -3,6 +3,8 @@ export default defineEventHandler(async (event) => {
   const { noSiri } = event.context.params;
   const { roles } = event.context.user;
 
+  let statusApproval = false;
+
   let showSection = false;
   let showButtonObj = {
     semak: false,
@@ -23,7 +25,7 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    // Fetch the Penerimaan status
+    // Fetch both Penerimaan and Penolakan status
     const penerimaan = await prisma.permohonan_penerimaan.findFirst({
       where: {
         permohonan: {
@@ -35,26 +37,41 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    console.log(semakan, penerimaan);
+    const penolakan = await prisma.permohonan_penolakan.findFirst({
+      where: {
+        permohonan: {
+          no_siri: noSiri,
+        },
+      },
+      select: {
+        penolakanID: true, // Checking if penolakan exists
+      },
+    });
+
+    // console.log(semakan, penerimaan, penolakan);
 
     // Determine statuses based on existence
     const statusSemakan = semakan ? "Selesai" : "Belum Disemak";
-    const statusPenerimaan = penerimaan ? "Diterima" : "Belum Diterima";
+    const statusPenerimaan = penerimaan
+      ? "Diterima"
+      : penolakan
+      ? "Ditolak"
+      : "Belum Diterima";
 
     if (roles.includes("Pegawai Kaunter") || roles.includes("Ketua Bahagian")) {
       showSection = true;
     }
 
     if (roles.includes("Pegawai Kaunter")) {
-      if (!semakan && !penerimaan) {
+      if (!semakan && !penerimaan && !penolakan) {
         showButtonObj.semak = true;
         showButtonObj.terima = false;
         showButtonObj.tolak = false;
-      } else if (semakan && !penerimaan) {
+      } else if (semakan && !penerimaan && !penolakan) {
         showButtonObj.semak = false;
         showButtonObj.terima = true;
         showButtonObj.tolak = true;
-      } else if (semakan && penerimaan) {
+      } else if (semakan && (penerimaan || penolakan)) {
         showButtonObj.semak = false;
         showButtonObj.terima = false;
         showButtonObj.tolak = false;
@@ -79,6 +96,7 @@ export default defineEventHandler(async (event) => {
         showButtonObj.semak = true;
       } else {
         showButtonObj.semak = false;
+        statusApproval = true;
       }
     }
 
@@ -91,6 +109,7 @@ export default defineEventHandler(async (event) => {
       },
       showSection: showSection,
       showButtonObj: showButtonObj,
+      showForensicApproval: statusApproval,
     };
   } catch (error) {
     // Return an error if something goes wrong

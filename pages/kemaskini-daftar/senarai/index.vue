@@ -6,7 +6,7 @@ definePageMeta({
   middleware: ["auth"],
   breadcrumb: [
     {
-      name: "Kaunter",
+      name: "Semak Permohonan",
       type: "current",
     },
   ],
@@ -115,19 +115,31 @@ watch(
   { deep: true }
 );
 
-// Status options for Pegawai Kaunter
-const statusOptions = [
-  { label: "Semua", value: "" },
-  { label: "Permohonan Dihantar", value: "Permohonan Dihantar" },
-  { label: "Permohonan Disemak", value: "Permohonan Disemak" },
-];
-
-const statusOptionsKetuaBahagian = [
-  { label: "Semua", value: "" },
-  { label: "Permohonan Diluluskan", value: "Permohonan Diluluskan" },
-];
-
-const statusOptionsPegawaiForensik = [{ label: "Semua", value: "" }];
+// Update the status options constants
+const statusOptions = computed(() => {
+  if (userStore.roles.includes("Pegawai Kaunter")) {
+    return [
+      { label: "Semua", value: "" },
+      { label: "Permohonan Dihantar", value: "Permohonan Dihantar" },
+      { label: "Permohonan Disemak", value: "Permohonan Disemak" },
+      { label: "Permohonan Diterima", value: "Permohonan Diterima" },
+    ];
+  } else if (userStore.roles.includes("Pegawai Forensik")) {
+    return [
+      { label: "Semua", value: "" },
+      { label: "Permohonan Diterima", value: "Permohonan Diterima" },
+      { label: "Permohonan Diluluskan", value: "Permohonan Diluluskan" },
+    ];
+  } else if (userStore.roles.includes("Ketua Bahagian")) {
+    return [
+      { label: "Semua", value: "" },
+      { label: "Permohonan Diterima", value: "Permohonan Diterima" },
+      { label: "Permohonan Diluluskan", value: "Permohonan Diluluskan" },
+      { label: "Permohonan Ditolak", value: "Permohonan Ditolak" },
+    ];
+  }
+  return [{ label: "Semua", value: "" }];
+});
 
 const permohonanBaru = () => {
   navigateTo("/permohonan-temujanji/baru");
@@ -198,13 +210,7 @@ onMounted(() => {
         <FormKit
           type="select"
           v-model="filters.status"
-          :options="
-            userStore.roles.includes('Pegawai Kaunter')
-              ? statusOptions
-              : userStore.roles.includes('Pegawai Forensik')
-              ? statusOptionsPegawaiForensik
-              : statusOptionsKetuaBahagian
-          "
+          :options="statusOptions"
           label="Status"
           placeholder="Pilih Status"
         />
@@ -238,94 +244,136 @@ onMounted(() => {
     </div>
 
     <!-- Summary Cards Section -->
-    <div
-      class="grid gap-4 md:grid-cols-2"
-      :class="
-        userStore.roles.includes('Pegawai Forensik') ||
-        userStore.roles.includes('Ketua Bahagian')
-          ? 'lg:grid-cols-2'
-          : 'lg:grid-cols-3'
-      "
-    >
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       <!-- Pegawai Kaunter Stats -->
-      <rs-card v-if="userStore.roles.includes('Pegawai Kaunter')" class="p-4">
-        <div class="space-y-2">
-          <h3 class="text-sm font-medium text-muted-foreground">
-            Jumlah Permohonan
-          </h3>
-          <div class="text-2xl font-bold">
-            {{ summaryData.jumlahPermohonan }}
+      <template v-if="userStore.roles.includes('Pegawai Kaunter')">
+        <rs-card class="p-4 col-span-3 mb-0">
+          <div class="space-y-2">
+            <h3 class="text-sm font-medium text-muted-foreground">
+              Jumlah Permohonan
+            </h3>
+            <div class="text-2xl font-bold">
+              {{ summaryData.jumlahPermohonan }}
+            </div>
           </div>
-        </div>
-      </rs-card>
+        </rs-card>
 
-      <rs-card v-if="userStore.roles.includes('Pegawai Kaunter')" class="p-4">
-        <div class="space-y-2">
-          <h3 class="text-sm font-medium text-muted-foreground">
-            Jumlah Permohonan Dihantar
-          </h3>
-          <div class="text-2xl font-bold text-blue-600">
-            {{ summaryData.jumlahPermohonanDihantar }}
+        <rs-card class="p-4">
+          <div class="space-y-2">
+            <h3 class="text-sm font-medium text-muted-foreground">
+              Permohonan Dihantar
+            </h3>
+            <div class="text-2xl font-bold text-blue-600">
+              {{ summaryData.jumlahPermohonanDihantar }}
+            </div>
           </div>
-        </div>
-      </rs-card>
+        </rs-card>
 
-      <rs-card v-if="userStore.roles.includes('Pegawai Kaunter')" class="p-4">
-        <div class="space-y-2">
-          <h3 class="text-sm font-medium text-muted-foreground">
-            Jumlah Permohonan Disemak
-          </h3>
-          <div class="text-2xl font-bold text-green-600">
-            {{ summaryData.jumlahPermohonanDisemak }}
+        <rs-card class="p-4">
+          <div class="space-y-2">
+            <h3 class="text-sm font-medium text-muted-foreground">
+              Permohonan Disemak
+            </h3>
+            <div class="text-2xl font-bold text-blue-600">
+              {{ summaryData.jumlahPermohonanDisemak }}
+            </div>
           </div>
-        </div>
-      </rs-card>
+        </rs-card>
+
+        <rs-card class="p-4">
+          <div class="space-y-2">
+            <h3 class="text-sm font-medium text-muted-foreground">
+              Permohonan Diterima
+            </h3>
+            <div class="text-2xl font-bold text-green-600">
+              {{ summaryData.jumlahPermohonanDiterima }}
+            </div>
+          </div>
+        </rs-card>
+      </template>
 
       <!-- Pegawai Forensik Stats -->
-      <rs-card v-if="userStore.roles.includes('Pegawai Forensik')" class="p-4">
-        <div class="space-y-2">
-          <h3 class="text-sm font-medium text-muted-foreground">
-            Jumlah Permohonan
-          </h3>
-          <div class="text-2xl font-bold">
-            {{ summaryData.jumlahPermohonan }}
+      <template v-if="userStore.roles.includes('Pegawai Forensik')">
+        <rs-card class="p-4">
+          <div class="space-y-2">
+            <h3 class="text-sm font-medium text-muted-foreground">
+              Jumlah Permohonan
+            </h3>
+            <div class="text-2xl font-bold">
+              {{ summaryData.jumlahPermohonan }}
+            </div>
           </div>
-        </div>
-      </rs-card>
+        </rs-card>
 
-      <rs-card v-if="userStore.roles.includes('Pegawai Forensik')" class="p-4">
-        <div class="space-y-2">
-          <h3 class="text-sm font-medium text-muted-foreground">
-            Jumlah Semakan Hari Ini
-          </h3>
-          <div class="text-2xl font-bold text-blue-600">
-            {{ summaryData.jumlahSemakanHariIni }}
+        <rs-card class="p-4">
+          <div class="space-y-2">
+            <h3 class="text-sm font-medium text-muted-foreground">
+              Permohonan Diterima
+            </h3>
+            <div class="text-2xl font-bold text-blue-600">
+              {{ summaryData.jumlahPermohonanDiterima }}
+            </div>
           </div>
-        </div>
-      </rs-card>
+        </rs-card>
+
+        <rs-card class="p-4">
+          <div class="space-y-2">
+            <h3 class="text-sm font-medium text-muted-foreground">
+              Jumlah Diluluskan
+            </h3>
+            <div class="text-2xl font-bold text-green-600">
+              {{ summaryData.jumlahPermohonanDiluluskan }}
+            </div>
+          </div>
+        </rs-card>
+      </template>
 
       <!-- Ketua Bahagian Stats -->
-      <rs-card v-if="userStore.roles.includes('Ketua Bahagian')" class="p-4">
-        <div class="space-y-2">
-          <h3 class="text-sm font-medium text-muted-foreground">
-            Jumlah Permohonan
-          </h3>
-          <div class="text-2xl font-bold">
-            {{ summaryData.jumlahPermohonan }}
+      <template v-if="userStore.roles.includes('Ketua Bahagian')">
+        <rs-card class="p-4 col-span-3 mb-0">
+          <div class="space-y-2">
+            <h3 class="text-sm font-medium text-muted-foreground">
+              Jumlah Permohonan
+            </h3>
+            <div class="text-2xl font-bold">
+              {{ summaryData.jumlahPermohonan }}
+            </div>
           </div>
-        </div>
-      </rs-card>
+        </rs-card>
 
-      <rs-card v-if="userStore.roles.includes('Ketua Bahagian')" class="p-4">
-        <div class="space-y-2">
-          <h3 class="text-sm font-medium text-muted-foreground">
-            Jumlah Permohonan Diluluskan
-          </h3>
-          <div class="text-2xl font-bold text-green-600">
-            {{ summaryData.jumlahPermohonanDiluluskan }}
+        <rs-card class="p-4">
+          <div class="space-y-2">
+            <h3 class="text-sm font-medium text-muted-foreground">
+              Permohonan Diterima
+            </h3>
+            <div class="text-2xl font-bold text-green-600">
+              {{ summaryData.jumlahPermohonanDiterima }}
+            </div>
           </div>
-        </div>
-      </rs-card>
+        </rs-card>
+
+        <rs-card class="p-4">
+          <div class="space-y-2">
+            <h3 class="text-sm font-medium text-muted-foreground">
+              Permohonan Diluluskan
+            </h3>
+            <div class="text-2xl font-bold text-green-600">
+              {{ summaryData.jumlahPermohonanDiluluskan }}
+            </div>
+          </div>
+        </rs-card>
+
+        <rs-card class="p-4">
+          <div class="space-y-2">
+            <h3 class="text-sm font-medium text-muted-foreground">
+              Permohonan Ditolak
+            </h3>
+            <div class="text-2xl font-bold text-red-600">
+              {{ summaryData.jumlahPermohonanDitolak }}
+            </div>
+          </div>
+        </rs-card>
+      </template>
     </div>
 
     <!-- Header section with improved spacing and hierarchy -->
@@ -366,13 +414,13 @@ onMounted(() => {
         <template v-slot:status="data">
           <rs-badge
             :variant="
-              data.text === 'Permohonan Draf'
+              data.text === 'Permohonan Draf' ||
+              data.text === 'Permohonan Diterima'
                 ? 'warning'
                 : data.text === 'Permohonan Dihantar' ||
                   data.text === 'Permohonan Disemak'
                 ? 'info'
-                : data.text === 'Permohonan Diterima' ||
-                  data.text === 'Permohonan Diluluskan'
+                : data.text === 'Permohonan Diluluskan'
                 ? 'success'
                 : 'danger'
             "
@@ -385,7 +433,7 @@ onMounted(() => {
             <!-- View Button -->
             <rs-button
               @click="lihat(data.value.noSiri)"
-              variant="info"
+              variant="secondary-outline"
               size="sm"
               class="px-3 inline-flex items-center justify-center w-[100px]"
             >
@@ -400,7 +448,7 @@ onMounted(() => {
                 !userStore.roles.includes('Ketua Bahagian')
               "
               @click="kemaskini(data.value.noSiri)"
-              variant="warning"
+              variant="primary-outline"
               size="sm"
               class="px-3 inline-flex items-center justify-center w-[100px]"
             >

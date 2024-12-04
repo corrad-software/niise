@@ -1,15 +1,20 @@
 // File: /api/permohonan/[noSiri]/tolak.put.js
 export default defineEventHandler(async (event) => {
   const { noSiri } = event.context.params;
-  const body = await readBody(event); // Get form data from frontend
+  const body = await readBody(event);
+  const { sebabPenolakan, lainLainSebab } = body;
 
   try {
-    // Get the current user (assuming user authentication is handled)
-    const user = event.context.user;
-
-    // Find the permohonan by its noSiri
+    // Fetch the existing permohonan with pemohon details
     const permohonan = await prisma.permohonan.findUnique({
       where: { no_siri: noSiri },
+      include: {
+        pemohon: {
+          include: {
+            user: true, // This will get us the pemohon's email
+          },
+        },
+      },
     });
 
     if (!permohonan) {
@@ -22,16 +27,16 @@ export default defineEventHandler(async (event) => {
         permohonanID: permohonan.id,
       },
       update: {
-        sebab_penolakan: parseInt(body.sebabPenolakan), // Assuming lookupID is passed
-        lain_sebab: body.lainLainSebab || null,
-        ditolak_oleh: user.userID,
+        sebab_penolakan: parseInt(sebabPenolakan),
+        lain_sebab: lainLainSebab || null,
+        ditolak_oleh: event.context.user.userID,
         create_at: new Date(),
       },
       create: {
         permohonanID: permohonan.id,
-        sebab_penolakan: parseInt(body.sebabPenolakan),
-        lain_sebab: body.lainLainSebab || null,
-        ditolak_oleh: user.userID,
+        sebab_penolakan: parseInt(sebabPenolakan),
+        lain_sebab: lainLainSebab || null,
+        ditolak_oleh: event.context.user.userID,
         create_at: new Date(),
       },
     });
@@ -41,6 +46,30 @@ export default defineEventHandler(async (event) => {
       where: { no_siri: noSiri },
       data: { status_permohonan: "Permohonan Ditolak" },
     });
+
+    // Send email notification to the pemohon
+    if (permohonan.pemohon?.user?.userEmail) {
+      await sendMail({
+        to: permohonan.pemohon.user.userEmail,
+        subject: `Permohonan ${noSiri} Ditolak`,
+        html: `
+          <h1>Permohonan Anda Telah Ditolak</h1>
+          <p>No. Siri Permohonan: ${noSiri}</p>
+          <p>Sebab Penolakan: ${sebabPenolakan}</p>
+          <p>Lain-lain Sebab: ${lainLainSebab || "-"}</p>
+          <br>
+          <p>Sila hubungi pihak berkenaan untuk maklumat lanjut.</p>
+        `,
+        text: `
+          Permohonan Anda Telah Ditolak
+          No. Siri Permohonan: ${noSiri}
+          Sebab Penolakan: ${sebabPenolakan}
+          Lain-lain Sebab: ${lainLainSebab || "-"}
+          
+          Sila hubungi pihak berkenaan untuk maklumat lanjut.
+        `,
+      });
+    }
 
     return {
       statusCode: 200,

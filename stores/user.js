@@ -8,6 +8,8 @@ export const useUserStore = defineStore({
     rank: null,
     name: null,
     officerNumber: null,
+    email: null,
+    phone: null,
     isAuth: false,
   }),
   persist: true,
@@ -29,6 +31,26 @@ export const useUserStore = defineStore({
     },
     setOfficerNumber(officerNumber) {
       this.officerNumber = officerNumber;
+    },
+    setEmail(email) {
+      this.email = email;
+    },
+    setPhone(phone) {
+      this.phone = phone;
+    },
+    updateProfile(profileData) {
+      const {
+        userFullName,
+        userEmail,
+        userPhone,
+        userRank,
+        userOfficerNumber,
+      } = profileData;
+      this.name = userFullName;
+      this.email = userEmail;
+      this.phone = userPhone;
+      this.rank = userRank;
+      this.officerNumber = userOfficerNumber;
     },
   },
 });

@@ -2,16 +2,46 @@
 export default defineEventHandler(async (event) => {
   const { noSiri } = event.context.params;
   const { userID } = event.context.user;
-
-  const body = await readBody(event); // Get form data from frontend
+  const body = await readBody(event);
 
   try {
-    // Get the current user (assuming user authentication is handled)
-    const user = event.context.user;
+    // Send email notification to pemohon
+    // await sendMail({
+    //   to: "mdafiqiskandar@gmail.com",
+    //   subject: `Permohonan ${noSiri} Telah Disemak`,
+    //   html: `
+    //       <h1>Permohonan Anda Telah Disemak</h1>
+    //       <p>No. Siri Permohonan: ${noSiri}</p>
+    //       <p>Status: Permohonan Disemak</p>
+    //       <p>Ulasan Pegawai: ${body.ulasanPegawaiKaunter || "-"}</p>
+    //       <br>
+    //       <p>Sila log masuk ke sistem untuk melihat butiran lanjut.</p>
+    //     `,
+    //   text: `
+    //       Permohonan Anda Telah Disemak
+    //       No. Siri Permohonan: ${noSiri}
+    //       Status: Permohonan Disemak
+    //       Ulasan Pegawai: ${body.ulasanPegawaiKaunter || "-"}
+          
+    //       Sila log masuk ke sistem untuk melihat butiran lanjut.
+    //     `,
+    // });
 
-    // Find the permohonan by its noSiri
+    // return {
+    //   statusCode: 200,
+    //   message: "Maklumat semakan berjaya dikemaskini.",
+    // };
+
+    // Get the permohonan with related pemohon and user data
     const permohonan = await prisma.permohonan.findUnique({
       where: { no_siri: noSiri },
+      include: {
+        pemohon: {
+          include: {
+            user: true, // This will get us the pemohon's email
+          },
+        },
+      },
     });
 
     if (!permohonan) {
@@ -30,7 +60,7 @@ export default defineEventHandler(async (event) => {
         subkontrak_diperlukan: body.subkontrakDiperlukan === "Ya" ? 1 : 0,
         tugasan_diterima: body.tugasanDiterima === "Ya" ? 1 : 0,
         ulasan_pegawai: body.ulasanPegawaiKaunter,
-        disemak_oleh: user.userID, // Use the authenticated user ID
+        disemak_oleh: userID,
         create_at: new Date(),
       },
       create: {
@@ -41,12 +71,12 @@ export default defineEventHandler(async (event) => {
         subkontrak_diperlukan: body.subkontrakDiperlukan === "Ya" ? 1 : 0,
         tugasan_diterima: body.tugasanDiterima === "Ya" ? 1 : 0,
         ulasan_pegawai: body.ulasanPegawaiKaunter,
-        disemak_oleh: user.userID,
+        disemak_oleh: userID,
         create_at: new Date(),
       },
     });
 
-    // Update the status of the permohonan to "Permohonan Disemak"
+    // Update the status of the permohonan
     await prisma.permohonan.update({
       where: { no_siri: noSiri },
       data: {

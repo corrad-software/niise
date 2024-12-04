@@ -75,6 +75,8 @@ const fetchStatusData = async () => {
       statusPenerimaan.value =
         data.value.data.statusPenerimaan || "Belum Diterima";
       showStatusSection.value = data.value.showSection || false;
+      showForensicOfficersSection.value =
+        data.value.showForensicApproval || false;
       // Store the button permissions
       buttonPermissions.value = data.value.showButtonObj || {
         semak: false,
@@ -117,7 +119,7 @@ const fetchAssignedOfficers = async () => {
     );
     if (data.value.statusCode === 200) {
       forensicOfficers.value = data.value.data || [];
-      showForensicOfficersSection.value = data.value.showSection || false;
+      // showForensicOfficersSection.value = data.value.showSection || false;
     }
   } catch (error) {
     console.error("Error fetching forensic officers:", error);
@@ -623,52 +625,6 @@ const visibleOfficers = computed(() => {
 
     <!-- Header section with improved spacing and hierarchy -->
     <div
-      v-if="visibleOfficers.length > 0"
-      class="flex items-center justify-between space-y-2"
-    >
-      <div>
-        <h3 class="text-2xl font-bold tracking-tight">
-          Maklumat Status Permohonan
-        </h3>
-      </div>
-    </div>
-
-    <!-- Add this section after the status cards -->
-    <template v-for="(section, index) in visibleOfficers" :key="index">
-      <rs-card class="py-6">
-        <rs-table
-          :data="section.officers"
-          :field="['bil', 'nama', 'pangkat', 'noPegawai']"
-          :options="{
-            variant: 'default',
-            striped: true,
-            borderless: false,
-          }"
-          :options-advanced="{
-            sortable: true,
-            filterable: false,
-          }"
-          advanced
-        >
-        </rs-table>
-      </rs-card>
-    </template>
-
-    <!-- Add this section where you want to display the timeline -->
-    <div class="flex items-center justify-between space-y-2">
-      <div>
-        <h3 class="text-2xl font-bold tracking-tight">
-          Garis Masa Status Permohonan
-        </h3>
-      </div>
-    </div>
-
-    <rs-card class="p-6">
-      <Timeline :events="timelineEvents" />
-    </rs-card>
-
-    <!-- Header section with improved spacing and hierarchy -->
-    <div
       v-if="showForensicOfficersSection"
       class="flex items-center justify-between space-y-2"
     >
@@ -721,7 +677,7 @@ const visibleOfficers = computed(() => {
           <div class="flex gap-2">
             <rs-button
               @click="openEditModal(data.text.userID, data.text.assignID)"
-              variant="warning"
+              variant="primary-outline"
               size="sm"
             >
               <Icon name="ph:pencil" class="mr-2 w-4 h-4" />
@@ -729,7 +685,7 @@ const visibleOfficers = computed(() => {
             </rs-button>
             <rs-button
               @click="confirmDelete(data.text.userID, data.text.assignID)"
-              variant="danger"
+              variant="danger-outline"
               size="sm"
             >
               <Icon name="ph:trash" class="mr-2 w-4 h-4" />
@@ -741,6 +697,52 @@ const visibleOfficers = computed(() => {
       <div v-else class="text-center p-10">
         <p>Tidak ada pegawai forensik yang terlibat.</p>
       </div>
+    </rs-card>
+
+    <!-- Header section with improved spacing and hierarchy -->
+    <div
+      v-if="visibleOfficers.length > 0"
+      class="flex items-center justify-between space-y-2"
+    >
+      <div>
+        <h3 class="text-2xl font-bold tracking-tight">
+          Maklumat Status Permohonan
+        </h3>
+      </div>
+    </div>
+
+    <!-- Add this section after the status cards -->
+    <template v-for="(section, index) in visibleOfficers" :key="index">
+      <rs-card class="py-6">
+        <rs-table
+          :data="section.officers"
+          :field="['bil', 'nama', 'pangkat', 'noPegawai']"
+          :options="{
+            variant: 'default',
+            striped: true,
+            borderless: false,
+          }"
+          :options-advanced="{
+            sortable: true,
+            filterable: false,
+          }"
+          advanced
+        >
+        </rs-table>
+      </rs-card>
+    </template>
+
+    <!-- Add this section where you want to display the timeline -->
+    <div class="flex items-center justify-between space-y-2">
+      <div>
+        <h3 class="text-2xl font-bold tracking-tight">
+          Garis Masa Status Permohonan
+        </h3>
+      </div>
+    </div>
+
+    <rs-card class="p-6">
+      <Timeline :events="timelineEvents" />
     </rs-card>
 
     <!-- Header section with improved spacing and hierarchy -->
@@ -794,6 +796,16 @@ const visibleOfficers = computed(() => {
         <p>Tidak ada bahan bukti yang terlibat.</p>
       </div>
     </rs-card>
+
+    <div class="flex justify-end gap-2">
+      <rs-button
+        variant="danger"
+        @click="navigateTo('/kemaskini-daftar/senarai')"
+      >
+        <Icon name="pajamas:reply" class="mr-2 w-4 h-4" />
+        Kembali
+      </rs-button>
+    </div>
 
     <!-- Add/Edit Modal -->
     <rs-modal v-model="showModal" @close="closeModal">

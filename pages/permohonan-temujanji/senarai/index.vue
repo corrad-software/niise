@@ -346,7 +346,7 @@ onMounted(() => {
           >
             <rs-button
               @click="kemaskini(data.value.noSiri)"
-              variant="warning"
+              variant="primary-outline"
               size="sm"
               class="px-3 inline-flex items-center justify-center w-[100px]"
             >
@@ -356,7 +356,7 @@ onMounted(() => {
 
             <rs-button
               @click="hapus(data.value.noSiri)"
-              variant="danger"
+              variant="danger-outline"
               size="sm"
               class="px-3 inline-flex items-center justify-center w-[100px]"
             >
@@ -370,7 +370,7 @@ onMounted(() => {
 
           <div v-else-if="data.value.status === 'Permohonan Diluluskan'">
             <rs-button
-              variant="info"
+              variant="secondary-outline"
               size="sm"
               class="px-3 inline-flex items-center justify-center w-[100px]"
               @click="lihatMaklumat(data.value.noSiri)"

@@ -4,7 +4,7 @@
 }
 
 .button[class*="button-"]:hover {
-  background-image: linear-gradient(rgb(0 0 0/10%) 0 0);
+  /* background-image: linear-gradient(rgb(0 0 0/10%) 0 0); */
 }
 
 .button[class*="button-"]:disabled {
@@ -46,7 +46,7 @@
 }
 
 .button.outline-primary:hover {
-  @apply bg-primary/5;
+  @apply bg-primary/10;
 }
 
 .button.outline-secondary {
@@ -54,7 +54,7 @@
 }
 
 .button.outline-secondary:hover {
-  @apply bg-secondary/5;
+  @apply bg-secondary/10;
 }
 
 .button.outline-success {
@@ -62,7 +62,7 @@
 }
 
 .button.outline-success:hover {
-  @apply bg-success/5;
+  @apply bg-success/10;
 }
 
 .button.outline-info {
@@ -70,7 +70,7 @@
 }
 
 .button.outline-info:hover {
-  @apply bg-info/5;
+  @apply bg-info/10;
 }
 
 .button.outline-warning {
@@ -78,7 +78,7 @@
 }
 
 .button.outline-warning:hover {
-  @apply bg-warning/5;
+  @apply bg-warning/10;
 }
 
 .button.outline-danger {
@@ -86,7 +86,7 @@
 }
 
 .button.outline-danger:hover {
-  @apply bg-danger/5;
+  @apply bg-danger/10;
 }
 
 .button[class*="text-"]:disabled {

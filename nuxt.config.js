@@ -5,6 +5,13 @@ export default defineNuxtConfig({
       secretAccess: process.env.NUXT_ACCESS_TOKEN_SECRET,
       secretRefresh: process.env.NUXT_REFRESH_TOKEN_SECRET,
     },
+    mail: {
+      host: process.env.NUXT_SMTP_HOST,
+      port: process.env.NUXT_SMTP_PORT,
+      user: process.env.NUXT_SMTP_USER,
+      password: process.env.NUXT_SMTP_PASSWORD,
+      secure: process.env.NUXT_SMTP_SECURE,
+    },
   },
   modules: [
     "@nuxtjs/tailwindcss",

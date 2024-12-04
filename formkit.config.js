@@ -21,8 +21,65 @@ import { createAutoHeightTextareaPlugin } from "@formkit/addons";
 // https://formkit.com/plugins/local-storage
 import { createLocalStoragePlugin } from "@formkit/addons";
 
+const legends = ["checkbox_multi", "radio_multi", "repeater", "transferlist"];
+
+function addAsteriskPlugin(node) {
+  if (
+    ["button", "submit", "hidden", "group", "list", "meta"].includes(
+      node.props.type
+    )
+  )
+    return;
+
+  const isRequired = node.props?.validation?.includes("required");
+
+  if (isRequired) {
+    // const originalLabel = node.props.label;
+    // node.props.label = originalLabel ? `${originalLabel} *` : "*";
+
+    node.on("created", () => {
+      if (node.props.definition.schemaMemoKey) {
+        node.props.definition.schemaMemoKey += "_required";
+      }
+
+      const originalSchemaFn = node.props.definition.schema;
+      node.props.definition.schema = (sectionsSchema = {}) => {
+        // Modify the label section to include data-required and required span
+        if (!sectionsSchema.label) {
+          sectionsSchema.label = {};
+        }
+        if (!sectionsSchema.label.attrs) {
+          sectionsSchema.label.attrs = {};
+        }
+        sectionsSchema.label.attrs["data-required"] = true;
+
+        // Add children array for label if it doesn't exist
+        sectionsSchema.label.children = [
+          "$label",
+          {
+            $el: "span",
+            attrs: {
+              class: "formkit-asterisk",
+            },
+            children: ["*"],
+          },
+        ];
+
+        const schema = originalSchemaFn(sectionsSchema);
+
+        // Also ensure the outer wrapper has data-required
+        if (!schema.attrs) schema.attrs = {};
+        schema.attrs["data-required"] = true;
+
+        return schema;
+      };
+    });
+  }
+}
+
 export default {
   plugins: [
+    addAsteriskPlugin,
     createFloatingLabelsPlugin({
       useAsDefault: false, // defaults to false
     }),

@@ -365,14 +365,19 @@ const getCurrentDate = () => {
             type="date"
             label="Tarikh temujanji"
             v-model="tarikhTemujanji"
-            :validation="'date|date_after:' + getCurrentDate()"
+            :validation="'required|date|date_after:' + getCurrentDate()"
             :validation-messages="{
               date_after: 'Tarikh temujanji harus selepas hari ini',
             }"
           />
 
           <!-- Slot Masa Input -->
-          <FormKit type="time" label="Slot masa" v-model="slotMasa" />
+          <FormKit
+            type="time"
+            label="Slot masa"
+            v-model="slotMasa"
+            validation="required"
+          />
         </div>
 
         <!-- No Kertas Siasatan Input -->
@@ -380,6 +385,7 @@ const getCurrentDate = () => {
           type="text"
           label="No Kertas Siasatan"
           v-model="noKertasSiasatan"
+          validation="required"
         />
 
         <!-- No Laporan Polis Input -->
@@ -387,6 +393,7 @@ const getCurrentDate = () => {
           type="text"
           label="No Laporan Polis"
           v-model="noLaporanPolis"
+          validation="required"
         />
 
         <!-- Ringkasan Kenyataan Kes Input -->
@@ -394,6 +401,7 @@ const getCurrentDate = () => {
           type="textarea"
           label="Ringkasan Kenyataan Kes"
           v-model="ringkasanKenyataanKes"
+          validation="required"
         />
 
         <!-- Bilangan Input -->

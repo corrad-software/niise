@@ -1,15 +1,10 @@
-// File: /api/permohonan/[noSiri]/terima.put.js
 export default defineEventHandler(async (event) => {
   const { noSiri } = event.context.params;
   const { userID } = event.context.user;
-
-  const body = await readBody(event); // Get form data from frontend
+  const body = await readBody(event);
 
   try {
-    // Get the current user (assuming user authentication is handled)
-    const user = event.context.user;
-
-    // Find the permohonan by its noSiri
+    // Get the current permohonan
     const permohonan = await prisma.permohonan.findUnique({
       where: { no_siri: noSiri },
     });
@@ -30,8 +25,8 @@ export default defineEventHandler(async (event) => {
         subkontrak_diperlukan: body.subkontrakDiperlukan === "Ya" ? 1 : 0,
         tugasan_diterima: body.tugasanDiterima === "Ya" ? 1 : 0,
         ulasan_pegawai: body.ulasanPegawaiKaunter,
-        diterima_oleh: user.userID,
-        create_at: new Date(), // Store current date
+        diterima_oleh: userID,
+        create_at: new Date(),
       },
       create: {
         permohonanID: permohonan.id,
@@ -41,12 +36,12 @@ export default defineEventHandler(async (event) => {
         subkontrak_diperlukan: body.subkontrakDiperlukan === "Ya" ? 1 : 0,
         tugasan_diterima: body.tugasanDiterima === "Ya" ? 1 : 0,
         ulasan_pegawai: body.ulasanPegawaiKaunter,
-        diterima_oleh: user.userID,
+        diterima_oleh: userID,
         create_at: new Date(),
       },
     });
 
-    // Update the status of the permohonan to "Diterima"
+    // Update the status of the permohonan
     await prisma.permohonan.update({
       where: { no_siri: noSiri },
       data: {
@@ -59,6 +54,49 @@ export default defineEventHandler(async (event) => {
         modified_at: new Date(),
       },
     });
+
+    // Get all Ketua Bahagian users
+    const ketuaBahagianUsers = await prisma.user.findMany({
+      where: {
+        userrole: {
+          some: {
+            role: {
+              roleName: "Ketua Bahagian",
+            },
+          },
+        },
+      },
+      select: {
+        userEmail: true,
+        userFullName: true,
+      },
+    });
+
+    // Send email notifications to all Ketua Bahagian users
+    for (const ketuaBahagian of ketuaBahagianUsers) {
+      if (ketuaBahagian.userEmail) {
+        await sendMail({
+          to: ketuaBahagian.userEmail,
+          subject: `Permohonan Baru Untuk Semakan: ${noSiri}`,
+          html: `
+            <h1>Permohonan Baru Memerlukan Semakan Anda</h1>
+            <p>No. Siri Permohonan: ${noSiri}</p>
+            <p>Status: Permohonan Diterima</p>
+            <p>Ulasan Pegawai Kaunter: ${body.ulasanPegawaiKaunter || "-"}</p>
+            <br>
+            <p>Sila log masuk ke sistem untuk menyemak permohonan ini.</p>
+          `,
+          text: `
+            Permohonan Baru Memerlukan Semakan Anda
+            No. Siri Permohonan: ${noSiri}
+            Status: Permohonan Diterima
+            Ulasan Pegawai Kaunter: ${body.ulasanPegawaiKaunter || "-"}
+            
+            Sila log masuk ke sistem untuk menyemak permohonan ini.
+          `,
+        });
+      }
+    }
 
     return {
       statusCode: 200,

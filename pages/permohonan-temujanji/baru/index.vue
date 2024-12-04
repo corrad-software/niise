@@ -235,8 +235,8 @@ const getJenisBarangLabel = (value) => {
 const getCurrentDate = () => {
   const today = new Date();
   const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 };
 </script>
@@ -325,14 +325,19 @@ const getCurrentDate = () => {
             type="date"
             label="Tarikh temujanji"
             v-model="tarikhTemujanji"
-            :validation="'date|date_after:' + getCurrentDate()"
+            :validation="'required|date|date_after:' + getCurrentDate()"
             :validation-messages="{
               date_after: 'Tarikh temujanji harus selepas hari ini',
             }"
           />
 
           <!-- Slot Masa Input -->
-          <FormKit type="time" label="Slot masa" v-model="slotMasa" />
+          <FormKit
+            type="time"
+            label="Slot masa"
+            v-model="slotMasa"
+            validation="required"
+          />
         </div>
 
         <!-- No Kertas Siasatan Input -->
@@ -340,6 +345,7 @@ const getCurrentDate = () => {
           type="text"
           label="No Kertas Siasatan"
           v-model="noKertasSiasatan"
+          validation="required"
         />
 
         <!-- No Laporan Polis Input -->
@@ -347,6 +353,7 @@ const getCurrentDate = () => {
           type="text"
           label="No Laporan Polis"
           v-model="noLaporanPolis"
+          validation="required"
         />
 
         <!-- Ringkasan Kenyataan Kes Input -->
@@ -354,6 +361,7 @@ const getCurrentDate = () => {
           type="textarea"
           label="Ringkasan Kenyataan Kes"
           v-model="ringkasanKenyataanKes"
+          validation="required"
         />
 
         <!-- Bilangan Input -->
@@ -403,7 +411,7 @@ const getCurrentDate = () => {
                     <rs-button
                       type="button"
                       @click="editBarang(index)"
-                      variant="warning"
+                      variant="primary-outline"
                       class="mr-2"
                     >
                       <Icon name="ph:pencil" class="w-4 h-4 mr-2" />
@@ -412,7 +420,7 @@ const getCurrentDate = () => {
                     <rs-button
                       type="button"
                       @click="removeBarang(index)"
-                      variant="danger"
+                      variant="danger-outline"
                     >
                       <Icon name="ph:trash" class="w-4 h-4 mr-2" />
                       Buang
