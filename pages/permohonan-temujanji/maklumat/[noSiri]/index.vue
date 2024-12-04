@@ -60,7 +60,6 @@ const fetchReportsData = async (noSiri) => {
         tandaBarang: item.tagNo,
         keadaanBarang: item.keadaan,
         kuantitiBarang: item.kuantiti,
-        tindakan: item.tindakan, // this is the reportID
       }));
       return response.data;
     }
@@ -292,7 +291,7 @@ onMounted(async () => {
             bordered: true,
           }"
         >
-          <template #tindakan="{ text }">
+          <!-- <template #tindakan="{ text }">
             <rs-button
               variant="primary"
               size="sm"
@@ -301,7 +300,7 @@ onMounted(async () => {
               <Icon name="ph:eye" class="w-4 h-4 mr-2" />
               Lihat
             </rs-button>
-          </template>
+          </template> -->
         </rs-table>
         <div v-else class="text-gray-500">Tiada barang ditambah</div>
       </div>
