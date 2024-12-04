@@ -1,7 +1,7 @@
 export default defineEventHandler(async (event) => {
   try {
     const { userID, roles } = event.context.user;
-    
+
     // Get query parameters
     const query = getQuery(event);
     const status = query.status;
@@ -15,9 +15,11 @@ export default defineEventHandler(async (event) => {
     if (roles.includes("Pegawai Forensik")) {
       whereConditions.permohonan_assign_forensik = {
         some: {
-          pegawai_forensikID: userID
-        }
+          pegawai_forensikID: userID,
+        },
       };
+    } else if (roles.includes("Pegawai Penyiasat")) {
+      whereConditions.create_by = userID;
     }
 
     // Add filter conditions
@@ -37,11 +39,11 @@ export default defineEventHandler(async (event) => {
 
     // Get status counts with filters
     const statusCounts = await prisma.permohonan.groupBy({
-      by: ['status_permohonan'],
+      by: ["status_permohonan"],
       _count: {
-        id: true
+        id: true,
       },
-      where: whereConditions
+      where: whereConditions,
     });
 
     const summary = {
@@ -49,37 +51,43 @@ export default defineEventHandler(async (event) => {
       permohonanDraf: 0,
       permohonanDihantar: 0,
       permohonanDitolak: 0,
-      permohonanSelesai: 0
+      permohonanSelesai: 0,
     };
 
-    statusCounts.forEach(status => {
+    statusCounts.forEach((status) => {
+      const count = status._count.id;
       switch (status.status_permohonan) {
-        case 'Permohonan Draf':
-          summary.permohonanDraf = status._count.id;
+        case "Permohonan Draf":
+          summary.permohonanDraf = count;
           break;
-        case 'Permohonan Dihantar':
-          summary.permohonanDihantar = status._count.id;
+        case "Permohonan Dihantar":
+          summary.permohonanDihantar = count;
           break;
-        case 'Permohonan Ditolak':
-          summary.permohonanDitolak = status._count.id;
+        case "Permohonan Ditolak":
+          summary.permohonanDitolak = count;
           break;
-        case 'Permohonan Diluluskan':
-          summary.permohonanSelesai = status._count.id;
+        case "Permohonan Diluluskan":
+          summary.permohonanSelesai = count;
           break;
       }
-      summary.jumlahPermohonan += status._count.id;
     });
+
+    summary.jumlahPermohonan =
+      summary.permohonanDraf +
+      summary.permohonanDihantar +
+      summary.permohonanDitolak +
+      summary.permohonanSelesai;
 
     return {
       statusCode: 200,
-      data: summary
+      data: summary,
     };
   } catch (error) {
     console.error("Error fetching summary:", error);
     return {
       statusCode: 500,
       message: "Failed to fetch summary data",
-      error: error.message
+      error: error.message,
     };
   }
 });

@@ -35,8 +35,8 @@ const slotMasa = ref("");
 const isPenghantarSameAsPemohon = ref(false);
 
 // Add these refs
-const showDocumentModal = ref(false);
-const selectedDocument = ref(null);
+const showReportModal = ref(false);
+const selectedReport = ref(null);
 
 // Fetch existing data
 const fetchExistingData = async (noSiri) => {
@@ -53,13 +53,16 @@ const fetchExistingData = async (noSiri) => {
 // Fetch reports data
 const fetchReportsData = async (noSiri) => {
   try {
-    const response = await $fetch(`/api/permohonan/${noSiri}/reports`);
+    const response = await $fetch(
+      `/api/permohonan/${noSiri}/reports?type=maklumat`
+    );
     if (response.statusCode === 200) {
       barangList.value = response.data.map((item) => ({
         jenisBarang: item.jenisBarang,
         tandaBarang: item.tagNo,
         keadaanBarang: item.keadaan,
         kuantitiBarang: item.kuantiti,
+        tindakan: item.tindakan,
       }));
       return response.data;
     }
@@ -68,33 +71,31 @@ const fetchReportsData = async (noSiri) => {
   }
 };
 
-// Modify showDocumentDetails function
-const showDocumentDetails = async (reportId) => {
+// Modify showReportDetails function
+const showReportDetails = async (reportId) => {
   try {
-    const { data: response } = await useFetch(
-      `/api/dokumen-library/${reportId}`
-    );
+    const { data: response } = await useFetch(`/api/report/${reportId}`);
     if (response.value && response.value.statusCode === 200) {
       if (!response.value.data) {
         $swal.fire({
           title: "Tiada Data",
-          text: "Tiada maklumat dokumen untuk barang ini",
+          text: "Tiada maklumat laporan untuk barang ini",
           icon: "info",
         });
         return;
       }
-      selectedDocument.value = response.value.data;
-      showDocumentModal.value = true;
+      selectedReport.value = response.value.data;
+      showReportModal.value = true;
     } else {
       throw new Error(
-        response.value?.message || "Failed to fetch document details"
+        response.value?.message || "Failed to fetch report details"
       );
     }
   } catch (error) {
-    console.error("Error fetching document details:", error);
+    console.error("Error fetching report details:", error);
     $swal.fire({
       title: "Ralat",
-      text: "Gagal mendapatkan maklumat dokumen",
+      text: "Gagal mendapatkan maklumat laporan",
       icon: "error",
     });
   }
@@ -291,16 +292,17 @@ onMounted(async () => {
             bordered: true,
           }"
         >
-          <!-- <template #tindakan="{ text }">
+          <template #tindakan="{ text }">
             <rs-button
-              variant="primary"
+              variant="secondary-outline"
               size="sm"
-              @click="showDocumentDetails(text)"
+              class="px-3 inline-flex items-center justify-center w-[100px]"
+              @click="showReportDetails(text)"
             >
-              <Icon name="ph:eye" class="w-4 h-4 mr-2" />
-              Lihat
+              <Icon name="ph:list" class="w-4 h-4 mr-2" />
+              Butiran
             </rs-button>
-          </template> -->
+          </template>
         </rs-table>
         <div v-else class="text-gray-500">Tiada barang ditambah</div>
       </div>
@@ -314,136 +316,195 @@ onMounted(async () => {
       </div>
     </rs-card>
 
-    <!-- Document Modal -->
-    <rs-modal
-      v-model="showDocumentModal"
-      title="Maklumat Dokumen"
-      size="lg"
-      :hide-footer="true"
-    >
+    <!-- Report Modal -->
+    <rs-modal v-model="showReportModal" title="Maklumat Laporan" size="lg">
       <template #body>
-        <div v-if="selectedDocument" class="space-y-4">
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="font-semibold">Negara Pengeluaran:</label>
-              <p>{{ selectedDocument.negaraPengeluaran || "-" }}</p>
+        <div v-if="selectedReport" class="space-y-6 p-2">
+          <!-- Basic Information Section -->
+          <div class="grid md:grid-cols-2 gap-6">
+            <!-- Report Details -->
+            <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+              <h3
+                class="text-lg font-semibold text-gray-900 dark:text-white mb-3"
+              >
+                Maklumat Barang:
+              </h3>
+              <div class="space-y-3">
+                <div class="flex flex-col">
+                  <span
+                    class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                    >Jenis Barang:</span
+                  >
+                  <span class="text-gray-700 dark:text-gray-300">
+                    {{
+                      selectedReport.lookup_report_jenis_barangTolookup
+                        ?.lookupValue || "-"
+                    }}
+                  </span>
+                </div>
+                <div class="flex flex-col">
+                  <span
+                    class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                    >Tanda Barang:</span
+                  >
+                  <span class="text-gray-700 dark:text-gray-300">
+                    {{ selectedReport.tanda_barang || "-" }}
+                  </span>
+                </div>
+                <div class="flex flex-col">
+                  <span
+                    class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                    >Keadaan Barang:</span
+                  >
+                  <span class="text-gray-700 dark:text-gray-300">
+                    {{ selectedReport.keadaan_barang || "-" }}
+                  </span>
+                </div>
+                <div class="flex flex-col">
+                  <span
+                    class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                    >Kuantiti:</span
+                  >
+                  <span class="text-gray-700 dark:text-gray-300">
+                    {{ selectedReport.kuantiti_barang || "-" }}
+                  </span>
+                </div>
+              </div>
             </div>
-            <div>
-              <label class="font-semibold">Tahun Pengeluaran:</label>
-              <p>{{ selectedDocument.tahunPengeluaran || "-" }}</p>
-            </div>
-            <div>
-              <label class="font-semibold">Muka Surat:</label>
-              <p>{{ selectedDocument.mukaSurat || "-" }}</p>
-            </div>
-            <div>
-              <label class="font-semibold">No Document:</label>
-              <p>{{ selectedDocument.noDocument || "-" }}</p>
-            </div>
-            <div>
-              <label class="font-semibold">Nama Pemilik:</label>
-              <p>{{ selectedDocument.namaPemilik || "-" }}</p>
-            </div>
-            <div>
-              <label class="font-semibold">Peralatan Digunakan:</label>
-              <p>{{ selectedDocument.peralatanDigunakan || "-" }}</p>
-            </div>
-            <div>
-              <label class="font-semibold">Cara Semakan:</label>
-              <p>{{ selectedDocument.caraSemakan || "-" }}</p>
-            </div>
-            <div>
-              <label class="font-semibold">Dapatan:</label>
-              <p>{{ selectedDocument.dapatan || "-" }}</p>
-            </div>
-            <div>
-              <label class="font-semibold">Tarikh Dicipta:</label>
-              <p>
-                {{
-                  selectedDocument.create_at
-                    ? new Date(selectedDocument.create_at).toLocaleDateString(
-                        "ms-MY"
-                      )
-                    : "-"
-                }}
-              </p>
-            </div>
-            <div>
-              <label class="font-semibold">Tarikh Dikemaskini:</label>
-              <p>
-                {{
-                  selectedDocument.modified_at
-                    ? new Date(selectedDocument.modified_at).toLocaleDateString(
-                        "ms-MY"
-                      )
-                    : "-"
-                }}
-              </p>
-            </div>
-            <div>
-              <label class="font-semibold">Dicipta Oleh:</label>
-              <p>
-                {{
-                  selectedDocument.user_dokumen_library_create_byTouser
-                    ?.userFullName || "-"
-                }}
-              </p>
-            </div>
-            <div>
-              <label class="font-semibold">Dikemaskini Oleh:</label>
-              <p>
-                {{
-                  selectedDocument.user_dokumen_library_modified_byTouser
-                    ?.userFullName || "-"
-                }}
-              </p>
+
+            <!-- Inspection Details -->
+            <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+              <h3
+                class="text-lg font-semibold text-gray-900 dark:text-white mb-3"
+              >
+                Maklumat Pemeriksaan:
+              </h3>
+              <div class="space-y-3">
+                <div class="flex flex-col">
+                  <span
+                    class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                    >Peralatan:</span
+                  >
+                  <span class="text-gray-700 dark:text-gray-300">
+                    {{ selectedReport.peralatan || "-" }}
+                  </span>
+                </div>
+                <div class="flex flex-col">
+                  <span
+                    class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                    >Dapatan:</span
+                  >
+                  <span class="text-gray-700 dark:text-gray-300">
+                    {{
+                      selectedReport.lookup_report_dapatanTolookup
+                        ?.lookupValue || "-"
+                    }}
+                  </span>
+                </div>
+                <div class="flex flex-col">
+                  <span
+                    class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                    >Tarikh Dicipta:</span
+                  >
+                  <span class="text-gray-700 dark:text-gray-300">
+                    {{
+                      selectedReport.create_at
+                        ? new Date(selectedReport.create_at).toLocaleDateString(
+                            "ms-MY"
+                          )
+                        : "-"
+                    }}
+                  </span>
+                </div>
+                <div class="flex flex-col">
+                  <span
+                    class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                    >Tarikh Dikemaskini:</span
+                  >
+                  <span class="text-gray-700 dark:text-gray-300">
+                    {{
+                      selectedReport.modified_at
+                        ? new Date(
+                            selectedReport.modified_at
+                          ).toLocaleDateString("ms-MY")
+                        : "-"
+                    }}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
-          <div>
-            <label class="font-semibold">Ulasan:</label>
-            <p class="whitespace-pre-wrap">
-              {{ selectedDocument.ulasan || "-" }}
+
+          <!-- Steps Section -->
+          <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+            <h3
+              class="text-lg font-semibold text-gray-900 dark:text-white mb-3"
+            >
+              Langkah-langkah:
+            </h3>
+            <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+              {{ selectedReport.langkah_langkah || "-" }}
             </p>
           </div>
 
-          <!-- Document Images -->
+          <!-- Supporting Documents Section -->
           <div
-            v-if="
-              selectedDocument.document && selectedDocument.document.length > 0
-            "
+            v-if="selectedReport.report_doc_support?.length > 0"
+            class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg"
           >
-            <div class="flex justify-between items-center mb-4">
-              <h3 class="font-semibold">Gambar</h3>
+            <!-- <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                Dokumen Sokongan:
+              </h3>
               <rs-button
+                @click="previewAllImages(selectedReport.report_doc_support)"
                 variant="primary"
                 size="sm"
-                @click="previewAllImages(selectedDocument)"
+                class="px-3 inline-flex items-center justify-center"
               >
-                <Icon name="ph:images" class="w-4 h-4 mr-2" />
+                <Icon name="ic:baseline-collections" class="mr-2 w-4 h-4" />
                 Papar Semua Gambar
               </rs-button>
-            </div>
-            <div class="grid grid-cols-3 gap-4">
+            </div> -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               <div
-                v-for="image in selectedDocument.document"
-                :key="image.documentID"
-                class="relative group cursor-pointer"
-                @click="previewImage(image)"
+                v-for="doc in selectedReport.report_doc_support"
+                :key="doc.report_attachID"
+                class="relative group cursor-pointer hover:opacity-90 transition-opacity"
+                @click="previewImage(doc.document)"
               >
                 <img
-                  :src="image.documentURL"
-                  :alt="image.documentName"
-                  class="w-full h-32 object-cover rounded-lg"
+                  :src="doc.document.documentURL"
+                  :alt="doc.document.documentName"
+                  class="w-full h-32 object-cover rounded-lg shadow-sm"
+                  @error="(e) => (e.target.style.display = 'none')"
+                  @load="(e) => (e.target.style.display = '')"
                 />
-                <span class="text-xs text-gray-500 mt-1 block truncate">
-                  {{ image.documentName }}
+                <span
+                  class="text-xs text-gray-500 dark:text-gray-400 mt-1 block truncate"
+                >
+                  {{ doc.document.documentName }}
                 </span>
+                <p class="text-xs text-gray-500">{{ doc.keterangan || "-" }}</p>
               </div>
             </div>
           </div>
           <div v-else class="text-center text-gray-500 py-4">
-            Tiada gambar untuk dokumen ini
+            Tiada dokumen sokongan
           </div>
+        </div>
+      </template>
+      <template #footer>
+        <div class="flex justify-end px-4 py-3 bg-gray-50 dark:bg-gray-800">
+          <rs-button
+            @click="showReportModal = false"
+            variant="danger"
+            size="sm"
+            class="px-4 py-2 inline-flex items-center justify-center shadow-sm"
+          >
+            <Icon name="ic:round-close" class="mr-2 w-4 h-4" />
+            Tutup
+          </rs-button>
         </div>
       </template>
     </rs-modal>

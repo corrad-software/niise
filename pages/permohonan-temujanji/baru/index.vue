@@ -377,7 +377,9 @@ const getCurrentDate = () => {
           <div
             class="flex flex-col md:flex-row items-center justify-between mb-2"
           >
-            <h3 class="mb-2">Senarai Barang</h3>
+            <h3 class="mb-2">
+              Senarai Barang<span class="text-red-500">*</span>
+            </h3>
             <rs-button type="button" @click="openBarangModal" variant="primary">
               <Icon name="ph:plus" class="w-4 h-4 mr-2" />
               Tambah Barang

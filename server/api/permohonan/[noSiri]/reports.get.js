@@ -4,6 +4,8 @@ export default defineEventHandler(async (event) => {
   const { noSiri } = event.context.params;
   const { roles } = event.context.user;
 
+  const { type } = getQuery(event);
+
   try {
     const permohonan = await prisma.permohonan.findUnique({
       where: { no_siri: noSiri },
@@ -31,7 +33,7 @@ export default defineEventHandler(async (event) => {
       };
 
       // Only add tindakan field if user has Pegawai Forensik role
-      if (roles.includes("Pegawai Forensik")) {
+      if (roles.includes("Pegawai Forensik") || type == "maklumat") {
         baseReport.tindakan = report.reportID;
       }
 

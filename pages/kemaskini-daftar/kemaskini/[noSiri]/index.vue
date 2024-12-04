@@ -278,7 +278,9 @@ const getJenisBarangLabel = (value) => {
 
         <!-- Barang Section -->
         <div class="mb-4">
-          <h3 class="mb-2">Senarai Barang</h3>
+          <h3 class="mb-2">
+            Senarai Barang<span class="text-red-500">*</span>
+          </h3>
           <table
             v-if="barangList.length > 0"
             class="w-full border-collapse border border-gray-300 mb-2"

@@ -33,16 +33,28 @@ export default defineEventHandler(async (event) => {
         },
         modified_at: new Date(),
       },
+      include: {
+        // Include related permohonan and user data
+        permohonan: {
+          include: {
+            pemohon: {
+              include: {
+                user: true, // This will get us the pemohon's email
+              },
+            },
+          },
+        },
+      },
     });
 
     // Handle document uploads
     if (body.documentTambahan?.length > 0) {
       // Ensure uploads directory exists
       const uploadsDir = join(
-      process.env.SERVER == "true"
-        ? join(process.cwd(), "../public/uploads")
-        : join(process.cwd(), "public/uploads")
-    );
+        process.env.SERVER == "true"
+          ? join(process.cwd(), "../public/uploads")
+          : join(process.cwd(), "public/uploads")
+      );
       await mkdir(uploadsDir, { recursive: true });
 
       for (const doc of body.documentTambahan) {
@@ -100,6 +112,28 @@ export default defineEventHandler(async (event) => {
           },
         });
       }
+    }
+
+    // Send email notification to pemohon
+    if (updatedReport.permohonan?.pemohon?.user?.userEmail) {
+      await sendMail({
+        to: updatedReport.permohonan.pemohon.user.userEmail,
+        subject: `Laporan Forensik Telah Dikemaskini`,
+        html: `
+          <h1>Laporan Bahan Bukti Telah Dikemaskini</h1>
+          <p>No. Siri Permohonan: ${updatedReport.permohonan.no_siri}</p>
+          <p>Status: Laporan Dikemaskini</p>
+          <br>
+          <p>Sila log masuk ke sistem untuk melihat butiran lanjut.</p>
+        `,
+        text: `
+          Laporan Bahan Bukti Telah Dikemaskini
+          No. Siri Permohonan: ${updatedReport.permohonan.no_siri}
+          Status: Laporan Dikemaskini
+          
+          Sila log masuk ke sistem untuk melihat butiran lanjut.
+        `,
+      });
     }
 
     return {

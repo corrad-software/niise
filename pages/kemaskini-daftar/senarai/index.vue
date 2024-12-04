@@ -414,18 +414,51 @@ onMounted(() => {
         <template v-slot:status="data">
           <rs-badge
             :variant="
-              data.text === 'Permohonan Draf' ||
-              data.text === 'Permohonan Diterima'
+              data.text === 'Permohonan Draf'
                 ? 'warning'
                 : data.text === 'Permohonan Dihantar' ||
                   data.text === 'Permohonan Disemak'
                 ? 'info'
-                : data.text === 'Permohonan Diluluskan'
+                : data.text === 'Permohonan Diluluskan' ||
+                  data.text === 'Permohonan Diterima'
                 ? 'success'
                 : 'danger'
             "
           >
             {{ data.text || "N/A" }}
+            <template
+              v-if="
+                data.text == 'Permohonan Dihantar' &&
+                userStore.roles.includes('Pegawai Kaunter')
+              "
+            >
+              <Icon
+                name="ph:warning-circle-fill"
+                class="w-4 h-4 ml-2 text-white animate-pulse"
+              />
+            </template>
+            <template
+              v-if="
+                data.text == 'Permohonan Diterima' &&
+                userStore.roles.includes('Ketua Bahagian')
+              "
+            >
+              <Icon
+                name="ph:warning-circle-fill"
+                class="w-4 h-4 ml-2 text-white animate-pulse"
+              />
+            </template>
+            <template
+              v-if="
+                data.text == 'Permohonan Diluluskan' &&
+                userStore.roles.includes('Pegawai Forensik')
+              "
+            >
+              <Icon
+                name="ph:warning-circle-fill"
+                class="w-4 h-4 ml-2 text-white animate-pulse"
+              />
+            </template>
           </rs-badge>
         </template>
         <template v-slot:tindakan="data">

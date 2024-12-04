@@ -46,10 +46,13 @@ const fetchDapatanOptions = async () => {
   try {
     const { data } = await useFetch("/api/lookup?type=dapatan");
     if (data.value.statusCode === 200) {
-      dapatanOptions.value = data.value.data.map((item) => ({
-        label: item.label,
-        value: item.value,
-      }));
+      dapatanOptions.value = [
+        { label: "Sila Pilih", value: null },
+        ...data.value.data.map((item) => ({
+          label: item.label,
+          value: item.value,
+        })),
+      ];
     } else {
       $swal.fire("Error", "Failed to fetch dapatan options.", "error");
     }
@@ -717,10 +720,14 @@ const formatDate = (dateString) => {
         </div>
 
         <div class="flex justify-end gap-2">
-          <rs-button variant="danger" btn-type="reset" @click="previousPage()"
-            >Kembali</rs-button
+          <rs-button variant="danger" btn-type="reset" @click="previousPage()">
+            <Icon name="pajamas:reply" class="w-4 h-4 mr-2" />
+            Kembali</rs-button
           >
-          <rs-button type="submit" btn-type="submit">Hantar Laporan</rs-button>
+          <rs-button type="submit" btn-type="submit">
+            <Icon name="ic:round-save" class="w-4 h-4 mr-2" />
+            Simpan
+          </rs-button>
         </div>
       </FormKit>
     </rs-card>

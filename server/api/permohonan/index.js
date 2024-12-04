@@ -68,7 +68,14 @@ export default defineEventHandler(async (event) => {
       // Default condition for other roles
       whereCondition.status_permohonan = status
         ? { equals: status }
-        : { notIn: ["Permohonan Ditolak"] };
+        : {
+            in: [
+              "Permohonan Draf",
+              "Permohonan Dihantar",
+              "Permohonan Ditolak",
+              "Permohonan Diluluskan",
+            ],
+          };
     }
 
     const permohonan = await prisma.permohonan.findMany({
