@@ -34,32 +34,40 @@ function addAsteriskPlugin(node) {
   const isRequired = node.props?.validation?.includes("required");
 
   if (isRequired) {
-    // const originalLabel = node.props.label;
-    // node.props.label = originalLabel ? `${originalLabel} *` : "*";
-
     node.on("created", () => {
+      // Determine if we should use legend or label
+      const legendOrLabel = legends.includes(
+        `${node.props.type}${node.props.options ? "_multi" : ""}`
+      )
+        ? "legend"
+        : "label";
+
+      // Update schema memo key with proper suffix
       if (node.props.definition.schemaMemoKey) {
-        node.props.definition.schemaMemoKey += "_required";
+        node.props.definition.schemaMemoKey += `${
+          node.props.options ? "_multi" : ""
+        }_add_asterisk`;
       }
 
       const originalSchemaFn = node.props.definition.schema;
       node.props.definition.schema = (sectionsSchema = {}) => {
-        // Modify the label section to include data-required and required span
-        if (!sectionsSchema.label) {
-          sectionsSchema.label = {};
+        // Initialize the proper section (legend or label)
+        if (!sectionsSchema[legendOrLabel]) {
+          sectionsSchema[legendOrLabel] = {};
         }
-        if (!sectionsSchema.label.attrs) {
-          sectionsSchema.label.attrs = {};
+        if (!sectionsSchema[legendOrLabel].attrs) {
+          sectionsSchema[legendOrLabel].attrs = {};
         }
-        sectionsSchema.label.attrs["data-required"] = true;
+        sectionsSchema[legendOrLabel].attrs["data-required"] = true;
 
-        // Add children array for label if it doesn't exist
-        sectionsSchema.label.children = [
+        // Add children array for the proper section
+        sectionsSchema[legendOrLabel].children = [
           "$label",
           {
             $el: "span",
             attrs: {
               class: "formkit-asterisk",
+              title: node.props?.requiredText || "diperlukan",
             },
             children: ["*"],
           },
@@ -67,7 +75,6 @@ function addAsteriskPlugin(node) {
 
         const schema = originalSchemaFn(sectionsSchema);
 
-        // Also ensure the outer wrapper has data-required
         if (!schema.attrs) schema.attrs = {};
         schema.attrs["data-required"] = true;
 
