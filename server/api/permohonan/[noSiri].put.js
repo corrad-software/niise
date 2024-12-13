@@ -136,6 +136,7 @@ export default defineEventHandler(async (event) => {
           kuantiti_barang: parseInt(barang.kuantitiBarang),
           tanda_barang: barang.tandaBarang,
           keadaan_barang: barang.keadaanBarang,
+          pengesanan_penyamaran: barang.pengesananPenyamaran ? true : false,
           create_at: new Date(),
         },
       });

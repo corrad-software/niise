@@ -8,6 +8,7 @@ export default defineEventHandler(async (event) => {
     const status = query.status;
     const startDate = query.startDate ? new Date(query.startDate) : null;
     const endDate = query.endDate ? new Date(query.endDate) : null;
+    const pengesahan = query.pengesahan;
 
     let whereCondition = {};
     const dateCondition = {};
@@ -30,8 +31,8 @@ export default defineEventHandler(async (event) => {
         : {
             in: [
               "Permohonan Dihantar",
-              "Permohonan Disemak",
               "Permohonan Diterima",
+              "Temujanji Diterima",
             ],
           };
     } else if (
@@ -43,7 +44,13 @@ export default defineEventHandler(async (event) => {
           {
             status_permohonan: status
               ? { equals: status }
-              : { in: ["Permohonan Diterima", "Permohonan Diluluskan"] },
+              : {
+                  in: [
+                    "Permohonan Diterima",
+                    "Permohonan Diluluskan",
+                    pengesahan ? "Permohonan Dihantar" : null,
+                  ],
+                },
           },
           {
             permohonan_assign_forensik: {
@@ -61,6 +68,8 @@ export default defineEventHandler(async (event) => {
                 "Permohonan Diterima",
                 "Permohonan Diluluskan",
                 "Permohonan Ditolak",
+                "Temujanji Diterima",
+                "Temujanji Ditolak",
               ],
             };
       }
@@ -74,6 +83,8 @@ export default defineEventHandler(async (event) => {
               "Permohonan Dihantar",
               "Permohonan Ditolak",
               "Permohonan Diluluskan",
+              "Temujanji Diterima",
+              "Temujanji Ditolak",
             ],
           };
     }
@@ -83,7 +94,8 @@ export default defineEventHandler(async (event) => {
       select: {
         id: true,
         no_siri: true,
-        create_at: true,
+        tarikh_temujanji: true,
+        slot_masa: true,
         status_permohonan: true,
         pemohon: {
           select: {
@@ -100,14 +112,37 @@ export default defineEventHandler(async (event) => {
       statusCode: 200,
       message: "Success",
       data: permohonan.map((item, index) => {
-        // Convert UTC to GMT+8
-        const gmt8Date = new Date(
-          item.create_at.getTime() + 8 * 60 * 60 * 1000
-        );
+        // Combine date and time
+        let tarikhMasa = null;
+        if (item.tarikh_temujanji && item.slot_masa) {
+          const date = new Date(item.tarikh_temujanji);
+          const time = new Date(item.slot_masa);
+
+          // Set the time components from slot_masa to the date
+          date.setHours(time.getHours());
+          date.setMinutes(time.getMinutes());
+          date.setSeconds(time.getSeconds());
+
+          // Convert to GMT+8 and format date
+          const gmt8Date = new Date(date.getTime() + 8 * 60 * 60 * 1000);
+
+          // Format: DD/MM/YYYY HH:mm
+          tarikhMasa = gmt8Date
+            .toLocaleString("en-MY", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            })
+            .replace(",", "");
+        }
+
         return {
           bil: index + 1,
           noSiri: item.no_siri,
-          tarikhMasa: gmt8Date.toISOString().replace("T", " ").slice(0, 19),
+          tarikhMasa,
           status: item.status_permohonan,
           tindakan: item.id,
         };

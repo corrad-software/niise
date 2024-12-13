@@ -184,6 +184,12 @@ const getJenisBarangLabel = (value) => {
   );
   return option ? option.label : value;
 };
+
+const resetForm = () => {
+  noKertasSiasatan.value = "";
+  noLaporanPolis.value = "";
+  ringkasanKenyataanKes.value = "";
+};
 </script>
 
 <template>
@@ -194,6 +200,10 @@ const getJenisBarangLabel = (value) => {
       <div>
         <h3 class="text-2xl font-bold tracking-tight">Kemaskini Permohonan</h3>
       </div>
+      <rs-button btn-type="reset" variant="danger-outline" @click="resetForm">
+        <Icon name="ph:paint-brush-household" class="w-4 h-4 mr-2" />
+        Padam Borang
+      </rs-button>
     </div>
 
     <rs-card class="mt-4 px-4 py-6">

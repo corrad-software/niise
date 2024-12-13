@@ -260,6 +260,7 @@ model report {
   gambarID                           Int?
   ulasan                             String?              @db.Text
   dapatan                            Int?
+  pengesanan_penyamaran              Boolean?             @default(dbgenerated("b'0'")) @db.Bit(1)
   create_by                          Int?
   create_at                          DateTime?            @db.DateTime(0)
   modified_by                        Int?

@@ -361,7 +361,7 @@ onMounted(() => {
 
           <!-- Actions for each appointment -->
           <template v-slot:tindakan="data">
-            <div class="flex gap-2">
+            <div class="flex flex-wrap items-center gap-2">
               <!-- Button to navigate to the "Update" page for the selected appointment -->
               <rs-button
                 v-if="showButton.keputusan"

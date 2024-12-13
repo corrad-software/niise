@@ -279,6 +279,20 @@ const getCurrentDate = () => {
   const day = String(today.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 };
+
+const resetForm = () => {
+  namaPenghantar.value = "";
+  pangkatPenghantar.value = "";
+  noPegawaiPenghantar.value = "";
+  barangList.value = [];
+  isPenghantarSameAsPemohon.value = false;
+  ringkasanKenyataanKes.value = "";
+  bilangan.value = 0;
+  noKertasSiasatan.value = "";
+  noLaporanPolis.value = "";
+  tarikhTemujanji.value = "";
+  slotMasa.value = "";
+};
 </script>
 
 <template>
@@ -289,6 +303,10 @@ const getCurrentDate = () => {
       <div>
         <h3 class="text-2xl font-bold tracking-tight">Permohonan Baru</h3>
       </div>
+      <rs-button btn-type="reset" variant="danger-outline" @click="resetForm">
+        <Icon name="ph:paint-brush-household" class="w-4 h-4 mr-2" />
+        Padam Borang
+      </rs-button>
     </div>
 
     <rs-card class="mt-4 px-4 py-6">
@@ -431,6 +449,9 @@ const getCurrentDate = () => {
               <tr class="bg-gray-100">
                 <th class="border border-gray-300 p-2">Jenis Barang</th>
                 <th class="border border-gray-300 p-2">Kuantiti</th>
+                <th class="border border-gray-300 p-2 w-[100px]">
+                  Pengesanan Penyamaran
+                </th>
                 <th class="border border-gray-300 p-2">Tindakan</th>
               </tr>
             </thead>
@@ -445,6 +466,20 @@ const getCurrentDate = () => {
                 </td>
                 <td class="border border-gray-300 p-2">
                   {{ barang.kuantitiBarang }}
+                </td>
+                <td class="p-2 flex justify-center items-center mt-2">
+                  <label class="inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      value=""
+                      class="sr-only peer"
+                      v-model="barang.pengesananPenyamaran"
+                      :checked="barang.pengesananPenyamaran"
+                    />
+                    <div
+                      class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                    ></div>
+                  </label>
                 </td>
                 <td class="border border-gray-300 p-2">
                   <div class="flex gap-2">

@@ -4,9 +4,12 @@ export default defineEventHandler(async (event) => {
 
     // Get query parameters
     const query = getQuery(event);
+    console.log(query);
+
     const status = query.status;
     const startDate = query.startDate ? new Date(query.startDate) : null;
     const endDate = query.endDate ? new Date(query.endDate) : null;
+    const pengesahan = query.pengesahan;
 
     // Build base where conditions
     let whereConditions = {};
@@ -84,7 +87,13 @@ export default defineEventHandler(async (event) => {
           {
             status_permohonan: status
               ? { equals: status }
-              : { in: ["Permohonan Diterima", "Permohonan Diluluskan"] },
+              : {
+                  in: [
+                    "Permohonan Diterima",
+                    "Permohonan Diluluskan",
+                    pengesahan ? "Permohonan Dihantar" : null,
+                  ],
+                },
           },
           {
             permohonan_assign_forensik: {
@@ -114,6 +123,11 @@ export default defineEventHandler(async (event) => {
             break;
           case "Permohonan Diluluskan":
             summary.jumlahPermohonanDiluluskan = status._count.id;
+            break;
+          case "Permohonan Dihantar":
+            pengesahan
+              ? (summary.jumlahPermohonanDihantar = status._count.id)
+              : null;
             break;
         }
         summary.jumlahPermohonan += status._count.id;
@@ -150,6 +164,7 @@ export default defineEventHandler(async (event) => {
                 "Permohonan Diterima",
                 "Permohonan Diluluskan",
                 "Permohonan Ditolak",
+                pengesahan ? "Permohonan Dihantar" : null,
               ],
             },
       };
@@ -175,6 +190,11 @@ export default defineEventHandler(async (event) => {
             break;
           case "Permohonan Ditolak":
             summary.jumlahPermohonanDitolak = status._count.id;
+            break;
+          case "Permohonan Dihantar":
+            pengesahan
+              ? (summary.jumlahPermohonanDihantar = status._count.id)
+              : null;
             break;
         }
         summary.jumlahPermohonan += status._count.id;

@@ -7,24 +7,11 @@ export default defineEventHandler(async (event) => {
 
   let showSection = false;
   let showButtonObj = {
-    semak: false,
     terima: false,
     tolak: false,
   };
 
   try {
-    // Fetch the Semakan status
-    const semakan = await prisma.permohonan_semakan.findFirst({
-      where: {
-        permohonan: {
-          no_siri: noSiri,
-        },
-      },
-      select: {
-        semakanID: true, // Checking if semakan exists
-      },
-    });
-
     // Fetch both Penerimaan and Penolakan status
     const penerimaan = await prisma.permohonan_penerimaan.findFirst({
       where: {
@@ -48,10 +35,7 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    // console.log(semakan, penerimaan, penolakan);
-
-    // Determine statuses based on existence
-    const statusSemakan = semakan ? "Selesai" : "Belum Disemak";
+    // Determine status based on existence
     const statusPenerimaan = penerimaan
       ? "Diterima"
       : penolakan
@@ -63,16 +47,10 @@ export default defineEventHandler(async (event) => {
     }
 
     if (roles.includes("Pegawai Kaunter")) {
-      if (!semakan && !penerimaan && !penolakan) {
-        showButtonObj.semak = true;
-        showButtonObj.terima = false;
-        showButtonObj.tolak = false;
-      } else if (semakan && !penerimaan && !penolakan) {
-        showButtonObj.semak = false;
+      if (!penerimaan && !penolakan) {
         showButtonObj.terima = true;
         showButtonObj.tolak = true;
-      } else if (semakan && (penerimaan || penolakan)) {
-        showButtonObj.semak = false;
+      } else {
         showButtonObj.terima = false;
         showButtonObj.tolak = false;
       }
@@ -104,7 +82,6 @@ export default defineEventHandler(async (event) => {
     return {
       statusCode: 200,
       data: {
-        statusSemakan,
         statusPenerimaan,
       },
       showSection: showSection,

@@ -12,12 +12,6 @@ export default defineEventHandler(async (event) => {
             user: true,
           },
         },
-        // Get semakan details
-        permohonan_semakan: {
-          include: {
-            user: true,
-          },
-        },
         // Get penerimaan details
         permohonan_penerimaan: {
           include: {
@@ -54,22 +48,6 @@ export default defineEventHandler(async (event) => {
         noPegawai: permohonan.pemohon?.user?.userOfficerNumber || "-",
       },
     });
-
-    // Add semakan if exists
-    if (permohonan.permohonan_semakan) {
-      timelineEvents.push({
-        date: permohonan.permohonan_semakan.create_at,
-        type: "semakan",
-        status: "Semakan Dilakukan",
-        details: permohonan.permohonan_semakan.ulasanPegawaiKaunter || "",
-        user: {
-          nama: permohonan.permohonan_semakan.user?.userFullName || "-",
-          pangkat: permohonan.permohonan_semakan.user?.userRank || "-",
-          noPegawai:
-            permohonan.permohonan_semakan.user?.userOfficerNumber || "-",
-        },
-      });
-    }
 
     // Add approval if exists
     if (permohonan.permohonan_approval?.length > 0) {

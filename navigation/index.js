@@ -9,35 +9,37 @@ export default [
         icon: "ph:house-duotone",
       },
       {
-        title: "Semakan Forensik",
+        title: "Permohonan",
         icon: "ph:user-list-duotone",
         child: [
           {
-            title: "Permohonan Temujanji",
-            path: "/permohonan-temujanji/senarai",
-            child: [],
-            meta: {
-              auth: {
-                role: ["Admin", "Pegawai Penyiasat"],
-              },
-            },
-          },
-          {
-            title: "Semak Permohonan",
+            title: "Semua",
             path: "/kemaskini-daftar/senarai",
             child: [],
-            meta: {
-              auth: {
-                role: [
-                  "Admin",
-                  "Pegawai Kaunter",
-                  "Ketua Bahagian",
-                  "Pegawai Forensik",
-                ],
-              },
-            },
+            meta: {},
+          },
+          {
+            title: "Menunggu Pengesahan",
+            path: "/kemaskini-daftar/senarai-pengesahan",
+            child: [],
+            meta: {},
           },
         ],
+        meta: {
+          auth: {
+            role: ["Ketua Bahagian", "Pegawai Forensik", "Pegawai Kaunter"],
+          },
+        },
+      },
+      {
+        title: "Permohonan Temujanji",
+        path: "/permohonan-temujanji/senarai",
+        icon: "ph:calendar-blank-duotone",
+        meta: {
+          auth: {
+            role: ["Pegawai Penyiasat"],
+          },
+        },
       },
       {
         title: "Pengesanan Penyamaran",
