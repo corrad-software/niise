@@ -65,6 +65,7 @@ export default defineEventHandler(async (event) => {
             documentExtension: extension,
             imageMIMEType: image.type,
             documentSize: image.size,
+            documentDesc: image.description,
             elibraryID: parseInt(elibraryID),
             isElibraryImage: true,
             documentStatus: "ACTIVE",

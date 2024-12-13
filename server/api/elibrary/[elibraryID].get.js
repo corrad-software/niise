@@ -29,6 +29,7 @@ export default defineEventHandler(async (event) => {
             documentURL: true,
             documentType: true,
             documentExtension: true,
+            documentDesc: true,
             imageMIMEType: true,
             documentSize: true,
             documentCreatedDate: true,

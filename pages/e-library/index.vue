@@ -104,6 +104,20 @@ const uploadItem = (id) => {
 };
 
 const submitImages = async () => {
+  const missingDescriptions = uploadedImages.value.some(
+    (img) => !img.description.trim()
+  );
+
+  if (missingDescriptions) {
+    $swal.fire({
+      title: "Perhatian",
+      text: "Sila masukkan keterangan untuk semua gambar",
+      icon: "warning",
+      confirmButtonText: "OK",
+    });
+    return;
+  }
+
   if (uploadedImages.value.length === 0) {
     $swal.fire({
       title: "Perhatian",
@@ -147,64 +161,67 @@ const submitImages = async () => {
   }
 };
 
-// Watch for changes to uploadedFiles
-watch(uploadedFiles, async (files) => {
-  if (!files || files.length === 0) return;
+watch(
+  uploadedFiles,
+  async (newFiles) => {
+    if (!newFiles || !Array.isArray(newFiles) || newFiles.length === 0) return;
 
-  const newImages = [];
-  const oversizedFiles = [];
+    const newImages = [];
+    const oversizedFiles = [];
 
-  for (const file of files) {
-    // Access the actual File object from the file.file property
-    const actualFile = file.file;
+    for (const file of newFiles) {
+      if (!file || !file.file) continue;
 
-    if (actualFile.size > 5000000) {
-      // 5MB limit
-      oversizedFiles.push(file.name);
-      // Remove the file from uploadedFiles
-      const index = uploadedFiles.value.indexOf(file);
-      if (index > -1) {
-        uploadedFiles.value.splice(index, 1);
+      const actualFile = file.file;
+      // console.log("Processing file:", actualFile);
+
+      if (actualFile.size > 5000000) {
+        oversizedFiles.push(actualFile.name);
+        continue;
       }
-      continue;
-    }
 
-    // Check if image with same name already exists
-    const isDuplicate = uploadedImages.value.some(
-      (img) => img.name === file.name
-    );
-    if (isDuplicate) continue;
+      const isDuplicate = uploadedImages.value.some(
+        (img) => img.name === actualFile.name
+      );
+      if (isDuplicate) continue;
 
-    const reader = new FileReader();
-    await new Promise((resolve) => {
-      reader.onload = (e) => {
+      try {
+        const base64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target.result);
+          reader.onerror = (e) => reject(e);
+          reader.readAsDataURL(actualFile);
+        });
+
         newImages.push({
-          name: file.name,
-          base64: e.target.result,
+          name: actualFile.name,
+          base64: base64,
           size: actualFile.size,
           type: actualFile.type,
+          description: "",
         });
-        resolve();
-      };
-      reader.readAsDataURL(actualFile);
-    });
-  }
+      } catch (error) {
+        console.error("Error reading file:", error);
+      }
+    }
 
-  // Show SweetAlert for oversized files if any
-  if (oversizedFiles.length > 0) {
-    $swal.fire({
-      title: "Fail Terlalu Besar",
-      html: `Fail berikut melebihi 5MB dan telah dikeluarkan:<br><br>${oversizedFiles.join(
-        "<br>"
-      )}`,
-      icon: "warning",
-      confirmButtonText: "OK",
-    });
-  }
+    if (oversizedFiles.length > 0) {
+      $swal.fire({
+        title: "Fail Terlalu Besar",
+        html: `Fail berikut melebihi 5MB dan telah dikeluarkan:<br><br>${oversizedFiles.join(
+          "<br>"
+        )}`,
+        icon: "warning",
+        confirmButtonText: "OK",
+      });
+    }
 
-  // Replace existing images instead of appending
-  uploadedImages.value = newImages;
-});
+    uploadedImages.value = [...uploadedImages.value, ...newImages];
+
+    uploadedFiles.value = [];
+  },
+  { deep: true }
+);
 
 const removeImage = (index) => {
   uploadedImages.value.splice(index, 1);
@@ -237,7 +254,6 @@ const fetchSummary = async () => {
   }
 };
 
-// Watch for filter changes
 watch(
   () => [filters.value.negaraPengeluaran, filters.value.tahunPengeluaran],
   () => {
@@ -255,15 +271,15 @@ watch(
 );
 
 onMounted(() => {
+  // console.log("Component mounted");
+  uploadedImages.value = [];
+  uploadedFiles.value = [];
   fetchELibraryData();
   fetchSummary();
 });
-
-// Add these new refs
 const currentImageIndex = ref(0);
 const showImagePreview = ref(false);
 
-// Add these new methods
 const previewImage = (image) => {
   $swal.fire({
     title: image.documentName,
@@ -303,19 +319,16 @@ const previewAllImages = (images) => {
         cancelButtonText: "Sebelumnya",
         denyButtonText: "Seterusnya",
         confirmButtonText: "Tutup",
-        // Hide buttons based on position
         showCancelButton: index > 0,
         showDenyButton: index < images.length - 1,
-        // Customize button colors and positions
         customClass: {
           actions: "swal2-buttons-custom-class",
         },
-        // Button colors
-        cancelButtonColor: "#3085d6", // Blue for Previous
-        denyButtonColor: "#3085d6", // Blue for Next
-        confirmButtonColor: "#d33", // Red for Close
+        cancelButtonColor: "#3085d6",
+        denyButtonColor: "#3085d6",
+        confirmButtonColor: "#d33",
         allowOutsideClick: false,
-        reverseButtons: true, // This will help arrange buttons: Previous | Next | Close
+        reverseButtons: true,
       })
       .then((result) => {
         if (result.isDenied && index < images.length - 1) {
@@ -336,14 +349,12 @@ const previewAllImages = (images) => {
   <div class="space-y-6">
     <Breadcrumb />
 
-    <!-- Update header section styling -->
     <div class="flex items-center justify-between space-y-2">
       <div>
         <h3 class="text-2xl font-bold tracking-tight">Ringkasan Dokumen</h3>
       </div>
     </div>
 
-    <!-- Filter Section - Update grid styling -->
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <div class="grid gap-6 md:grid-cols-4 col-span-2 lg:col-span-4">
         <FormKit
@@ -382,7 +393,6 @@ const previewAllImages = (images) => {
         />
       </div>
 
-      <!-- Summary Cards - Update styling to match -->
       <rs-card class="p-4 md:col-span-2 lg:col-span-4 mb-0">
         <div class="space-y-2">
           <h3 class="text-sm font-medium text-muted-foreground">
@@ -417,7 +427,6 @@ const previewAllImages = (images) => {
       </rs-card>
     </div>
 
-    <!-- Table Section Header -->
     <div class="flex items-center justify-between space-y-2">
       <div>
         <h3 class="text-2xl font-bold tracking-tight">Senarai Dokumen</h3>
@@ -428,7 +437,6 @@ const previewAllImages = (images) => {
       </rs-button>
     </div>
 
-    <!-- Table Section - Update styling -->
     <rs-card class="px-0 py-4">
       <rs-table
         :data="tableData"
@@ -443,7 +451,6 @@ const previewAllImages = (images) => {
         }"
         advanced
       >
-        <!-- Maklumat & Ulasan -->
         <template v-slot:perincian="{ value }">
           <rs-button
             @click="viewDetails(value)"
@@ -456,7 +463,6 @@ const previewAllImages = (images) => {
           </rs-button>
         </template>
 
-        <!-- Tindakan -->
         <template v-slot:tindakan="{ text }">
           <div class="flex gap-2">
             <rs-button
@@ -484,7 +490,6 @@ const previewAllImages = (images) => {
       </rs-table>
     </rs-card>
 
-    <!-- Upload Modal -->
     <rs-modal
       v-model="showUploadModal"
       title="Muat Naik Gambar"
@@ -494,24 +499,29 @@ const previewAllImages = (images) => {
       <template #body>
         <FormKit type="form" @submit="submitImages" :actions="false">
           <div class="space-y-6 p-2">
-            <!-- File Upload -->
             <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
               <FormKit
+                v-model="uploadedFiles"
                 type="file"
                 name="images"
                 label="Pilih Gambar"
                 accept="image/*"
                 multiple="true"
-                v-model="uploadedFiles"
                 :help="'Maximum 100 images, 5MB per image'"
-                validation="required"
+                :validation="uploadedImages.length === 0 ? 'required' : ''"
                 :validation-messages="{
                   required: 'Sila pilih sekurang-kurangnya satu gambar',
                 }"
               />
             </div>
 
-            <!-- Preview Images -->
+            <div
+              v-if="uploadedImages.length > 0"
+              class="text-sm text-gray-500 mb-2"
+            >
+              {{ uploadedImages.length }} images loaded
+            </div>
+
             <div
               v-if="uploadedImages.length > 0"
               class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg"
@@ -525,7 +535,7 @@ const previewAllImages = (images) => {
                 <div
                   v-for="(image, index) in uploadedImages"
                   :key="index"
-                  class="relative group"
+                  class="relative group space-y-2"
                 >
                   <img
                     :src="image.base64"
@@ -534,12 +544,25 @@ const previewAllImages = (images) => {
                   />
                   <button
                     @click.prevent="removeImage(index)"
-                    class="flex items-center justify-center absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 shadow-sm"
+                    class="absolute top-1 right-2 w-6 h-6 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
                   >
                     <Icon name="ic:round-close" class="w-4 h-4" />
                   </button>
+
+                  <FormKit
+                    type="textarea"
+                    v-model="image.description"
+                    placeholder="Masukkan keterangan gambar"
+                    :validation="[['required']]"
+                    :validation-messages="{
+                      required: 'Keterangan gambar diperlukan',
+                    }"
+                    rows="2"
+                    class="w-full"
+                  />
+
                   <span
-                    class="text-xs text-gray-500 dark:text-gray-400 mt-1 block truncate"
+                    class="text-xs text-gray-500 dark:text-gray-400 block truncate"
                   >
                     {{ image.name }}
                   </span>
@@ -547,7 +570,6 @@ const previewAllImages = (images) => {
               </div>
             </div>
 
-            <!-- Action Buttons -->
             <div class="flex justify-end gap-2 mt-4 px-4">
               <rs-button
                 variant="danger"
@@ -575,13 +597,10 @@ const previewAllImages = (images) => {
       </template>
     </rs-modal>
 
-    <!-- Details Modal -->
     <rs-modal v-model="showDetailsModal" title="Maklumat & Ulasan" size="lg">
       <template #body>
         <div class="space-y-6 p-2">
-          <!-- Basic Information Section -->
           <div class="grid md:grid-cols-2 gap-6">
-            <!-- Maklumat Terperinci -->
             <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
               <h3
                 class="text-lg font-semibold text-gray-900 dark:text-white mb-3"
@@ -593,7 +612,6 @@ const previewAllImages = (images) => {
               </p>
             </div>
 
-            <!-- Ulasan -->
             <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
               <h3
                 class="text-lg font-semibold text-gray-900 dark:text-white mb-3"
@@ -606,7 +624,6 @@ const previewAllImages = (images) => {
             </div>
           </div>
 
-          <!-- Images Section -->
           <div
             v-if="selectedDetails?.images?.length > 0"
             class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg"

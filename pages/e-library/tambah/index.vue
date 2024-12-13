@@ -80,59 +80,112 @@ const tahunOptions = [
 ];
 
 // Watch for file changes
-watch(uploadedFiles, async (files) => {
-  if (!files || files.length === 0) return;
-
-  const newImages = [];
-  const oversizedFiles = [];
-
-  for (const file of files) {
-    const actualFile = file.file;
-
-    if (actualFile.size > 5000000) {
-      // 5MB limit
-      oversizedFiles.push(file.name);
-      const index = uploadedFiles.value.indexOf(file);
-      if (index > -1) {
-        uploadedFiles.value.splice(index, 1);
-      }
-      continue;
+watch(
+  uploadedFiles,
+  async (files) => {
+    if (!files || files.length === 0) {
+      return;
     }
 
-    const reader = new FileReader();
-    await new Promise((resolve) => {
-      reader.onload = (e) => {
+    try {
+      const newImages = [];
+      const oversizedFiles = [];
+
+      // Process each file
+      for (const file of files) {
+        if (!file || !file.file) continue;
+
+        const actualFile = file.file;
+
+        if (actualFile.size > 5000000) {
+          // 5MB limit
+          oversizedFiles.push(actualFile.name);
+          continue;
+        }
+
+        const reader = new FileReader();
+        const base64 = await new Promise((resolve, reject) => {
+          reader.onload = (e) => resolve(e.target.result);
+          reader.onerror = (e) => reject(e);
+          reader.readAsDataURL(actualFile);
+        });
+
         newImages.push({
-          name: file.name,
-          base64: e.target.result,
+          name: actualFile.name,
+          base64: base64,
           size: actualFile.size,
           type: actualFile.type,
+          description: "", // Initialize empty description
         });
-        resolve();
-      };
-      reader.readAsDataURL(actualFile);
-    });
-  }
+      }
 
-  if (oversizedFiles.length > 0) {
-    $swal.fire({
-      title: "Fail Terlalu Besar",
-      html: `Fail berikut melebihi 5MB dan telah dikeluarkan:<br><br>${oversizedFiles.join(
-        "<br>"
-      )}`,
-      icon: "warning",
-      confirmButtonText: "OK",
-    });
-  }
+      if (oversizedFiles.length > 0) {
+        $swal.fire({
+          title: "Fail Terlalu Besar",
+          html: `Fail berikut melebihi 5MB dan telah dikeluarkan:<br><br>${oversizedFiles.join(
+            "<br>"
+          )}`,
+          icon: "warning",
+          confirmButtonText: "OK",
+        });
+      }
 
-  uploadedImages.value = newImages;
-});
+      // Update uploadedImages with new images
+      uploadedImages.value = [...uploadedImages.value, ...newImages];
 
+      // Important: Clear the file input after processing
+      uploadedFiles.value = [];
+    } catch (error) {
+      console.error("Error processing files:", error);
+      $swal.fire({
+        title: "Ralat",
+        text: "Ralat semasa memproses fail",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
+  },
+  { deep: true }
+);
+
+// Add preview image function
+const previewImage = (image) => {
+  $swal.fire({
+    title: image.name,
+    imageUrl: image.base64,
+    imageWidth: 600,
+    imageHeight: 400,
+    imageAlt: image.name,
+    html: image.description
+      ? `<p class="mt-3 text-gray-600">${image.description}</p>`
+      : "",
+    showConfirmButton: true,
+    confirmButtonText: "Tutup",
+  });
+};
+
+// Update removeImage function
 const removeImage = (index) => {
   uploadedImages.value.splice(index, 1);
 };
 
+// Update submitForm function to validate descriptions
 const submitForm = async () => {
+  // Check if all images have descriptions
+  const missingDescriptions = uploadedImages.value.some(
+    (img) => !img.description?.trim()
+  );
+
+  if (missingDescriptions) {
+    await $swal.fire({
+      title: "Perhatian",
+      text: "Sila masukkan keterangan untuk semua gambar",
+      icon: "warning",
+      confirmButtonText: "OK",
+    });
+    return;
+  }
+
   try {
     isSubmitting.value = true;
     const { data } = await useFetch("/api/elibrary/add", {
@@ -159,6 +212,20 @@ const submitForm = async () => {
 const goBack = () => {
   router.push("/e-library");
 };
+
+const resetForm = () => {
+  formData.value = {
+    ...formData.value,
+    elibrary_jenisDokumen: "",
+    elibrary_negaraPengeluaran: "",
+    elibrary_tahunPengeluaran: "",
+    elibrary_ketulenan: "",
+    elibrary_maklumatTerperinci: "",
+    elibrary_ulasan: "",
+  };
+
+  uploadedImages.value = [];
+};
 </script>
 
 <template>
@@ -170,6 +237,10 @@ const goBack = () => {
       <div>
         <h3 class="text-2xl font-bold tracking-tight">Tambah E-Library</h3>
       </div>
+      <rs-button btn-type="reset" variant="danger-outline" @click="resetForm">
+        <Icon name="ic:round-refresh" class="w-4 h-4 mr-2" />
+        Padam Borang
+      </rs-button>
     </div>
 
     <!-- Form Section -->
@@ -288,14 +359,14 @@ const goBack = () => {
               accept="image/*"
               multiple="true"
               v-model="uploadedFiles"
-              validation="required"
+              :validation="uploadedImages.length === 0 ? 'required' : ''"
               :help="'Maximum 100 images, 5MB per image'"
               :validation-messages="{
                 required: 'Sila pilih sekurang-kurangnya satu gambar',
               }"
             />
 
-            <!-- Preview Images -->
+            <!-- Preview Images with Description -->
             <div
               v-if="uploadedImages.length > 0"
               class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4"
@@ -303,20 +374,39 @@ const goBack = () => {
               <div
                 v-for="(image, index) in uploadedImages"
                 :key="index"
-                class="relative group"
+                class="relative group space-y-2 bg-white rounded-lg p-3 shadow-sm"
               >
-                <img
-                  :src="image.base64"
-                  :alt="image.name"
-                  class="w-full h-32 object-cover rounded-lg"
+                <!-- Image Preview -->
+                <div class="relative">
+                  <img
+                    :src="image.base64"
+                    :alt="image.name"
+                    class="w-full h-32 object-cover rounded-lg"
+                    @click="previewImage(image)"
+                  />
+                  <button
+                    @click.prevent="removeImage(index)"
+                    class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 flex items-center justify-center"
+                  >
+                    <Icon name="ic:round-close" class="w-4 h-4" />
+                  </button>
+                </div>
+
+                <!-- Image Description Input -->
+                <FormKit
+                  type="textarea"
+                  v-model="image.description"
+                  placeholder="Masukkan keterangan gambar"
+                  :validation="[['required']]"
+                  :validation-messages="{
+                    required: 'Keterangan gambar diperlukan',
+                  }"
+                  rows="2"
+                  class="w-full text-sm"
                 />
-                <button
-                  @click.prevent="removeImage(index)"
-                  class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 flex items-center justify-center"
-                >
-                  <Icon name="ic:round-close" class="w-4 h-4" />
-                </button>
-                <span class="text-xs text-gray-500 mt-1 block truncate">
+
+                <!-- File Name -->
+                <span class="text-xs text-gray-500 block truncate">
                   {{ image.name }}
                 </span>
               </div>
@@ -369,5 +459,21 @@ const goBack = () => {
   .form-grid {
     @apply grid-cols-3;
   }
+}
+
+/* Add these styles for the image preview section */
+.swal2-html-container {
+  margin: 1em 0 !important;
+  text-align: left !important;
+}
+
+/* Style for the textarea within the image preview */
+:deep(.formkit-input[type="textarea"]) {
+  @apply text-sm resize-none;
+}
+
+/* Add this new style for delete button hover effect */
+.group:hover .opacity-0 {
+  opacity: 1;
 }
 </style>
