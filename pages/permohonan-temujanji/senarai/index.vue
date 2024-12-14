@@ -173,6 +173,58 @@ onMounted(() => {
   fetchPermohonan();
   fetchSummary();
 });
+
+// Add this function in your <script setup> section
+const cetakBorang = async (noSiri, jenisDokumen) => {
+  try {
+    // Show loading state
+    $swal.fire({
+      title: 'Menjana dokumen...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        $swal.showLoading();
+      },
+    });
+
+    // Make API call to get the document
+    const response = await $fetch(`/api/dokumen/${noSiri}/${jenisDokumen}`, {
+      method: 'GET',
+    });
+
+    // Create a blob from the response
+    const blob = new Blob([response], { type: 'application/msword' });
+    
+    // Create a URL for the blob
+    const url = window.URL.createObjectURL(blob);
+    
+    // Create a temporary link element
+    const link = document.createElement('a');
+    link.href = url;
+    
+    // Set the filename based on the document type
+    const filename = `${jenisDokumen}_${noSiri}.doc`;
+    link.setAttribute('download', filename);
+    
+    // Append link to body, click it, and remove it
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Clean up the URL object
+    window.URL.revokeObjectURL(url);
+
+    // Close loading dialog
+    $swal.close();
+
+  } catch (error) {
+    console.error('Error downloading document:', error);
+    $swal.fire({
+      icon: 'error',
+      title: 'Ralat',
+      text: 'Gagal memuat turun dokumen. Sila cuba lagi.',
+    });
+  }
+};
 </script>
 
 <template>
@@ -329,7 +381,8 @@ onMounted(() => {
                   data.text === 'Permohonan Disemak'
                 ? 'info'
                 : data.text === 'Permohonan Diterima' ||
-                  data.text === 'Permohonan Diluluskan'
+                  data.text === 'Permohonan Diluluskan' ||
+                  data.text === 'Temujanji Diterima'
                 ? 'success'
                 : 'danger'
             "
@@ -342,7 +395,7 @@ onMounted(() => {
         <template v-slot:tindakan="data">
           <div
             class="flex flex-wrap items-center gap-2"
-            v-if="data.value.status === 'Permohonan Draf'"
+            v-if="data.value.status === 'Permohonan Draf' || data.value.status === 'Temujanji Ditolak'"
           >
             <rs-button
               @click="kemaskini(data.value.noSiri)"
@@ -355,6 +408,7 @@ onMounted(() => {
             </rs-button>
 
             <rs-button
+              v-if="data.value.status === 'Permohonan Draf'"
               @click="hapus(data.value.noSiri)"
               variant="danger-outline"
               size="sm"
@@ -380,6 +434,29 @@ onMounted(() => {
             </rs-button>
           </div>
 
+          
+          <template v-else-if="data.value.status === 'Temujanji Diterima'">
+            <div class="flex flex-wrap items-center gap-2">
+              <rs-button
+                variant="info"
+                size="sm"
+                class="px-3 inline-flex items-center justify-center"
+                @click="cetakBorang(data.value.noSiri, 'FR01')"
+            >
+              <Icon name="ph:list" class="mr-2 w-4 h-4" />
+              Cetak Borang FR-01
+            </rs-button>
+            <rs-button
+              variant="info"
+              size="sm"
+              class="px-3 inline-flex items-center justify-center"
+              @click="cetakBorang(data.value.noSiri, 'FR03')"
+            >
+              <Icon name="ph:list" class="mr-2 w-4 h-4" />
+                Cetak Borang FR-03
+              </rs-button>
+            </div>
+          </template>
           <div v-else class="text-muted">-</div>
         </template>
       </rs-table>
