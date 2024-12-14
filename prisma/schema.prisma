@@ -27,6 +27,7 @@ model document {
   documentURL                                 String?                        @db.Text
   documentType                                String?                        @db.VarChar(255)
   documentExtension                           String?                        @db.VarChar(255)
+  documentDesc                                String?                        @db.Text
   imageMIMEType                               String?                        @db.VarChar(255)
   documentSize                                Int?
   documentStatus                              String?                        @default("ACTIVE") @db.VarChar(255)

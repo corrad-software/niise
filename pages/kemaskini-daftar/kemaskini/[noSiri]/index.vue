@@ -201,7 +201,7 @@ const resetForm = () => {
         <h3 class="text-2xl font-bold tracking-tight">Kemaskini Permohonan</h3>
       </div>
       <rs-button btn-type="reset" variant="danger-outline" @click="resetForm">
-        <Icon name="ph:paint-brush-household" class="w-4 h-4 mr-2" />
+        <Icon name="ic:round-refresh" class="w-4 h-4 mr-2" />
         Padam Borang
       </rs-button>
     </div>

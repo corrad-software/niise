@@ -99,60 +99,95 @@ const fetchELibraryData = async () => {
   }
 };
 
-// Watch for file changes
-watch(uploadedFiles, async (files) => {
-  if (!files || files.length === 0) return;
-
-  const newImages = [];
-  const oversizedFiles = [];
-
-  for (const file of files) {
-    const actualFile = file.file;
-
-    if (actualFile.size > 5000000) {
-      // 5MB limit
-      oversizedFiles.push(file.name);
-      const index = uploadedFiles.value.indexOf(file);
-      if (index > -1) {
-        uploadedFiles.value.splice(index, 1);
-      }
-      continue;
+// Update the watch handler for uploadedFiles
+watch(
+  uploadedFiles,
+  async (files) => {
+    if (!files || files.length === 0) {
+      return;
     }
 
-    const reader = new FileReader();
-    await new Promise((resolve) => {
-      reader.onload = (e) => {
+    try {
+      const newImages = [];
+      const oversizedFiles = [];
+
+      // Process each file
+      for (const file of files) {
+        if (!file || !file.file) continue;
+
+        const actualFile = file.file;
+
+        if (actualFile.size > 5000000) {
+          // 5MB limit
+          oversizedFiles.push(actualFile.name);
+          continue;
+        }
+
+        const reader = new FileReader();
+        const base64 = await new Promise((resolve, reject) => {
+          reader.onload = (e) => resolve(e.target.result);
+          reader.onerror = (e) => reject(e);
+          reader.readAsDataURL(actualFile);
+        });
+
         newImages.push({
-          name: file.name,
-          base64: e.target.result,
+          name: actualFile.name,
+          base64: base64,
           size: actualFile.size,
           type: actualFile.type,
+          description: "",
         });
-        resolve();
-      };
-      reader.readAsDataURL(actualFile);
-    });
-  }
+      }
 
-  if (oversizedFiles.length > 0) {
-    $swal.fire({
-      title: "Fail Terlalu Besar",
-      html: `Fail berikut melebihi 5MB dan telah dikeluarkan:<br><br>${oversizedFiles.join(
-        "<br>"
-      )}`,
-      icon: "warning",
-      confirmButtonText: "OK",
-    });
-  }
+      if (oversizedFiles.length > 0) {
+        $swal.fire({
+          title: "Fail Terlalu Besar",
+          html: `Fail berikut melebihi 5MB dan telah dikeluarkan:<br><br>${oversizedFiles.join(
+            "<br>"
+          )}`,
+          icon: "warning",
+          confirmButtonText: "OK",
+        });
+      }
 
-  uploadedImages.value = newImages;
-});
+      // Update uploadedImages with new images
+      uploadedImages.value = [...uploadedImages.value, ...newImages];
+
+      // Important: Clear the file input after processing
+      uploadedFiles.value = [];
+    } catch (error) {
+      console.error("Error processing files:", error);
+      $swal.fire({
+        title: "Ralat",
+        text: "Ralat semasa memproses fail",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
+  },
+  { deep: true }
+);
 
 const removeImage = (index) => {
   uploadedImages.value.splice(index, 1);
 };
 
 const submitForm = async () => {
+  // Check if all images have descriptions
+  const missingDescriptions = uploadedImages.value.some(
+    (img) => !img.description?.trim()
+  );
+
+  if (missingDescriptions) {
+    await $swal.fire({
+      title: "Perhatian",
+      text: "Sila masukkan keterangan untuk semua gambar",
+      icon: "warning",
+      confirmButtonText: "OK",
+    });
+    return;
+  }
+
   try {
     isSubmitting.value = true;
     const { data } = await useFetch(`/api/elibrary/${elibraryID.value}`, {
@@ -183,11 +218,14 @@ const goBack = () => {
 // Function to preview image
 const previewImage = (image) => {
   $swal.fire({
-    title: image.documentName,
+    title: "Deskripsi Gambar",
     imageUrl: image.documentURL,
     imageWidth: 600,
     imageHeight: 400,
     imageAlt: image.documentName,
+    html: image.documentDesc
+      ? `<p class="mt-3 text-gray-600">${image.documentDesc}</p>`
+      : "",
     showConfirmButton: true,
     confirmButtonText: "Tutup",
   });
@@ -208,13 +246,17 @@ const previewAllImages = () => {
   let currentIndex = 0;
 
   const showImage = (index) => {
+    const currentImage = existingImages.value[index];
     $swal
       .fire({
-        title: existingImages.value[index].documentName,
-        imageUrl: existingImages.value[index].documentURL,
+        title: "Deskripsi Gambar",
+        imageUrl: currentImage.documentURL,
         imageWidth: 600,
         imageHeight: 400,
-        imageAlt: existingImages.value[index].documentName,
+        imageAlt: currentImage.documentName,
+        html: currentImage.documentDesc
+          ? `<p class="mt-3 text-gray-600">${currentImage.documentDesc}</p>`
+          : "",
         showConfirmButton: true,
         showDenyButton: true,
         showCancelButton: true,
@@ -227,6 +269,7 @@ const previewAllImages = () => {
         // Customize button colors and positions
         customClass: {
           actions: "swal2-buttons-custom-class",
+          htmlContainer: "text-left", // Align description to left
         },
         // Button colors
         cancelButtonColor: "#3085d6", // Blue for Previous
@@ -249,9 +292,81 @@ const previewAllImages = () => {
   showImage(currentIndex);
 };
 
+// Preview uploaded image with description
+const previewUploadedImage = (image) => {
+  $swal.fire({
+    title: image.name,
+    imageUrl: image.base64,
+    imageWidth: 600,
+    imageHeight: 400,
+    imageAlt: image.name,
+    html: image.description
+      ? `<p class="mt-3 text-gray-600">${image.description}</p>`
+      : "",
+    showConfirmButton: true,
+    confirmButtonText: "Tutup",
+  });
+};
+
+const confirmDeleteImage = async (image) => {
+  const result = await $swal.fire({
+    title: "Adakah anda pasti?",
+    text: "Gambar ini akan dipadam secara kekal",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Ya, padam",
+    cancelButtonText: "Batal",
+  });
+
+  if (result.isConfirmed) {
+    await deleteImage(image);
+  }
+};
+
+const deleteImage = async (image) => {
+  try {
+    const { data } = await useFetch(
+      `/api/elibrary/document/${image.documentID}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    if (data.value?.statusCode === 200) {
+      // Remove the image from existingImages array
+      existingImages.value = existingImages.value.filter(
+        (img) => img.documentID !== image.documentID
+      );
+
+      await $swal.fire("Berjaya!", "Gambar telah berjaya dipadam", "success");
+    } else {
+      throw new Error(data.value?.message || "Failed to delete image");
+    }
+  } catch (error) {
+    console.error("Error deleting image:", error);
+    $swal.fire("Ralat!", "Ralat semasa memadam gambar", "error");
+  }
+};
+
 onMounted(() => {
   fetchELibraryData();
 });
+
+const resetForm = () => {
+  formData.value = {
+    ...formData.value,
+    elibrary_jenisDokumen: "",
+    elibrary_negaraPengeluaran: "",
+    elibrary_tahunPengeluaran: "",
+    elibrary_ketulenan: "",
+    elibrary_maklumatTerperinci: "",
+    elibrary_ulasan: "",
+  };
+
+  uploadedImages.value = [];
+};
 </script>
 
 <template>
@@ -283,19 +398,33 @@ onMounted(() => {
         <div
           v-for="image in existingImages"
           :key="image.documentID"
-          class="relative group cursor-pointer"
-          @click="previewImage(image)"
+          class="relative group cursor-pointer hover:scale-[1.02] transition-transform duration-200"
         >
-          <img
-            :src="image.documentURL"
-            :alt="image.documentName"
-            class="w-full h-32 object-cover rounded-lg"
-            @error="(e) => (e.target.style.display = 'none')"
-            @load="(e) => (e.target.style.display = '')"
-          />
-          <span class="text-xs text-gray-500 mt-1 block truncate">
-            {{ image.documentName }}
-          </span>
+          <div
+            class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-200"
+          >
+            <div class="relative">
+              <img
+                :src="image.documentURL"
+                :alt="image.documentName"
+                class="w-full h-[250px] object-cover"
+                @error="(e) => (e.target.style.display = 'none')"
+                @load="(e) => (e.target.style.display = '')"
+                @click="previewImage(image)"
+              />
+              <button
+                @click.stop="confirmDeleteImage(image)"
+                class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 flex items-center justify-center"
+              >
+                <Icon name="ic:round-delete" class="w-4 h-4" />
+              </button>
+            </div>
+            <div v-if="image.documentDesc" class="p-3 border-t bg-gray-50">
+              <p class="text-xs text-gray-600 line-clamp-2 italic">
+                {{ image.documentDesc }}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </rs-card>
@@ -306,9 +435,17 @@ onMounted(() => {
         <div class="space-y-6">
           <!-- Document Information Section -->
           <div>
-            <h3 class="text-lg font-semibold mb-4 border-b pb-2">
-              Butiran Maklumat
-            </h3>
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+              <h3 class="text-lg font-semibold">Butiran Maklumat</h3>
+              <rs-button
+                btn-type="reset"
+                variant="danger-outline"
+                @click="resetForm"
+              >
+                <Icon name="ic:round-refresh" class="w-4 h-4 mr-2" />
+                Padam Borang
+              </rs-button>
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <!-- Jenis Dokumen -->
               <FormKit
@@ -422,7 +559,7 @@ onMounted(() => {
               }"
             />
 
-            <!-- Preview Images -->
+            <!-- Preview Images with Description -->
             <div
               v-if="uploadedImages.length > 0"
               class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4"
@@ -430,20 +567,38 @@ onMounted(() => {
               <div
                 v-for="(image, index) in uploadedImages"
                 :key="index"
-                class="relative group"
+                class="relative group space-y-2 bg-white rounded-lg p-3 shadow-sm"
               >
-                <img
-                  :src="image.base64"
-                  :alt="image.name"
-                  class="w-full h-32 object-cover rounded-lg"
+                <!-- Image Preview -->
+                <div class="relative">
+                  <img
+                    :src="image.base64"
+                    :alt="image.name"
+                    class="w-full h-32 object-cover rounded-lg"
+                  />
+                  <button
+                    @click.prevent="removeImage(index)"
+                    class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 flex items-center justify-center"
+                  >
+                    <Icon name="ic:round-close" class="w-4 h-4" />
+                  </button>
+                </div>
+
+                <!-- Image Description Input -->
+                <FormKit
+                  type="textarea"
+                  v-model="image.description"
+                  placeholder="Masukkan keterangan gambar"
+                  :validation="[['required']]"
+                  :validation-messages="{
+                    required: 'Keterangan gambar diperlukan',
+                  }"
+                  rows="2"
+                  class="w-full text-sm"
                 />
-                <button
-                  @click.prevent="removeImage(index)"
-                  class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 flex items-center justify-center"
-                >
-                  <Icon name="ic:round-close" class="w-4 h-4" />
-                </button>
-                <span class="text-xs text-gray-500 mt-1 block truncate">
+
+                <!-- File Name -->
+                <span class="text-xs text-gray-500 block truncate">
                   {{ image.name }}
                 </span>
               </div>
@@ -462,7 +617,7 @@ onMounted(() => {
               Kembali
             </rs-button>
             <rs-button
-              type="submit"
+              btn-type="submit"
               variant="primary"
               :disabled="isSubmitting"
               size="sm"
@@ -510,5 +665,21 @@ onMounted(() => {
 
 .text-muted {
   @apply text-gray-500 dark:text-gray-400;
+}
+
+/* Add these styles to ensure proper text wrapping and spacing */
+.swal2-html-container {
+  margin: 1em 0 !important;
+  text-align: left !important;
+}
+
+/* Style for the textarea within the image preview */
+:deep(.formkit-input[type="textarea"]) {
+  @apply text-sm resize-none;
+}
+
+/* Add this new style for delete button hover effect */
+.group:hover .opacity-0 {
+  opacity: 1;
 }
 </style>
