@@ -88,7 +88,7 @@ export default defineEventHandler(async (event) => {
         status_permohonan: permohonanStatus,
         pemohon: {
           create: {
-            userID: userID, // Assuming the user is authenticated, replace with actual user ID
+            userID: userID,
             nama_pemohon: namaPemohon,
             pangkat_pemohon: pangkatPemohon,
             no_pegawai_pemohon: noPegawaiPemohon,
@@ -109,7 +109,7 @@ export default defineEventHandler(async (event) => {
         tarikh_temujanji: tarikhTemujanji
           ? new Date(tarikhTemujanji)
           : undefined,
-        slot_masa: slotMasa ? new Date(`1970-01-01T${slotMasa}`) : undefined, // Convert slotMasa string to Time
+        slot_masa: slotMasa ? new Date(`1970-01-01T${slotMasa}`) : undefined,
         user_permohonan_create_byTouser: {
           connect: {
             userID: userID,
@@ -119,16 +119,52 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    // Insert related `report` and `document` data
+    // Insert related `report` and `permohonan_detail` data
     for (const barang of barangList) {
+      // First create permohonan_detail with null values
+      const newPermohonanDetail = await prisma.permohonan_detail.create({
+        data: {
+          negara: null,
+          namaPemilik: null,
+          noDokumen: null,
+          kewarganegaraan: null,
+          tarikhLahir: null,
+          jantina: null,
+          tarikhLuputDokumen: null,
+          skorPersamaanMuka: null,
+          skorPersamaanCapJari: null,
+          umur: null,
+          tinggi: null,
+          warnaRambut: null,
+          bangsa: null,
+          etnik: null,
+          bentukKepala: null,
+          mata: null,
+          telinga: null,
+          hidung: null,
+          mulut: null,
+          parut: null,
+          sejarahPerjalanan: null,
+          persamaanTandaTangan: null,
+          pemeriksaanLain: null,
+          dapatan: null,
+          laporanSystemTdb: null,
+          create_by: userID,
+          create_at: new Date(),
+        },
+      });
+
+      // Then create the report with reference to permohonan_detail
       await prisma.report.create({
         data: {
           permohonanID: newPermohonan.id,
+          permohonanDetailID: newPermohonanDetail.permohonanDetailID,
           jenis_barang: barang.jenisBarangDetail,
           kuantiti_barang: parseInt(barang.kuantitiBarang),
           tanda_barang: barang.tandaBarang,
           keadaan_barang: barang.keadaanBarang,
           pengesanan_penyamaran: barang.pengesananPenyamaran ? true : false,
+          create_by: userID,
           create_at: new Date(),
         },
       });
@@ -169,7 +205,7 @@ export default defineEventHandler(async (event) => {
         : "Permohonan pemeriksaan forensik telah dihantar. (Status FOR-S001)",
     };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return {
       statusCode: 500,
       message: "Terdapat masalah. Silakan cuba lagi.",

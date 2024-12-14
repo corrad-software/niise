@@ -365,7 +365,7 @@ onMounted(() => {
               <!-- Button to navigate to the "Update" page for the selected appointment -->
               <rs-button
                 v-if="showButton.keputusan"
-                @click="resultAppointment(data.value.kesId)"
+                @click="resultAppointment(data.text.id)"
                 variant="secondary-outline"
                 size="sm"
                 class="px-3 inline-flex items-center justify-center w-[100px]"
@@ -377,7 +377,7 @@ onMounted(() => {
 
               <rs-button
                 v-if="showButton.kemaskini"
-                @click="updateAppointment(data.value.kesId)"
+                @click="updateAppointment(data.text.id)"
                 variant="primary-outline"
                 size="sm"
                 class="px-3 inline-flex items-center justify-center w-[100px]"

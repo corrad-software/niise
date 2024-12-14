@@ -47,7 +47,7 @@ export default [
         icon: "ph:user-rectangle-duotone",
         meta: {
           auth: {
-            role: ["Admin", "Pegawai Penyiasat", "Pegawai Forensik"],
+            role: ["Admin", "Pegawai Forensik"],
           },
         },
       },

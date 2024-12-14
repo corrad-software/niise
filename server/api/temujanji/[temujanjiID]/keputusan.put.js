@@ -4,50 +4,77 @@ import { mkdir } from "fs/promises";
 
 export default defineEventHandler(async (event) => {
   try {
-    const temujanjiID = parseInt(event.context.params.temujanjiID);
+    const reportID = parseInt(event.context.params.temujanjiID);
     const body = await readBody(event);
     const { userID } = event.context.user;
 
-    // Get existing temujanji
-    const existingTemujanji = await prisma.temujanji.findUnique({
-      where: { temujanjiID },
+    // Get existing report with specific field selection
+    const existingReport = await prisma.report.findUnique({
+      where: {
+        reportID,
+        pengesanan_penyamaran: true,
+      },
       include: {
-        document_temujanji_gambarSubjekTodocument: true,
-        document_temujanji_gambarCapJariTodocument: true,
+        permohonan: {
+          include: {
+            pemohon: true,
+          },
+        },
+        permohonan_detail: {
+          include: {
+            document_permohonan_detail_gambarSubjekTodocument: {
+              select: {
+                documentID: true,
+                documentURL: true,
+              },
+            },
+            document_permohonan_detail_gambarCapJariTodocument: {
+              select: {
+                documentID: true,
+                documentURL: true,
+              },
+            },
+          },
+        },
       },
     });
 
-    if (!existingTemujanji) {
+    if (!existingReport) {
       return {
         statusCode: 404,
-        message: "Temujanji tidak dijumpai.",
+        message: "Report tidak dijumpai.",
       };
     }
 
-    const updateData = {
-      jenisSemakan: body.jenisSemakan,
-      tarikh: new Date(body.tarikh),
-      masa: new Date(`${body.tarikh}T${body.masa}:00`),
-      modified_at: new Date(),
-      pemohon: {
-        update: {
-          nama_pemohon: body.pemohon.nama,
-          pangkat_pemohon: body.pemohon.jawatan,
-          no_pegawai_pemohon: body.pemohon.noPegawai,
-        },
+    // Update pemohon through permohonan
+    await prisma.pemohon.update({
+      where: {
+        id: existingReport.permohonan.pemohon.id,
       },
-    };
+      data: {
+        nama_pemohon: body.pemohon.nama,
+        pangkat_pemohon: body.pemohon.jawatan,
+        no_pegawai_pemohon: body.pemohon.noPegawai,
+      },
+    });
+
+    // const updateData = {
+    //   jenisSemakan: body.jenisSemakan,
+    //   tarikh: new Date(body.tarikh),
+    //   masa: new Date(`${body.tarikh}T${body.masa}:00`),
+    //   modified_at: new Date(),
+    // };
 
     // Handle image updates only if jenisSemakan is "Subjek Hadir"
-    if (existingTemujanji.jenisSemakan === "Subjek Hadir") {
+    if (existingReport.jenisSemakan === "Subjek Hadir") {
       const savedDocuments = {};
 
       // Ensure uploads directory exists
       const uploadsDir = join(
-      process.env.SERVER == "true"
-        ? join(process.cwd(), "../public/uploads")
-        : join(process.cwd(), "public/uploads")
-    );
+        process.env.SERVER == "true"
+          ? join(process.cwd(), "../public/uploads")
+          : join(process.cwd(), "public/uploads")
+      );
       try {
         await mkdir(uploadsDir, { recursive: true });
       } catch (err) {
@@ -114,47 +141,82 @@ export default defineEventHandler(async (event) => {
         }
       }
 
-      // Add document connections to update data if files were uploaded
-      if (savedDocuments.gambarSubjek) {
-        updateData.document_temujanji_gambarSubjekTodocument = {
-          connect: { documentID: savedDocuments.gambarSubjek },
-        };
-      }
-      if (savedDocuments.gambarCapJari) {
-        updateData.document_temujanji_gambarCapJariTodocument = {
-          connect: { documentID: savedDocuments.gambarCapJari },
-        };
+      // Update permohonan_detail if documents were uploaded
+      if (savedDocuments.gambarSubjek || savedDocuments.gambarCapJari) {
+        await prisma.permohonan_detail.update({
+          where: {
+            permohonanDetailID:
+              existingReport.permohonan_detail.permohonanDetailID,
+          },
+          data: {
+            ...(savedDocuments.gambarSubjek && {
+              document_permohonan_detail_gambarSubjekTodocument: {
+                connect: { documentID: savedDocuments.gambarSubjek },
+              },
+            }),
+            ...(savedDocuments.gambarCapJari && {
+              document_permohonan_detail_gambarCapJariTodocument: {
+                connect: { documentID: savedDocuments.gambarCapJari },
+              },
+            }),
+          },
+        });
       }
     }
 
-    // Update temujanji record
-    const updatedTemujanji = await prisma.temujanji.update({
-      where: { temujanjiID },
+    // Update report record with specific include
+    const updatedReport = await prisma.report.update({
+      where: { reportID },
       data: {
-        ...updateData,
-        user_temujanji_modified_byTouser: {
+        user_report_modified_byTouser: {
           connect: {
             userID: userID,
           },
         },
       },
       include: {
-        pemohon: true,
-        document_temujanji_gambarSubjekTodocument: true,
-        document_temujanji_gambarCapJariTodocument: true,
+        permohonan: {
+          include: {
+            pemohon: true,
+          },
+        },
+        permohonan_detail: {
+          include: {
+            document_permohonan_detail_gambarSubjekTodocument: {
+              select: {
+                documentID: true,
+                documentURL: true,
+                documentName: true,
+                documentType: true,
+                documentSize: true,
+                documentCreatedDate: true,
+              },
+            },
+            document_permohonan_detail_gambarCapJariTodocument: {
+              select: {
+                documentID: true,
+                documentURL: true,
+                documentName: true,
+                documentType: true,
+                documentSize: true,
+                documentCreatedDate: true,
+              },
+            },
+          },
+        },
       },
     });
 
     return {
       statusCode: 200,
-      message: "Temujanji berjaya dikemaskini.",
-      data: updatedTemujanji,
+      message: "Report berjaya dikemaskini.",
+      data: updatedReport,
     };
   } catch (error) {
-    console.error("Error updating temujanji:", error);
+    console.error("Error updating report:", error);
     return {
       statusCode: 500,
-      message: "Terdapat ralat semasa mengemaskini temujanji.",
+      message: "Terdapat ralat semasa mengemaskini report.",
       error: error.message,
     };
   }

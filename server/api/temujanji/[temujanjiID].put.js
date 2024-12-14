@@ -66,25 +66,31 @@ export default defineEventHandler(async (event) => {
       laporanSystemTdb = document.documentID;
     }
 
-    // Get temujanji details ID
-    const temujanjiDetailsID = await prisma.temujanji.findFirst({
-      where: { temujanjiID: parseInt(temujanjiID) },
+    // Get report details
+    const reportDetails = await prisma.report.findFirst({
+      where: {
+        reportID: parseInt(temujanjiID),
+        pengesanan_penyamaran: true,
+      },
       select: {
-        pemohonID: true,
-        temujanjiID: true,
-        temujanjiDetailID: true,
-        noSiri: true,
-        jenisSemakan: true,
-        tarikh: true,
-        masa: true,
-        status: true,
+        reportID: true,
+        permohonanID: true,
+        permohonan_detail: {
+          select: {
+            permohonanDetailID: true,
+          },
+        },
       },
     });
 
-    // Update the temujanji_detail table
-    await prisma.temujanji_detail.update({
+    if (!reportDetails) {
+      throw new Error("Report tidak dijumpai");
+    }
+
+    // Update the permohonan_detail table
+    await prisma.permohonan_detail.update({
       where: {
-        temujanjiDetailID: temujanjiDetailsID.temujanjiDetailID,
+        permohonanDetailID: reportDetails.permohonan_detail.permohonanDetailID,
       },
       data: {
         negara: body.negara,
@@ -118,60 +124,19 @@ export default defineEventHandler(async (event) => {
             },
           },
         }),
-        user_temujanji_detail_modified_byTouser: {
-          connect: {
-            userID: userID,
-          },
-        },
         modified_at: new Date(),
-      },
-    });
-
-    // insert temujanji_log
-    await prisma.temujanji_log.create({
-      data: {
-        temujanjiID: parseInt(temujanjiID),
-        pemohonID: temujanjiDetailsID.pemohonID,
-        jenisSemakan: temujanjiDetailsID.jenisSemakan,
-        tarikh: temujanjiDetailsID.tarikh,
-        masa: temujanjiDetailsID.masa,
-        negara: body.negara,
-        namaPemilik: body.namaPemilik,
-        noDokumen: body.noDokumen,
-        kewarganegaraan: body.kewarganegaraan,
-        tarikhLahir: new Date(body.tarikhLahir),
-        jantina: body.jantina,
-        tarikhLuputDokumen: new Date(body.tarikhLuputDokumen),
-        skorPersamaanMuka: parseFloat(body.skorPersamaanMuka),
-        skorPersamaanCapJari: parseFloat(body.skorPersamaanCapJari),
-        umur: body.umur ? parseInt(body.umur) : null,
-        tinggi: body.tinggi ? parseFloat(body.tinggi) : null,
-        warnaRambut: body.warnaRambut || null,
-        bangsa: body.bangsa || null,
-        etnik: body.etnik || null,
-        bentukKepala: body.bentukKepala || null,
-        mata: body.mata || null,
-        telinga: body.telinga || null,
-        hidung: body.hidung || null,
-        mulut: body.mulut || null,
-        parut: body.parut || null,
-        sejarahPerjalanan: body.sejarahPerjalanan || null,
-        persamaanTandaTangan: body.persamaanTandaTangan || null,
-        pemeriksaanLain: body.pemeriksaanLain || null,
-        dapatan: body.dapatan,
-        create_at: new Date(),
       },
     });
 
     return {
       statusCode: 200,
-      message: "Temujanji berjaya dikemaskini.",
+      message: "Report berjaya dikemaskini.",
     };
   } catch (error) {
-    console.error("Error updating temujanji:", error);
+    console.error("Error updating report:", error);
     return {
       statusCode: 500,
-      message: error.message || "Gagal mengemaskini temujanji.",
+      message: error.message || "Gagal mengemaskini report.",
     };
   }
 });

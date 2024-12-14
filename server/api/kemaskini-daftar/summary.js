@@ -91,7 +91,7 @@ export default defineEventHandler(async (event) => {
                   in: [
                     "Permohonan Diterima",
                     "Permohonan Diluluskan",
-                    pengesahan ? "Permohonan Dihantar" : null,
+                    pengesahan ? "Permohonan Dihantar" : undefined,
                   ],
                 },
           },
@@ -164,7 +164,7 @@ export default defineEventHandler(async (event) => {
                 "Permohonan Diterima",
                 "Permohonan Diluluskan",
                 "Permohonan Ditolak",
-                pengesahan ? "Permohonan Dihantar" : null,
+                pengesahan ? "Permohonan Dihantar" : undefined,
               ],
             },
       };

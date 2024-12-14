@@ -179,7 +179,7 @@ const cetakBorang = async (noSiri, jenisDokumen) => {
   try {
     // Show loading state
     $swal.fire({
-      title: 'Menjana dokumen...',
+      title: "Menjana dokumen...",
       allowOutsideClick: false,
       didOpen: () => {
         $swal.showLoading();
@@ -188,40 +188,41 @@ const cetakBorang = async (noSiri, jenisDokumen) => {
 
     // Make API call to get the document
     const response = await $fetch(`/api/dokumen/${noSiri}/${jenisDokumen}`, {
-      method: 'GET',
+      method: "GET",
     });
 
-    // Create a blob from the response
-    const blob = new Blob([response], { type: 'application/msword' });
-    
+    // Create a blob from the response with updated MIME type
+    const blob = new Blob([response], {
+      type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    });
+
     // Create a URL for the blob
     const url = window.URL.createObjectURL(blob);
-    
+
     // Create a temporary link element
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
-    
-    // Set the filename based on the document type
-    const filename = `${jenisDokumen}_${noSiri}.doc`;
-    link.setAttribute('download', filename);
-    
+
+    // Set the filename based on the document type with .docx extension
+    const filename = `${jenisDokumen}_${noSiri}.docx`;
+    link.setAttribute("download", filename);
+
     // Append link to body, click it, and remove it
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     // Clean up the URL object
     window.URL.revokeObjectURL(url);
 
     // Close loading dialog
     $swal.close();
-
   } catch (error) {
-    console.error('Error downloading document:', error);
+    console.error("Error downloading document:", error);
     $swal.fire({
-      icon: 'error',
-      title: 'Ralat',
-      text: 'Gagal memuat turun dokumen. Sila cuba lagi.',
+      icon: "error",
+      title: "Ralat",
+      text: "Gagal memuat turun dokumen. Sila cuba lagi.",
     });
   }
 };
@@ -395,7 +396,10 @@ const cetakBorang = async (noSiri, jenisDokumen) => {
         <template v-slot:tindakan="data">
           <div
             class="flex flex-wrap items-center gap-2"
-            v-if="data.value.status === 'Permohonan Draf' || data.value.status === 'Temujanji Ditolak'"
+            v-if="
+              data.value.status === 'Permohonan Draf' ||
+              data.value.status === 'Temujanji Ditolak'
+            "
           >
             <rs-button
               @click="kemaskini(data.value.noSiri)"
@@ -434,7 +438,6 @@ const cetakBorang = async (noSiri, jenisDokumen) => {
             </rs-button>
           </div>
 
-          
           <template v-else-if="data.value.status === 'Temujanji Diterima'">
             <div class="flex flex-wrap items-center gap-2">
               <rs-button
@@ -442,17 +445,17 @@ const cetakBorang = async (noSiri, jenisDokumen) => {
                 size="sm"
                 class="px-3 inline-flex items-center justify-center"
                 @click="cetakBorang(data.value.noSiri, 'FR01')"
-            >
-              <Icon name="ph:list" class="mr-2 w-4 h-4" />
-              Cetak Borang FR-01
-            </rs-button>
-            <rs-button
-              variant="info"
-              size="sm"
-              class="px-3 inline-flex items-center justify-center"
-              @click="cetakBorang(data.value.noSiri, 'FR03')"
-            >
-              <Icon name="ph:list" class="mr-2 w-4 h-4" />
+              >
+                <Icon name="ph:list" class="mr-2 w-4 h-4" />
+                Cetak Borang FR-01
+              </rs-button>
+              <rs-button
+                variant="info"
+                size="sm"
+                class="px-3 inline-flex items-center justify-center"
+                @click="cetakBorang(data.value.noSiri, 'FR03')"
+              >
+                <Icon name="ph:list" class="mr-2 w-4 h-4" />
                 Cetak Borang FR-03
               </rs-button>
             </div>

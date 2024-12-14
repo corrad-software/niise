@@ -63,6 +63,9 @@ const timelineEvents = ref([]);
 const kelulusanKetuaBahagian = ref(null);
 const ulasanKetuaBahagian = ref("");
 
+// Add this computed property after other refs
+const hasForensicOfficer = computed(() => forensicOfficers.value.length > 0);
+
 // Fetch the status data
 const fetchStatusData = async () => {
   try {
@@ -185,6 +188,14 @@ const fetchTimelineData = async () => {
 
 // Open modals
 const openAddModal = () => {
+  if (hasForensicOfficer.value) {
+    $swal.fire({
+      title: 'Tidak Dibenarkan',
+      text: 'Hanya seorang pegawai forensik dibenarkan',
+      icon: 'warning'
+    });
+    return;
+  }
   editMode.value = false;
   selectedPegawai.value = null;
   fetchAvailableOfficers();
@@ -737,7 +748,11 @@ const showReportDetails = async (reportId) => {
           Pegawai Forensik Yang Terlibat
         </h3>
       </div>
-      <rs-button v-if="isKetuaBahagian" @click="openAddModal" variant="primary">
+      <rs-button 
+        v-if="isKetuaBahagian && !hasForensicOfficer" 
+        @click="openAddModal" 
+        variant="primary"
+      >
         <Icon name="ph:plus" class="mr-2 w-4 h-4" />
         Tambah Pegawai
       </rs-button>
