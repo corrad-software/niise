@@ -2,23 +2,30 @@ export default defineEventHandler(async (event) => {
   const { temujanjiID } = event.context.params;
 
   try {
-    // Fetch the appointment data and related details from temujanji_detail
-    const appointment = await prisma.temujanji.findUnique({
-      where: { temujanjiID: parseInt(temujanjiID) },
+    // Fetch the report data and related details
+    const report = await prisma.report.findFirst({
+      where: {
+        reportID: parseInt(temujanjiID),
+        pengesanan_penyamaran: true,
+      },
       include: {
-        pemohon: true,
-        temujanji_detail: {
+        permohonan: {
           include: {
-            document: true, // Include document details
-          }
+            pemohon: true,
+          },
+        },
+        permohonan_detail: {
+          include: {
+            document: true,
+          },
         },
       },
     });
 
-    if (!appointment) {
+    if (!report) {
       return {
         statusCode: 404,
-        message: "Temujanji tidak dijumpai.",
+        message: "Report tidak dijumpai.",
       };
     }
 
@@ -26,48 +33,60 @@ export default defineEventHandler(async (event) => {
     return {
       statusCode: 200,
       data: {
-        temujanjiID: appointment.temujanjiID,
-        jenisDokumen: appointment.temujanji_detail.jenisDokumen,
-        negara: appointment.temujanji_detail.negara,
-        namaPemilik: appointment.temujanji_detail.namaPemilik,
-        noDokumen: appointment.temujanji_detail.noDokumen,
-        kewarganegaraan: appointment.temujanji_detail.kewarganegaraan,
-        tarikhLahir: appointment.temujanji_detail.tarikhLahir,
-        jantina: appointment.temujanji_detail.jantina,
-        tarikhLuputDokumen: appointment.temujanji_detail.tarikhLuputDokumen,
-        skorPersamaanMuka: appointment.temujanji_detail.skorPersamaanMuka,
-        skorPersamaanCapJari: appointment.temujanji_detail.skorPersamaanCapJari,
-        umur: appointment.temujanji_detail.umur,
-        tinggi: appointment.temujanji_detail.tinggi,
-        warnaRambut: appointment.temujanji_detail.warnaRambut,
-        bangsa: appointment.temujanji_detail.bangsa,
-        etnik: appointment.temujanji_detail.etnik,
-        bentukKepala: appointment.temujanji_detail.bentukKepala,
-        mata: appointment.temujanji_detail.mata,
-        telinga: appointment.temujanji_detail.telinga,
-        hidung: appointment.temujanji_detail.hidung,
-        mulut: appointment.temujanji_detail.mulut,
-        parut: appointment.temujanji_detail.parut,
-        sejarahPerjalanan: appointment.temujanji_detail.sejarahPerjalanan,
-        persamaanTandaTangan: appointment.temujanji_detail.persamaanTandaTangan,
-        pemeriksaanLain: appointment.temujanji_detail.pemeriksaanLain,
-        dapatan: appointment.temujanji_detail.dapatan,
-        laporanSystemTdb: appointment.temujanji_detail?.document
+        reportID: report.reportID,
+        permohonanID: report.permohonanID,
+        permohonanDetailID: report.permohonan_detail?.permohonanDetailID,
+        jenisDokumen: report.permohonan_detail?.jenisDokumen,
+        negara: report.permohonan_detail?.negara,
+        namaPemilik: report.permohonan_detail?.namaPemilik,
+        noDokumen: report.permohonan_detail?.noDokumen,
+        kewarganegaraan: report.permohonan_detail?.kewarganegaraan,
+        tarikhLahir: report.permohonan_detail?.tarikhLahir,
+        jantina: report.permohonan_detail?.jantina,
+        tarikhLuputDokumen: report.permohonan_detail?.tarikhLuputDokumen,
+        skorPersamaanMuka: report.permohonan_detail?.skorPersamaanMuka,
+        skorPersamaanCapJari: report.permohonan_detail?.skorPersamaanCapJari,
+        umur: report.permohonan_detail?.umur,
+        tinggi: report.permohonan_detail?.tinggi,
+        warnaRambut: report.permohonan_detail?.warnaRambut,
+        bangsa: report.permohonan_detail?.bangsa,
+        etnik: report.permohonan_detail?.etnik,
+        bentukKepala: report.permohonan_detail?.bentukKepala,
+        mata: report.permohonan_detail?.mata,
+        telinga: report.permohonan_detail?.telinga,
+        hidung: report.permohonan_detail?.hidung,
+        mulut: report.permohonan_detail?.mulut,
+        parut: report.permohonan_detail?.parut,
+        sejarahPerjalanan: report.permohonan_detail?.sejarahPerjalanan,
+        persamaanTandaTangan: report.permohonan_detail?.persamaanTandaTangan,
+        pemeriksaanLain: report.permohonan_detail?.pemeriksaanLain,
+        dapatan: report.permohonan_detail?.dapatan,
+        laporanSystemTdb: report.permohonan_detail?.document
           ? {
-              documentURL: appointment.temujanji_detail.document.documentURL,
-              documentName: appointment.temujanji_detail.document.documentName,
-              documentType: appointment.temujanji_detail.document.documentType,
-              documentExtension: appointment.temujanji_detail.document.documentExtension,
-              imageMIMEType: appointment.temujanji_detail.document.imageMIMEType,
+              documentURL: report.permohonan_detail.document.documentURL,
+              documentName: report.permohonan_detail.document.documentName,
+              documentType: report.permohonan_detail.document.documentType,
+              documentExtension:
+                report.permohonan_detail.document.documentExtension,
+              imageMIMEType: report.permohonan_detail.document.imageMIMEType,
             }
           : null,
+        // Include permohonan and pemohon details if needed
+        pemohon: report.permohonan?.pemohon
+          ? {
+              nama_pemohon: report.permohonan.pemohon.nama_pemohon,
+              pangkat_pemohon: report.permohonan.pemohon.pangkat_pemohon,
+              no_pegawai_pemohon: report.permohonan.pemohon.no_pegawai_pemohon,
+            }
+          : null,
+        status: report.permohonan?.status_permohonan,
       },
     };
   } catch (error) {
-    console.error("Error fetching temujanji:", error);
+    console.error("Error fetching report:", error);
     return {
       statusCode: 500,
-      message: "Error fetching appointment data.",
+      message: "Error fetching report data.",
     };
   }
 });

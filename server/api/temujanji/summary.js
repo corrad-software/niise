@@ -8,7 +8,16 @@ export default defineEventHandler(async (event) => {
     const endDate = query.endDate ? new Date(query.endDate) : null;
 
     // Build where conditions
-    let whereConditions = {};
+    let whereConditions = {
+      pengesanan_penyamaran: true,
+      permohonan: {
+        NOT: {
+          status_permohonan: {
+            in: ["Temujanji Ditolak", "Permohonan Ditolak"],
+          },
+        },
+      },
+    };
 
     // Add date filter conditions
     if (startDate || endDate) {
@@ -28,7 +37,7 @@ export default defineEventHandler(async (event) => {
       jumlahTemujanjiHariIni: 0,
     };
 
-    if (roles.includes("Pegawai Penyiasat")) {
+    if (roles.includes("Pegawai Penyiasat") || roles.includes("Pegawai Penyiasat JIM")) {
       // Get all pemohon records for the user
       const pemohonList = await prisma.pemohon.findMany({
         where: {
@@ -40,55 +49,62 @@ export default defineEventHandler(async (event) => {
         // Get pemohon IDs
         const pemohonIDs = pemohonList.map((p) => p.id);
 
-        // Get total temujanji across all pemohon IDs
-        const totalTemujanji = await prisma.temujanji.count({
+        // Get total reports with pengesanan_penyamaran across all pemohon IDs
+        const totalReports = await prisma.report.count({
           where: {
             ...whereConditions,
-            pemohonID: {
-              in: pemohonIDs,
+            permohonan: {
+              ...whereConditions.permohonan,
+              pemohonID: {
+                in: pemohonIDs,
+              },
             },
           },
         });
 
         // Get counts by status
-        const diterima = await prisma.temujanji.count({
+        const diterima = await prisma.report.count({
           where: {
             ...whereConditions,
-            pemohonID: {
-              in: pemohonIDs,
+            permohonan: {
+              ...whereConditions.permohonan,
+              pemohonID: {
+                in: pemohonIDs,
+              },
+              status_permohonan: "Temujanji Diterima",
             },
-            status: "Temujanji Diterima",
           },
         });
 
-        const selesai = await prisma.temujanji.count({
+        const selesai = await prisma.report.count({
           where: {
             ...whereConditions,
-            pemohonID: {
-              in: pemohonIDs,
+            permohonan: {
+              ...whereConditions.permohonan,
+              pemohonID: {
+                in: pemohonIDs,
+              },
+              status_permohonan: "Temujanji Selesai",
             },
-            status: "Temujanji Selesai",
           },
         });
 
-        summary.jumlahTemujanji = totalTemujanji;
+        summary.jumlahTemujanji = totalReports;
         summary.jumlahTemujanjiDiterima = diterima;
         summary.jumlahTemujanjiSelesai = selesai;
       }
     }
 
     if (roles.includes("Pegawai Forensik")) {
-      // Get total temujanji assigned to the forensic officer
-      const totalTemujanji = await prisma.temujanji.count({
-        where: {
-          ...whereConditions,
-        },
+      // Get total reports with pengesanan_penyamaran
+      const totalReports = await prisma.report.count({
+        where: whereConditions,
       });
 
-      // Get today's temujanji
+      // Get today's reports
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      const todayTemujanji = await prisma.temujanji.count({
+      const todayReports = await prisma.report.count({
         where: {
           ...whereConditions,
           create_at: {
@@ -97,8 +113,8 @@ export default defineEventHandler(async (event) => {
         },
       });
 
-      summary.jumlahTemujanji = totalTemujanji;
-      summary.jumlahTemujanjiHariIni = todayTemujanji;
+      summary.jumlahTemujanji = totalReports;
+      summary.jumlahTemujanjiHariIni = todayReports;
     }
 
     return {

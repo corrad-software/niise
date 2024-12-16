@@ -1,4 +1,7 @@
 <script setup>
+import { useUserStore } from "~/stores/user";
+import { DateTime } from "luxon";
+
 definePageMeta({
   title: "Dashboard",
   middleware: ["auth"],
@@ -11,131 +14,159 @@ definePageMeta({
   ],
 });
 
-// Data baru untuk lapangan terbang teratas
-const topAirports = ref([
+const userStore = useUserStore();
+
+// Common data for all roles
+const lastLoginDetail = ref({
+  date: DateTime.now().toFormat("yyyy-MM-dd"),
+  time: DateTime.now().toFormat("HH:mm:ss"),
+  ip: "192.168.1.1",
+});
+
+const notifications = ref([
   {
-    rank: 1,
-    name: "Lapangan Terbang Antarabangsa Kuala Lumpur (KLIA)",
-    visitors: 62000000,
+    title: "Permohonan Baru",
+    message: "Permohonan #12345 telah dihantar",
+    time: "2 jam yang lalu",
   },
   {
-    rank: 2,
-    name: "Lapangan Terbang Antarabangsa Kota Kinabalu",
-    visitors: 9000000,
+    title: "Permohonan Diluluskan",
+    message: "Permohonan #12340 telah diluluskan",
+    time: "5 jam yang lalu",
   },
-  { rank: 3, name: "Lapangan Terbang Antarabangsa Penang", visitors: 8000000 },
-  { rank: 4, name: "Lapangan Terbang Antarabangsa Kuching", visitors: 5500000 },
+  // Add more notifications as needed
+]);
+
+// Role-specific summary data
+const summaryData = computed(() => {
+  if (
+    ["Pegawai Penyiasat", "Pegawai Penyiasat JIM"].includes(userStore.roles[0])
+  ) {
+    return [
+      {
+        title: "Login Terakhir",
+        value: formatLastLogin(lastLoginDetail.value),
+        icon: "ic:outline-access-time",
+      },
+      {
+        title: "Jumlah Permohonan Dihantar",
+        value: "45",
+        icon: "ic:outline-send",
+      },
+      {
+        title: "Jumlah Permohonan Draf",
+        value: "12",
+        icon: "material-symbols:draft",
+      },
+      {
+        title: "Jumlah Permohonan Ditolak",
+        value: "5",
+        icon: "ic:outline-cancel",
+      },
+      {
+        title: "Jumlah Permohonan Diluluskan",
+        value: "28",
+        icon: "ic:outline-check-circle",
+      },
+    ];
+  } else if (
+    ["Ketua Bahagian", "Pegawai Kaunter"].includes(userStore.roles[0])
+  ) {
+    return [
+      {
+        title: "Login Terakhir",
+        value: formatLastLogin(lastLoginDetail.value),
+        icon: "ic:outline-access-time",
+      },
+      {
+        title: "Jumlah Permohonan Dihantar",
+        value: "85",
+        icon: "ic:outline-send",
+      },
+      {
+        title: "Jumlah Permohonan Ditolak",
+        value: "15",
+        icon: "ic:outline-cancel",
+      },
+      {
+        title: "Jumlah Permohonan Diluluskan",
+        value: "70",
+        icon: "ic:outline-check-circle",
+      },
+    ];
+  } else if (userStore.roles[0] === "Pegawai Forensik") {
+    return [
+      {
+        title: "Login Terakhir",
+        value: formatLastLogin(lastLoginDetail.value),
+        icon: "ic:outline-access-time",
+      },
+      {
+        title: "Jumlah Permohonan Dihantar",
+        value: "65",
+        icon: "ic:outline-send",
+      },
+      {
+        title: "Jumlah Permohonan Selesai",
+        value: "50",
+        icon: "ic:outline-task-alt",
+      },
+    ];
+  }
+  return [];
+});
+
+// Modified chart data structure
+const series = ref([
   {
-    rank: 5,
-    name: "Lapangan Terbang Antarabangsa Langkawi",
-    visitors: 3000000,
+    name: "Permohonan",
+    data: [30, 40, 35, 50, 45, 60, 55, 65, 70, 80, 75, 85], // Default data
   },
 ]);
 
-// Data baru untuk kad ringkasan pantas
-const quickSummary = ref([
-  { title: "Jumlah Pelawat", value: "10.5 Juta", icon: "ic:outline-people" },
-  {
-    title: "Pendapatan Pelancongan",
-    value: "RM 86.14 Bilion",
-    icon: "ic:outline-attach-money",
+// Modified chart options
+const chartOptions = computed(() => ({
+  chart: {
+    id: "apexChart",
+    height: 350,
+    type: "line",
   },
-  {
-    title: "Tempoh Penginapan Purata",
-    value: "6.1 Hari",
-    icon: "ic:outline-hotel",
+  stroke: {
+    curve: "smooth",
+    width: 2,
   },
-  {
-    title: "Kepuasan Pelancong",
-    value: "92%",
-    icon: "ic:outline-sentiment-satisfied",
+  legend: {
+    position: "top",
   },
-]);
-
-// Data Pelawat Malaysia
-const visitorData = ref([
-  {
-    name: "Pelawat Tempatan",
-    data: [5000000, 5500000, 6000000, 6500000, 7000000, 7500000],
+  theme: {
+    mode: "light",
+    palette: "palette1",
   },
-  {
-    name: "Pelawat Asing",
-    data: [3000000, 3500000, 4000000, 4500000, 5000000, 5500000],
+  xaxis: {
+    categories: [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ],
   },
-]);
-
-// Data Pelawat Asing mengikut Negeri
-const foreignVisitorsByState = ref([
-  { state: "Selangor", visitors: 1500000 },
-  { state: "Pulau Pinang", visitors: 1200000 },
-  { state: "Johor", visitors: 1000000 },
-  { state: "Sabah", visitors: 800000 },
-  { state: "Sarawak", visitors: 600000 },
-  { state: "Melaka", visitors: 500000 },
-  { state: "Kedah", visitors: 400000 },
-  { state: "Negeri Sembilan", visitors: 300000 },
-  { state: "Perak", visitors: 250000 },
-  { state: "Terengganu", visitors: 200000 },
-  { state: "Kelantan", visitors: 150000 },
-  { state: "Pahang", visitors: 100000 },
-  { state: "Perlis", visitors: 50000 },
-]);
-
-// Lapangan Terbang Keberangkatan Teratas
-const departureData = ref([
-  { airport: "JFK", departures: 1500 },
-  { airport: "LHR", departures: 1200 },
-  { airport: "CDG", departures: 1000 },
-  { airport: "DXB", departures: 800 },
-  { airport: "SIN", departures: 600 },
-]);
-
-// Data Pelancong Berulang
-const repeatVisitorsData = ref([
-  { category: "1-2 kali", percentage: 45 },
-  { category: "3-5 kali", percentage: 30 },
-  { category: "6-10 kali", percentage: 15 },
-  { category: ">10 kali", percentage: 10 },
-]);
-
-// Data Negara Asal Pelancong Asing Teratas
-const topVisitorCountries = ref([
-  { country: "Singapura", visitors: 1500000 },
-  { country: "Indonesia", visitors: 1200000 },
-  { country: "China", visitors: 1000000 },
-  { country: "Thailand", visitors: 800000 },
-  { country: "India", visitors: 600000 },
-]);
-
-const chartOptionsVisitors = computed(() => ({
-  chart: { height: 350, type: "line" },
-  stroke: { curve: "smooth", width: 2 },
-  xaxis: { categories: ["2018", "2019", "2020", "2021", "2022", "2023"] },
-  yaxis: { title: { text: "Bilangan Pelawat" } },
-}));
-
-const chartOptionsForeignVisitors = computed(() => ({
-  chart: { type: "bar" },
-  plotOptions: { bar: { horizontal: true } },
-  xaxis: { categories: foreignVisitorsByState.value.map((item) => item.state) },
-}));
-
-const chartOptionsDeparture = computed(() => ({
-  chart: { type: "bar" },
-  plotOptions: { bar: { horizontal: true } },
-  xaxis: { categories: departureData.value.map((item) => item.airport) },
-}));
-
-const chartOptionsRepeatVisitors = computed(() => ({
-  chart: { type: "pie" },
-  labels: repeatVisitorsData.value.map((item) => item.category),
+  yaxis: {
+    title: {
+      text: "Jumlah Permohonan",
+    },
+  },
   responsive: [
     {
-      breakpoint: 480,
+      breakpoint: 768,
       options: {
-        chart: {
-          width: 200,
-        },
         legend: {
           position: "bottom",
         },
@@ -144,127 +175,189 @@ const chartOptionsRepeatVisitors = computed(() => ({
   ],
 }));
 
-const chartOptionsTopCountries = computed(() => ({
-  chart: { type: "bar" },
-  plotOptions: {
-    bar: { horizontal: false, columnWidth: "55%", endingShape: "rounded" },
+// For pie chart
+const pieChartSeries = ref([150, 100, 75, 50]); // Values from evidenceTypeData
+
+const pieChartOptions = computed(() => ({
+  chart: {
+    id: "pieChart",
   },
-  dataLabels: { enabled: false },
-  stroke: { show: true, width: 2, colors: ["transparent"] },
-  xaxis: { categories: topVisitorCountries.value.map((item) => item.country) },
-  yaxis: { title: { text: "Bilangan Pelawat" } },
-  fill: { opacity: 1 },
-  tooltip: {
-    y: {
-      formatter: function (val) {
-        return val.toLocaleString() + " pelawat";
+  labels: ["Passport", "Mallpass", "Dokumen", "Lain-lain"],
+  theme: {
+    mode: "light",
+    palette: "palette1",
+  },
+  responsive: [
+    {
+      breakpoint: 480,
+      options: {
+        chart: { width: 200 },
+        legend: { position: "bottom" },
       },
     },
-  },
+  ],
 }));
 
-onMounted(() => {
-  // Sebarang logik yang diperlukan semasa pemasangan
-});
+// Format function using Luxon
+const formatLastLogin = (login) => {
+  if (!login || !login.date || !login.time) return "-";
+
+  try {
+    const dateTime = DateTime.fromFormat(
+      `${login.date} ${login.time}`,
+      "yyyy-MM-dd HH:mm:ss"
+    );
+
+    return dateTime.toFormat("dd/MM/yyyy HH:mm");
+  } catch (error) {
+    console.error("Date formatting error:", error);
+    return "-";
+  }
+};
 </script>
 
 <template>
   <div>
     <LayoutsBreadcrumb />
-    <!-- Kad Ringkasan Pantas -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
-      <rs-card
-        v-for="(item, index) in quickSummary"
-        :key="index"
-        class="transition-all duration-300 hover:shadow-lg"
-      >
-        <div class="pt-5 pb-3 px-5 flex items-center gap-4">
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
+      <!-- Login Card -->
+      <rs-card class="transition-all duration-300 hover:shadow-lg mb-0">
+        <div class="pt-3 pb-3 px-5 flex items-center gap-4">
           <div
-            class="p-5 flex justify-center items-center bg-primary/20 rounded-2xl transition-all duration-300 hover:bg-primary/30"
+            class="p-5 flex justify-center items-center bg-cyan-500/20 rounded-2xl"
           >
-            <Icon class="text-primary text-3xl" :name="item.icon"></Icon>
+            <Icon
+              class="text-cyan-600 text-3xl"
+              name="ic:outline-access-time"
+            />
           </div>
           <div class="flex-1 truncate">
-            <span class="block font-bold text-2xl leading-tight text-primary">
-              {{ item.value }}
+            <span class="block font-bold text-2xl leading-tight text-cyan-600">
+              {{ formatLastLogin(lastLoginDetail) }}
             </span>
             <span class="text-sm font-medium text-gray-600">
-              {{ item.title }}
+              Login Terakhir
+            </span>
+          </div>
+        </div>
+      </rs-card>
+
+      <!-- Permohonan Dihantar Card -->
+      <rs-card class="transition-all duration-300 hover:shadow-lg mb-0">
+        <div class="pt-3 pb-3 px-5 flex items-center gap-4">
+          <div
+            class="p-5 flex justify-center items-center bg-blue-500/20 rounded-2xl"
+          >
+            <Icon class="text-blue-600 text-3xl" name="ic:outline-send" />
+          </div>
+          <div class="flex-1 truncate">
+            <span class="block font-bold text-2xl leading-tight text-blue-600"
+              >45</span
+            >
+            <span class="text-sm font-medium text-gray-600">
+              Jumlah Permohonan Dihantar
+            </span>
+          </div>
+        </div>
+      </rs-card>
+
+      <!-- Permohonan Draf Card -->
+      <rs-card class="transition-all duration-300 hover:shadow-lg mb-0">
+        <div class="pt-3 pb-3 px-5 flex items-center gap-4">
+          <div
+            class="p-5 flex justify-center items-center bg-amber-500/20 rounded-2xl"
+          >
+            <Icon
+              class="text-amber-600 text-3xl"
+              name="material-symbols:draft"
+            />
+          </div>
+          <div class="flex-1 truncate">
+            <span class="block font-bold text-2xl leading-tight text-amber-600"
+              >12</span
+            >
+            <span class="text-sm font-medium text-gray-600">
+              Jumlah Permohonan Draf
+            </span>
+          </div>
+        </div>
+      </rs-card>
+
+      <!-- Permohonan Ditolak Card -->
+      <rs-card class="transition-all duration-300 hover:shadow-lg mb-0">
+        <div class="pt-3 pb-3 px-5 flex items-center gap-4">
+          <div
+            class="p-5 flex justify-center items-center bg-red-500/20 rounded-2xl"
+          >
+            <Icon class="text-red-600 text-3xl" name="ic:outline-cancel" />
+          </div>
+          <div class="flex-1 truncate">
+            <span class="block font-bold text-2xl leading-tight text-red-600"
+              >5</span
+            >
+            <span class="text-sm font-medium text-gray-600">
+              Jumlah Permohonan Ditolak
+            </span>
+          </div>
+        </div>
+      </rs-card>
+
+      <!-- Permohonan Diluluskan Card -->
+      <rs-card class="transition-all duration-300 hover:shadow-lg mb-0">
+        <div class="pt-3 pb-3 px-5 flex items-center gap-4">
+          <div
+            class="p-5 flex justify-center items-center bg-green-500/20 rounded-2xl"
+          >
+            <Icon
+              class="text-green-600 text-3xl"
+              name="ic:outline-check-circle"
+            />
+          </div>
+          <div class="flex-1 truncate">
+            <span class="block font-bold text-2xl leading-tight text-green-600"
+              >28</span
+            >
+            <span class="text-sm font-medium text-gray-600">
+              Jumlah Permohonan Diluluskan
             </span>
           </div>
         </div>
       </rs-card>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-      <!-- Gambaran Keseluruhan Pelawat Malaysia -->
-      <rs-card class="col-span-1 lg:col-span-2">
-        <template #header>
-          <h2 class="text-xl font-bold text-primary">
-            Gambaran Keseluruhan Pelawat
-          </h2>
-        </template>
-        <template #body>
-          <client-only>
-            <VueApexCharts
-              width="100%"
-              height="350"
-              type="line"
-              :options="chartOptionsVisitors"
-              :series="visitorData"
-            ></VueApexCharts>
-          </client-only>
-        </template>
-      </rs-card>
+    <!-- Notifications -->
+    <rs-card class="mb-6">
+      <template #header>
+        <h2 class="text-xl font-bold text-primary">Notifikasi</h2>
+      </template>
+      <template #body>
+        <div class="divide-y">
+          <div
+            v-for="(notification, index) in notifications"
+            :key="index"
+            class="py-4 flex justify-between items-start"
+          >
+            <div>
+              <h3 class="font-semibold">{{ notification.title }}</h3>
+              <p class="text-gray-600">{{ notification.message }}</p>
+            </div>
+            <span class="text-sm text-gray-500">{{ notification.time }}</span>
+          </div>
+        </div>
+      </template>
+    </rs-card>
 
-      <!-- Pelawat Asing mengikut Negeri -->
-      <rs-card>
-        <template #header>
-          <h2 class="text-lg font-semibold text-primary">
-            Pelawat Asing mengikut Negeri
-          </h2>
-        </template>
-        <template #body>
-          <client-only>
-            <VueApexCharts
-              width="100%"
-              height="300"
-              type="bar"
-              :options="chartOptionsForeignVisitors"
-              :series="[
-                { data: foreignVisitorsByState.map((item) => item.visitors) },
-              ]"
-            ></VueApexCharts>
-          </client-only>
-        </template>
-      </rs-card>
-
-      <!-- Pelancong Berulang -->
-      <rs-card>
-        <template #header>
-          <h2 class="text-lg font-semibold text-primary">
-            Kekerapan Lawatan Pelancong
-          </h2>
-        </template>
-        <template #body>
-          <client-only>
-            <VueApexCharts
-              width="100%"
-              height="300"
-              type="pie"
-              :options="chartOptionsRepeatVisitors"
-              :series="repeatVisitorsData.map((item) => item.percentage)"
-            ></VueApexCharts>
-          </client-only>
-        </template>
-      </rs-card>
-    </div>
-
-    <!-- Negara Asal Pelancong Asing Teratas -->
+    <!-- Line Graph -->
     <rs-card class="mb-6">
       <template #header>
         <h2 class="text-xl font-bold text-primary">
-          Negara Asal Pelancong Asing Teratas
+          {{
+            userStore.roles[0] === "Pegawai Forensik"
+              ? "Total Permohonan Selesai Tahunan"
+              : "Total Permohonan Tahunan"
+          }}
         </h2>
       </template>
       <template #body>
@@ -272,66 +365,36 @@ onMounted(() => {
           <VueApexCharts
             width="100%"
             height="350"
-            type="bar"
-            :options="chartOptionsTopCountries"
-            :series="[
-              {
-                name: 'Pelawat',
-                data: topVisitorCountries.map((item) => item.visitors),
-              },
-            ]"
-          ></VueApexCharts>
+            type="line"
+            :options="chartOptions"
+            :series="series"
+          />
         </client-only>
       </template>
     </rs-card>
 
-    <rs-card class="mb-6">
+    <!-- Pie Chart -->
+    <rs-card
+      v-if="
+        ['Pegawai Penyiasat', 'Pegawai Penyiasat JIM'].includes(
+          userStore.roles[0]
+        )
+      "
+      class="mb-6"
+    >
       <template #header>
-        <h2 class="text-xl font-bold text-primary">
-          Lapangan Terbang Teratas dengan Pelawat Terbanyak
-        </h2>
+        <h2 class="text-xl font-bold text-primary">Jumlah Bahan Bukti</h2>
       </template>
       <template #body>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Kedudukan
-                </th>
-                <th
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Nama Lapangan Terbang
-                </th>
-                <th
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  Jumlah Pelawat
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr
-                v-for="airport in topAirports"
-                :key="airport.rank"
-                class="hover:bg-gray-50 transition-colors duration-200"
-              >
-                <td class="px-6 py-4 whitespace-nowrap font-medium">
-                  {{ airport.rank }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">{{ airport.name }}</td>
-                <td
-                  class="px-6 py-4 whitespace-nowrap font-semibold text-primary"
-                >
-                  {{ airport.visitors.toLocaleString() }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <client-only>
+          <VueApexCharts
+            width="100%"
+            height="350"
+            type="pie"
+            :options="pieChartOptions"
+            :series="pieChartSeries"
+          />
+        </client-only>
       </template>
     </rs-card>
   </div>

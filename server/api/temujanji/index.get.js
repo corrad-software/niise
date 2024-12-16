@@ -7,13 +7,28 @@ export default defineEventHandler(async (event) => {
     const startDate = query.startDate ? new Date(query.startDate) : null;
     const endDate = query.endDate ? new Date(query.endDate) : null;
 
-    // Build where conditions
-    let whereConditions = {};
+    let showButtonObj = {
+      tambah: false,
+      keputusan: false,
+      kemaskini: false,
+    };
 
-    // Add status filter
-    if (status) {
-      whereConditions.status = status;
+    if (roles.includes("Pegawai Forensik")) {
+      showButtonObj.keputusan = true;
+      showButtonObj.kemaskini = true;
     }
+
+    // Build where conditions for report
+    let whereConditions = {
+      pengesanan_penyamaran: true,
+      permohonan: {
+        NOT: {
+          status_permohonan: {
+            in: ["Temujanji Ditolak", "Permohonan Ditolak"]
+          }
+        }
+      }
+    };
 
     // Add date filter conditions
     if (startDate || endDate) {
@@ -26,61 +41,42 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    let showButtonObj = {
-      tambah: false,
-      keputusan: false,
-      kemaskini: false,
-    };
-
-    if (roles.includes("Pegawai Forensik")) {
-      showButtonObj.keputusan = true;
-      showButtonObj.kemaskini = true;
-    }
-
-    if (roles.includes("Pegawai Penyiasat")) {
-      showButtonObj.tambah = true;
-      showButtonObj.keputusan = true;
-    }
-
-    const appointments = await prisma.temujanji.findMany({
+    const reports = await prisma.report.findMany({
       where: whereConditions,
       include: {
-        pemohon: {
+        permohonan: {
           include: {
-            user: true,
+            pemohon: true,
           },
         },
-        temujanji_detail: true,
+        permohonan_detail: true,
       },
     });
 
-    console.log(appointments[0].temujanji_detail.dapatan);
-
     return {
       statusCode: 200,
-      data: appointments.map((appointment, index) => ({
+      data: reports.map((report, index) => ({
         bil: index + 1,
-        kesId: appointment.temujanjiID,
-        namaPemohon: appointment.pemohon.nama_pemohon,
-        caraSemakan: appointment.jenisSemakan,
-        status: appointment.status || "Pending",
+        noSiri: report.permohonan?.no_siri || "-",
+        namaPemohon: report.permohonan?.pemohon?.nama_pemohon || "-",
+        caraSemakan: report.permohonan_detail?.caraSemakan || "-",
+        status: report.permohonan?.status_permohonan || "Pending",
         tindakan: {
-          id: appointment.temujanjiID,
-          disabled:
-            appointment.temujanji_detail.dapatan != "Sama" &&
-            appointment.temujanji_detail.dapatan != "Tidak Sama" &&
-            appointment.temujanji_detail.dapatan != "Tidak Dapat Dikenalpasti"
-              ? true
-              : false,
+          id: report.reportID,
+          disabled: !(
+            report.permohonan_detail?.dapatan === "Sama" ||
+            report.permohonan_detail?.dapatan === "Tidak Sama" ||
+            report.permohonan_detail?.dapatan === "Tidak Dapat Dikenalpasti"
+          ),
         },
       })),
       showButton: showButtonObj,
     };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return {
       statusCode: 500,
-      message: "Failed to fetch appointments.",
+      message: "Failed to fetch report list.",
     };
   }
 });

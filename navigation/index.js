@@ -9,7 +9,7 @@ export default [
         icon: "ph:house-duotone",
       },
       {
-        title: "Permohonan",
+        title: "Semakan",
         icon: "ph:user-list-duotone",
         child: [
           {
@@ -27,7 +27,30 @@ export default [
         ],
         meta: {
           auth: {
-            role: ["Ketua Bahagian", "Pegawai Forensik", "Pegawai Kaunter"],
+            role: ["Ketua Bahagian", "Pegawai Kaunter"],
+          },
+        },
+      },
+      {
+        title: "Semakan",
+        icon: "ph:user-list-duotone",
+        child: [
+          {
+            title: "Dokumen",
+            path: "/kemaskini-daftar/senarai",
+            child: [],
+            meta: {},
+          },
+          {
+            title: "Pengesanan Penyamaran",
+            path: "/pengesanan-penyamaran/senarai",
+            child: [],
+            meta: {},
+          },
+        ],
+        meta: {
+          auth: {
+            role: ["Pegawai Forensik"],
           },
         },
       },
@@ -37,22 +60,12 @@ export default [
         icon: "ph:calendar-blank-duotone",
         meta: {
           auth: {
-            role: ["Pegawai Penyiasat"],
+            role: ["Pegawai Penyiasat", "Pegawai Penyiasat JIM"],
           },
         },
       },
       {
-        title: "Pengesanan Penyamaran",
-        path: "/pengesanan-penyamaran/senarai",
-        icon: "ph:user-rectangle-duotone",
-        meta: {
-          auth: {
-            role: ["Admin", "Pegawai Penyiasat", "Pegawai Forensik"],
-          },
-        },
-      },
-      {
-        title: "e-Library",
+        title: "e-library",
         path: "/e-library",
         icon: "ph:address-book-duotone",
         meta: {
@@ -62,14 +75,9 @@ export default [
         },
       },
       {
-        title: "Dokumen e-Library",
+        title: "Dokumen e-library",
         path: "/dokumen-library",
         icon: "ph:file-archive-duotone",
-        meta: {
-          auth: {
-            role: ["Admin", "Pegawai Forensik"],
-          },
-        },
       },
     ],
   },

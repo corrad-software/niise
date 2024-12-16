@@ -1,16 +1,10 @@
 <script setup>
-// Imports and app setup
-const { $swal } = useNuxtApp();
-const router = useRouter();
-const route = useRoute();
-
-// Page meta definition
 definePageMeta({
   title: "Kemaskini Pengesanan Penyamaran",
   middleware: ["auth"],
   breadcrumb: [
     {
-      name: "Pengesanan Penyamaran",
+      name: "Penyamaran",
       path: "/pengesanan-penyamaran/senarai",
     },
     {
@@ -20,13 +14,17 @@ definePageMeta({
   ],
 });
 
-// State management
+const route = useRoute();
+const router = useRouter();
+const { $swal } = useNuxtApp();
 const kesID = ref(route.params.kesID);
-const currentDocument = ref(null);
 
-// Form data and options
+// Form data structure
 const formData = ref({
-  jenisDokumen: "Passport",
+  reportID: "",
+  permohonanID: "",
+  permohonanDetailID: "",
+  jenisDokumen: "",
   negara: "",
   namaPemilik: "",
   noDokumen: "",
@@ -34,10 +32,10 @@ const formData = ref({
   tarikhLahir: "",
   jantina: "",
   tarikhLuputDokumen: "",
-  skorPersamaanMuka: null,
-  skorPersamaanCapJari: null,
-  umur: null,
-  tinggi: null,
+  skorPersamaanMuka: "",
+  skorPersamaanCapJari: "",
+  umur: "",
+  tinggi: "",
   warnaRambut: "",
   bangsa: "",
   etnik: "",
@@ -51,39 +49,44 @@ const formData = ref({
   persamaanTandaTangan: "",
   pemeriksaanLain: "",
   dapatan: "",
-  laporanTdb: null,
+  laporanTdb: [],
 });
 
-// Dropdown options (moved together)
+// Store current document information
+const currentDocument = ref(null);
+
+// Options for dropdowns
 const jenisDokumenOptions = ref([
-  { label: "Sila Pilih", value: "" },
-  { label: "Passport", value: "Passport" },
+  { label: "Pilih Jenis Dokumen", value: "" },
+  { label: "Pasport", value: "Pasport" },
+  { label: "MyKad", value: "MyKad" },
+  { label: "Visa", value: "Visa" },
 ]);
 
 const negaraOptions = ref([
-  { label: "Sila Pilih", value: "" },
-
+  { label: "Pilih Negara", value: "" },
   { label: "Malaysia", value: "Malaysia" },
-  { label: "Singapura", value: "Singapura" },
+  { label: "Indonesia", value: "Indonesia" },
+  { label: "Thailand", value: "Thailand" },
+  // Add more countries as needed
 ]);
 
 const kewarganegaraanOptions = ref([
-  { label: "Sila Pilih", value: "" },
-
+  { label: "Pilih Kewarganegaraan", value: "" },
   { label: "Malaysia", value: "Malaysia" },
-  { label: "Singapura", value: "Singapura" },
-  { label: "Tiada", value: "Tiada" },
+  { label: "Indonesia", value: "Indonesia" },
+  { label: "Thailand", value: "Thailand" },
+  // Add more nationalities as needed
 ]);
 
 const jantinaOptions = ref([
-  { label: "Sila Pilih", value: "" },
+  { label: "Pilih Jantina", value: "" },
   { label: "Lelaki", value: "Lelaki" },
   { label: "Perempuan", value: "Perempuan" },
-  { label: "Lain-lain", value: "Lain-lain" },
 ]);
 
 const dapatanOptions = ref([
-  { label: "Sila Pilih", value: "" },
+  { label: "Pilih Dapatan", value: "" },
   { label: "Sama", value: "Sama" },
   { label: "Tidak Sama", value: "Tidak Sama" },
   { label: "Tidak Dapat Dikenalpasti", value: "Tidak Dapat Dikenalpasti" },
@@ -106,18 +109,15 @@ const fileToBase64 = (file) => {
 };
 
 const validateFile = (file) => {
-  // Check if file exists
   if (!file) {
     return "Fail tidak dipilih";
   }
 
-  // Check file size (max 5MB)
   const maxSize = 5 * 1024 * 1024; // 5MB in bytes
   if (file.size > maxSize) {
     return "Saiz fail tidak boleh melebihi 5MB";
   }
 
-  // Check file type
   const allowedTypes = ["application/pdf", "image/jpeg", "image/jpg"];
   if (!allowedTypes.includes(file.type)) {
     return "Format fail tidak sah. Sila muat naik fail PDF atau JPG sahaja";
@@ -143,7 +143,7 @@ const fetchAppointment = async (kesID) => {
       // Store current document information
       currentDocument.value = response.data.laporanSystemTdb;
     } else {
-      throw new Error("Failed to fetch appointment data.");
+      throw new Error("Failed to fetch report data.");
     }
   } catch (error) {
     $swal.fire("Ralat!", error.message, "error");
@@ -218,7 +218,7 @@ onMounted(() => {
   fetchAppointment(kesID.value);
 });
 
-// Add these helper functions in the script section
+// Helper function for file size formatting
 const formatFileSize = (bytes) => {
   if (!bytes) return "0 Bytes";
   const k = 1024;

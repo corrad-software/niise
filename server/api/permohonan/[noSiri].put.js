@@ -123,21 +123,77 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    // Delete old barang and create new ones
+    // Delete old reports and their associated permohonan_details
+    const oldReports = await prisma.report.findMany({
+      where: { permohonanID: updatedPermohonan.id },
+      include: { permohonan_detail: true },
+    });
+
+    // Delete old permohonan_details
+    for (const report of oldReports) {
+      if (report.permohonan_detail) {
+        await prisma.permohonan_detail.delete({
+          where: { permohonanDetailID: report.permohonan_detail.permohonanDetailID },
+        });
+      }
+    }
+
+    // Delete old reports
     await prisma.report.deleteMany({
       where: { permohonanID: updatedPermohonan.id },
     });
 
+    // Create new reports with permohonan_details
     for (const barang of barangList) {
+      // First create new permohonan_detail with null values
+      const newPermohonanDetail = await prisma.permohonan_detail.create({
+        data: {
+          negara: null,
+          namaPemilik: null,
+          noDokumen: null,
+          kewarganegaraan: null,
+          tarikhLahir: null,
+          jantina: null,
+          tarikhLuputDokumen: null,
+          skorPersamaanMuka: null,
+          skorPersamaanCapJari: null,
+          umur: null,
+          tinggi: null,
+          warnaRambut: null,
+          bangsa: null,
+          etnik: null,
+          bentukKepala: null,
+          mata: null,
+          telinga: null,
+          hidung: null,
+          mulut: null,
+          parut: null,
+          sejarahPerjalanan: null,
+          persamaanTandaTangan: null,
+          pemeriksaanLain: null,
+          dapatan: null,
+          laporanSystemTdb: null,
+          create_by: userID,
+          create_at: new Date(),
+          modified_by: userID,
+          modified_at: new Date(),
+        },
+      });
+
+      // Then create new report with reference to new permohonan_detail
       await prisma.report.create({
         data: {
           permohonanID: updatedPermohonan.id,
+          permohonanDetailID: newPermohonanDetail.permohonanDetailID,
           jenis_barang: barang.jenisBarangDetail,
           kuantiti_barang: parseInt(barang.kuantitiBarang),
           tanda_barang: barang.tandaBarang,
           keadaan_barang: barang.keadaanBarang,
           pengesanan_penyamaran: barang.pengesananPenyamaran ? true : false,
+          create_by: userID,
           create_at: new Date(),
+          modified_by: userID,
+          modified_at: new Date(),
         },
       });
     }
@@ -177,7 +233,7 @@ export default defineEventHandler(async (event) => {
         : "Permohonan pemeriksaan forensik telah dikemaskini. (Status FOR-S001)",
     };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return {
       statusCode: 500,
       message: "Terdapat masalah. Silakan cuba lagi.",

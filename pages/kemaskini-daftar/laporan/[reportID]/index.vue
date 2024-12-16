@@ -413,7 +413,11 @@ const formatDate = (dateString) => {
 
     <div class="flex justify-between items-center mb-4">
       <h1 class="text-2xl font-bold">Laporan Bahan Bukti</h1>
-      <rs-button variant="primary" @click="generatePDF">
+      <rs-button
+        variant="primary"
+        @click="generatePDF"
+        :disabled="!generatedData.dapatan?.value"
+      >
         <Icon name="mdi:file-pdf" class="mr-2 w-4 h-4" />
         Jana PDF
       </rs-button>

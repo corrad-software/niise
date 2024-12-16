@@ -1,70 +1,58 @@
-import { createReadStream } from 'fs';
-import { join } from 'path';
-import PizZip from 'pizzip';
-import Docxtemplater from 'docxtemplater';
-import fs from 'fs';
+import { join } from "path";
+import fs from "fs";
+import { createError } from "h3";
 
 export default defineEventHandler(async (event) => {
   try {
     const { noSiri, jenisDokumen } = event.context.params;
 
+    // Validate input parameters
+    if (!noSiri || !jenisDokumen) {
+      throw createError({
+        statusCode: 400,
+        message: "Missing required parameters",
+      });
+    }
+
     // Get the correct template based on jenisDokumen
-    const templateName = `${jenisDokumen}.doc`;
-    const template = fs.readFileSync(
-      join(process.cwd(), 'assets/document', templateName),
-      'binary'
-    );
+    const templateName = `${jenisDokumen}.docx`;
 
-    // Create zip object with the template
-    const zip = new PizZip(template);
-    
-    // Create docxtemplater instance
-    const doc = new Docxtemplater(zip, {
-      paragraphLoop: true,
-      linebreaks: true,
-    });
+    // Determine the base path based on environment
+    const basePath =
+      process.env.SERVER === "true"
+        ? join(process.cwd(), ".output/public/uploads")
+        : join(process.cwd(), "public/uploads");
 
-    // Here you would fetch the actual data based on noSiri from your database
-    // For now using dummy data
-    const data = {
-      noRujMakmal: "LAB2024-001",
-      noRujTuan: "REF2024-001",
-      tarikh: new Date().toLocaleDateString('ms-MY'),
-      pejabat: "KLIA",
-      noAduan: "ADU2024-001",
-      tarikhAduan: new Date().toLocaleDateString('ms-MY'),
-      pangkat: "Inspektor",
-      nama: "Ahmad bin Abdullah",
-      no: "ID-12345"
-    };
+    const templatePath = join(basePath, templateName);
 
-    // Apply the data to the template
-    doc.render(data);
+    // Check if file exists
+    if (!fs.existsSync(templatePath)) {
+      throw createError({
+        statusCode: 404,
+        message: "Template file not found",
+      });
+    }
 
-    // Generate the document
-    const buffer = doc.getZip().generate({
-      type: 'nodebuffer',
-      compression: 'DEFLATE'
-    });
-
-    // Save to existing document location
-    const outputPath = join(process.cwd(), 'assets/document', `${jenisDokumen}.doc`);
-    fs.writeFileSync(outputPath, buffer);
+    // Read file as buffer
+    const buffer = fs.readFileSync(templatePath);
 
     // Set headers for file download
     setHeaders(event, {
-      'Content-Type': 'application/msword',
-      'Content-Disposition': `attachment; filename="${jenisDokumen}.doc"`,
+      "Content-Type":
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "Content-Disposition": `attachment; filename="${jenisDokumen}.docx"`,
+      "Content-Length": buffer.length,
     });
 
-    // Return the file stream
-    return createReadStream(outputPath);
-
+    // Return buffer directly
+    return buffer;
   } catch (error) {
     console.error("Error generating document:", error);
-    return {
-      statusCode: 500,
-      message: "Error generating document"
-    };
+
+    // Proper error handling
+    throw createError({
+      statusCode: error.statusCode || 500,
+      message: error.message || "Error generating document",
+    });
   }
 });

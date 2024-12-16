@@ -17,32 +17,35 @@ model audit {
 }
 
 model document {
-  documentID                                  Int                            @id @default(autoincrement())
-  userID                                      Int?
-  elibraryID                                  Int?
-  dokumenLibraryID                            Int?
-  isDokumenLibraryImage                       Boolean?                       @default(dbgenerated("b'0'")) @db.Bit(1)
-  isElibraryImage                             Boolean?                       @default(dbgenerated("b'0'")) @db.Bit(1)
-  documentName                                String?                        @db.VarChar(255)
-  documentURL                                 String?                        @db.Text
-  documentType                                String?                        @db.VarChar(255)
-  documentExtension                           String?                        @db.VarChar(255)
-  documentDesc                                String?                        @db.Text
-  imageMIMEType                               String?                        @db.VarChar(255)
-  documentSize                                Int?
-  documentStatus                              String?                        @default("ACTIVE") @db.VarChar(255)
-  documentCreatedDate                         String?                        @db.VarChar(255)
-  documentModifiedDate                        String?                        @db.VarChar(255)
-  user                                        user?                          @relation(fields: [userID], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "document_ibfk_1")
-  elibrary                                    elibrary?                      @relation(fields: [elibraryID], references: [elibraryID], onDelete: NoAction, onUpdate: NoAction, map: "document_ibfk_2")
-  dokumen_library                             dokumen_library?               @relation(fields: [dokumenLibraryID], references: [dokumenLibraryID], onDelete: NoAction, onUpdate: NoAction, map: "document_ibfk_3")
-  permohonan_forensik_checking                permohonan_forensik_checking[]
-  report                                      report[]
-  report_doc_support                          report_doc_support[]
-  temujanji_temujanji_gambarSubjekTodocument  temujanji[]                    @relation("temujanji_gambarSubjekTodocument")
-  temujanji_temujanji_gambarCapJariTodocument temujanji[]                    @relation("temujanji_gambarCapJariTodocument")
-  temujanji_detail                            temujanji_detail[]
-  temujanji_log                               temujanji_log[]
+  documentID                                                  Int                            @id @default(autoincrement())
+  userID                                                      Int?
+  elibraryID                                                  Int?
+  dokumenLibraryID                                            Int?
+  isDokumenLibraryImage                                       Boolean?                       @default(dbgenerated("b'0'")) @db.Bit(1)
+  isElibraryImage                                             Boolean?                       @default(dbgenerated("b'0'")) @db.Bit(1)
+  documentName                                                String?                        @db.VarChar(255)
+  documentURL                                                 String?                        @db.Text
+  documentType                                                String?                        @db.VarChar(255)
+  documentExtension                                           String?                        @db.VarChar(255)
+  documentDesc                                                String?                        @db.Text
+  imageMIMEType                                               String?                        @db.VarChar(255)
+  documentSize                                                Int?
+  documentStatus                                              String?                        @default("ACTIVE") @db.VarChar(255)
+  documentCreatedDate                                         String?                        @db.VarChar(255)
+  documentModifiedDate                                        String?                        @db.VarChar(255)
+  user                                                        user?                          @relation(fields: [userID], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "document_ibfk_1")
+  elibrary                                                    elibrary?                      @relation(fields: [elibraryID], references: [elibraryID], onDelete: NoAction, onUpdate: NoAction, map: "document_ibfk_2")
+  dokumen_library                                             dokumen_library?               @relation(fields: [dokumenLibraryID], references: [dokumenLibraryID], onDelete: NoAction, onUpdate: NoAction, map: "document_ibfk_3")
+  permohonan_detail                                           permohonan_detail[]
+  permohonan_detail_permohonan_detail_gambarCapJariTodocument permohonan_detail[]            @relation("permohonan_detail_gambarCapJariTodocument")
+  permohonan_detail_permohonan_detail_gambarSubjekTodocument  permohonan_detail[]            @relation("permohonan_detail_gambarSubjekTodocument")
+  permohonan_forensik_checking                                permohonan_forensik_checking[]
+  report                                                      report[]
+  report_doc_support                                          report_doc_support[]
+  temujanji_temujanji_gambarSubjekTodocument                  temujanji[]                    @relation("temujanji_gambarSubjekTodocument")
+  temujanji_temujanji_gambarCapJariTodocument                 temujanji[]                    @relation("temujanji_gambarCapJariTodocument")
+  temujanji_detail                                            temujanji_detail[]
+  temujanji_log                                               temujanji_log[]
 
   @@index([userID], map: "userID")
   @@index([elibraryID], map: "elibraryID")
@@ -251,8 +254,9 @@ model permohonan_tanda_barang {
 
 model report {
   reportID                           Int                  @id @default(autoincrement())
-  permohonanID                       Int
-  jenis_barang                       Int
+  permohonanID                       Int?
+  permohonanDetailID                 Int?
+  jenis_barang                       Int?
   tanda_barang                       String?              @db.VarChar(255)
   keadaan_barang                     String?              @db.VarChar(255)
   kuantiti_barang                    Int?
@@ -269,10 +273,11 @@ model report {
   dokumen_library                    dokumen_library[]
   document                           document?            @relation(fields: [gambarID], references: [documentID], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_2")
   lookup_report_dapatanTolookup      lookup?              @relation("report_dapatanTolookup", fields: [dapatan], references: [lookupID], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_3")
-  lookup_report_jenis_barangTolookup lookup               @relation("report_jenis_barangTolookup", fields: [jenis_barang], references: [lookupID], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_4")
-  permohonan                         permohonan           @relation(fields: [permohonanID], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "report_ibfk_5")
+  lookup_report_jenis_barangTolookup lookup?              @relation("report_jenis_barangTolookup", fields: [jenis_barang], references: [lookupID], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_4")
+  permohonan                         permohonan?          @relation(fields: [permohonanID], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "report_ibfk_5")
   user_report_create_byTouser        user?                @relation("report_create_byTouser", fields: [create_by], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_6")
   user_report_modified_byTouser      user?                @relation("report_modified_byTouser", fields: [modified_by], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_7")
+  permohonan_detail                  permohonan_detail?   @relation(fields: [permohonanDetailID], references: [permohonanDetailID], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_8")
   report_doc_support                 report_doc_support[]
 
   @@index([create_by], map: "create_by")
@@ -281,6 +286,7 @@ model report {
   @@index([jenis_barang], map: "jenis_barang")
   @@index([modified_by], map: "modified_by")
   @@index([permohonanID], map: "permohonanID")
+  @@index([permohonanDetailID], map: "permohonanDetailID")
 }
 
 model report_doc_support {
@@ -430,36 +436,38 @@ model temujanji_log {
 }
 
 model user {
-  userID                                              Int                          @id @default(autoincrement())
-  userSecretKey                                       String?                      @db.VarChar(255)
-  userUsername                                        String?                      @db.VarChar(255)
-  userPassword                                        String?                      @db.VarChar(255)
-  userFullName                                        String?                      @db.VarChar(255)
-  userEmail                                           String?                      @db.VarChar(255)
-  userPhone                                           String?                      @db.VarChar(255)
-  userRank                                            String?                      @db.VarChar(255)
-  userOfficerNumber                                   String?                      @db.VarChar(255)
-  userStatus                                          String?                      @db.VarChar(255)
-  userCreatedDate                                     DateTime?                    @db.DateTime(0)
-  userModifiedDate                                    DateTime?                    @db.DateTime(0)
-  document                                            document[]
-  dokumen_library_dokumen_library_create_byTouser     dokumen_library[]            @relation("dokumen_library_create_byTouser")
-  dokumen_library_dokumen_library_modified_byTouser   dokumen_library[]            @relation("dokumen_library_modified_byTouser")
-  pemohon                                             pemohon[]
-  permohonan_permohonan_create_byTouser               permohonan[]                 @relation("permohonan_create_byTouser")
-  permohonan_permohonan_modified_byTouser             permohonan[]                 @relation("permohonan_modified_byTouser")
-  permohonan_approval                                 permohonan_approval[]
-  permohonan_assign_forensik                          permohonan_assign_forensik[]
-  permohonan_penerimaan                               permohonan_penerimaan[]
-  permohonan_penolakan                                permohonan_penolakan[]
-  permohonan_semakan                                  permohonan_semakan[]
-  report_report_create_byTouser                       report[]                     @relation("report_create_byTouser")
-  report_report_modified_byTouser                     report[]                     @relation("report_modified_byTouser")
-  temujanji_temujanji_create_byTouser                 temujanji[]                  @relation("temujanji_create_byTouser")
-  temujanji_temujanji_modified_byTouser               temujanji[]                  @relation("temujanji_modified_byTouser")
-  temujanji_detail_temujanji_detail_create_byTouser   temujanji_detail[]           @relation("temujanji_detail_create_byTouser")
-  temujanji_detail_temujanji_detail_modified_byTouser temujanji_detail[]           @relation("temujanji_detail_modified_byTouser")
-  userrole                                            userrole[]
+  userID                                                Int                          @id @default(autoincrement())
+  userSecretKey                                         String?                      @db.VarChar(255)
+  userUsername                                          String?                      @db.VarChar(255)
+  userPassword                                          String?                      @db.VarChar(255)
+  userFullName                                          String?                      @db.VarChar(255)
+  userEmail                                             String?                      @db.VarChar(255)
+  userPhone                                             String?                      @db.VarChar(255)
+  userRank                                              String?                      @db.VarChar(255)
+  userOfficerNumber                                     String?                      @db.VarChar(255)
+  userStatus                                            String?                      @db.VarChar(255)
+  userCreatedDate                                       DateTime?                    @db.DateTime(0)
+  userModifiedDate                                      DateTime?                    @db.DateTime(0)
+  document                                              document[]
+  dokumen_library_dokumen_library_create_byTouser       dokumen_library[]            @relation("dokumen_library_create_byTouser")
+  dokumen_library_dokumen_library_modified_byTouser     dokumen_library[]            @relation("dokumen_library_modified_byTouser")
+  pemohon                                               pemohon[]
+  permohonan_permohonan_create_byTouser                 permohonan[]                 @relation("permohonan_create_byTouser")
+  permohonan_permohonan_modified_byTouser               permohonan[]                 @relation("permohonan_modified_byTouser")
+  permohonan_approval                                   permohonan_approval[]
+  permohonan_assign_forensik                            permohonan_assign_forensik[]
+  permohonan_detail_permohonan_detail_create_byTouser   permohonan_detail[]          @relation("permohonan_detail_create_byTouser")
+  permohonan_detail_permohonan_detail_modified_byTouser permohonan_detail[]          @relation("permohonan_detail_modified_byTouser")
+  permohonan_penerimaan                                 permohonan_penerimaan[]
+  permohonan_penolakan                                  permohonan_penolakan[]
+  permohonan_semakan                                    permohonan_semakan[]
+  report_report_create_byTouser                         report[]                     @relation("report_create_byTouser")
+  report_report_modified_byTouser                       report[]                     @relation("report_modified_byTouser")
+  temujanji_temujanji_create_byTouser                   temujanji[]                  @relation("temujanji_create_byTouser")
+  temujanji_temujanji_modified_byTouser                 temujanji[]                  @relation("temujanji_modified_byTouser")
+  temujanji_detail_temujanji_detail_create_byTouser     temujanji_detail[]           @relation("temujanji_detail_create_byTouser")
+  temujanji_detail_temujanji_detail_modified_byTouser   temujanji_detail[]           @relation("temujanji_detail_modified_byTouser")
+  userrole                                              userrole[]
 }
 
 model userrole {
@@ -519,4 +527,51 @@ model dokumen_library {
   @@index([create_by], map: "idx_create_by")
   @@index([modified_by], map: "idx_modified_by")
   @@index([reportID], map: "idx_reportID")
+}
+
+model permohonan_detail {
+  permohonanDetailID                                 Int       @id @default(autoincrement())
+  gambarCapJari                                      Int?
+  gambarSubjek                                       Int?
+  negara                                             String?   @db.VarChar(255)
+  namaPemilik                                        String?   @db.VarChar(255)
+  noDokumen                                          String?   @db.VarChar(255)
+  kewarganegaraan                                    String?   @db.VarChar(255)
+  tarikhLahir                                        DateTime? @db.Date
+  jantina                                            String?   @db.VarChar(255)
+  tarikhLuputDokumen                                 DateTime? @db.Date
+  skorPersamaanMuka                                  Decimal?  @db.Decimal(10, 2)
+  skorPersamaanCapJari                               Decimal?  @db.Decimal(10, 2)
+  umur                                               Int?
+  tinggi                                             Decimal?  @db.Decimal(10, 2)
+  warnaRambut                                        String?   @db.VarChar(255)
+  bangsa                                             String?   @db.VarChar(255)
+  etnik                                              String?   @db.VarChar(255)
+  bentukKepala                                       String?   @db.VarChar(255)
+  mata                                               String?   @db.VarChar(255)
+  telinga                                            String?   @db.VarChar(255)
+  hidung                                             String?   @db.VarChar(255)
+  mulut                                              String?   @db.VarChar(255)
+  parut                                              String?   @db.VarChar(255)
+  sejarahPerjalanan                                  String?   @db.VarChar(255)
+  persamaanTandaTangan                               String?   @db.VarChar(255)
+  pemeriksaanLain                                    String?   @db.VarChar(255)
+  dapatan                                            String?   @db.VarChar(255)
+  laporanSystemTdb                                   Int?
+  create_by                                          Int?
+  create_at                                          DateTime? @db.DateTime(0)
+  modified_by                                        Int?
+  modified_at                                        DateTime? @db.DateTime(0)
+  document                                           document? @relation(fields: [laporanSystemTdb], references: [documentID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_detail_ibfk_2")
+  user_permohonan_detail_create_byTouser             user?     @relation("permohonan_detail_create_byTouser", fields: [create_by], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_detail_ibfk_3")
+  user_permohonan_detail_modified_byTouser           user?     @relation("permohonan_detail_modified_byTouser", fields: [modified_by], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_detail_ibfk_4")
+  document_permohonan_detail_gambarCapJariTodocument document? @relation("permohonan_detail_gambarCapJariTodocument", fields: [gambarCapJari], references: [documentID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_detail_ibfk_5")
+  document_permohonan_detail_gambarSubjekTodocument  document? @relation("permohonan_detail_gambarSubjekTodocument", fields: [gambarSubjek], references: [documentID], onDelete: NoAction, onUpdate: NoAction, map: "permohonan_detail_ibfk_6")
+  report                                             report[]
+
+  @@index([create_by], map: "create_by")
+  @@index([laporanSystemTdb], map: "idx_laporanSystemTdb")
+  @@index([modified_by], map: "modified_by")
+  @@index([gambarCapJari], map: "gambarCapJari")
+  @@index([gambarSubjek], map: "gambarSubjek")
 }

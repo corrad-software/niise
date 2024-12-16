@@ -92,9 +92,9 @@ const fetchTemujanji = async () => {
       temujanji.value = response.data;
       // Set form values
       pemohon.value = {
-        nama: temujanji.value.pemohon?.nama_pemohon || "",
-        jawatan: temujanji.value.pemohon?.pangkat_pemohon || "",
-        noPegawai: temujanji.value.pemohon?.no_pegawai_pemohon || "",
+        nama: temujanji.value.pemohon?.nama || "",
+        jawatan: temujanji.value.pemohon?.jawatan || "",
+        noPegawai: temujanji.value.pemohon?.noPegawai || "",
       };
       jenisSemakan.value = temujanji.value.jenisSemakan;
       tarikh.value = new Date(temujanji.value.tarikh)
@@ -171,6 +171,20 @@ const goBack = () => {
 
 // Fetch data on mount
 onMounted(fetchTemujanji);
+
+// Add this with other refs
+const reportType = ref("online"); // 'online' or 'offline'
+
+// Add this computed property to control field visibility
+const showField = computed(() => ({
+  scoreFields: reportType.value === "online",
+  detailFields: reportType.value === "offline",
+}));
+
+// Add method to handle report type selection
+const selectReportType = (type) => {
+  reportType.value = type;
+};
 </script>
 
 <template>
@@ -292,12 +306,62 @@ onMounted(fetchTemujanji);
             </div>
           </div>
 
-          <!-- Section 4: Hasil Pemeriksaan -->
+          <!-- Add this before the form sections -->
           <div class="mb-8">
+            <h4 class="text-lg font-semibold mb-4 pb-2 border-b">
+              Jenis Semakan
+            </h4>
+            <div class="flex gap-4">
+              <rs-button
+                :variant="reportType === 'online' ? 'primary' : 'secondary'"
+                @click="selectReportType('online')"
+              >
+                <Icon name="mdi:web" class="w-4 h-4 mr-2" />
+                Semakan Online
+              </rs-button>
+              <rs-button
+                :variant="reportType === 'offline' ? 'primary' : 'secondary'"
+                @click="selectReportType('offline')"
+              >
+                <Icon name="mdi:office-building" class="w-4 h-4 mr-2" />
+                Semakan Offline
+              </rs-button>
+            </div>
+          </div>
+
+          <!-- Modify the Hasil Pemeriksaan section -->
+          <div v-if="reportType" class="mb-8">
             <h4 class="text-lg font-semibold mb-4 pb-2 border-b">
               Hasil Pemeriksaan
             </h4>
-            <div class="grid gap-4 md:grid-cols-2">
+
+            <!-- Online Fields -->
+            <div v-if="showField.scoreFields" class="grid gap-4 md:grid-cols-2">
+              <FormKit
+                type="text"
+                label="Skor Persamaan Muka"
+                :disabled="true"
+                v-model="temujanjiDetail.skorPersamaanMuka"
+              />
+              <FormKit
+                type="text"
+                label="Skor Persamaan Cap Jari"
+                :disabled="true"
+                v-model="temujanjiDetail.skorPersamaanCapJari"
+              />
+              <FormKit
+                type="textarea"
+                label="Dapatan"
+                :disabled="true"
+                v-model="temujanjiDetail.dapatan"
+              />
+            </div>
+
+            <!-- Offline Fields -->
+            <div
+              v-if="showField.detailFields"
+              class="grid gap-4 md:grid-cols-2"
+            >
               <FormKit
                 type="text"
                 label="Negara"
@@ -340,139 +404,122 @@ onMounted(fetchTemujanji);
                 :disabled="true"
                 :value="formatDate(temujanjiDetail.tarikhLuputDokumen)"
               />
-              <FormKit
-                type="text"
-                label="Skor Persamaan Muka"
-                :disabled="true"
-                v-model="temujanjiDetail.skorPersamaanMuka"
-              />
-              <FormKit
-                type="text"
-                label="Skor Persamaan Cap Jari"
-                :disabled="true"
-                v-model="temujanjiDetail.skorPersamaanCapJari"
-              />
             </div>
           </div>
 
-          <!-- Section 5: Ciri-ciri Fizikal -->
-          <div class="mb-8">
-            <h4 class="text-lg font-semibold mb-4 pb-2 border-b">
-              Ciri-ciri Fizikal
-            </h4>
-            <div class="grid gap-4 md:grid-cols-3">
-              <FormKit
-                type="text"
-                label="Umur"
-                :disabled="true"
-                v-model="temujanjiDetail.umur"
-              />
-              <FormKit
-                type="text"
-                label="Tinggi (CM)"
-                :disabled="true"
-                v-model="temujanjiDetail.tinggi"
-              />
-              <FormKit
-                type="text"
-                label="Warna Rambut"
-                :disabled="true"
-                v-model="temujanjiDetail.warnaRambut"
-              />
-              <FormKit
-                type="text"
-                label="Bangsa"
-                :disabled="true"
-                v-model="temujanjiDetail.bangsa"
-              />
-              <FormKit
-                type="text"
-                label="Kumpulan Etnik"
-                :disabled="true"
-                v-model="temujanjiDetail.etnik"
-              />
-              <FormKit
-                type="text"
-                label="Bentuk Kepala"
-                :disabled="true"
-                v-model="temujanjiDetail.bentukKepala"
-              />
+          <!-- Modify the sections visibility based on report type -->
+          <template v-if="showField.detailFields">
+            <!-- Show these sections only for offline semakan -->
+            <div class="mb-8">
+              <h4 class="text-lg font-semibold mb-4 pb-2 border-b">
+                Ciri-ciri Fizikal
+              </h4>
+              <div class="grid gap-4 md:grid-cols-3">
+                <FormKit
+                  type="text"
+                  label="Umur"
+                  :disabled="true"
+                  v-model="temujanjiDetail.umur"
+                />
+                <FormKit
+                  type="text"
+                  label="Tinggi (CM)"
+                  :disabled="true"
+                  v-model="temujanjiDetail.tinggi"
+                />
+                <FormKit
+                  type="text"
+                  label="Warna Rambut"
+                  :disabled="true"
+                  v-model="temujanjiDetail.warnaRambut"
+                />
+                <FormKit
+                  type="text"
+                  label="Bangsa"
+                  :disabled="true"
+                  v-model="temujanjiDetail.bangsa"
+                />
+                <FormKit
+                  type="text"
+                  label="Kumpulan Etnik"
+                  :disabled="true"
+                  v-model="temujanjiDetail.etnik"
+                />
+                <FormKit
+                  type="text"
+                  label="Bentuk Kepala"
+                  :disabled="true"
+                  v-model="temujanjiDetail.bentukKepala"
+                />
+              </div>
             </div>
-          </div>
 
-          <!-- Section 6: Ciri-ciri Wajah -->
-          <div class="mb-8">
-            <h4 class="text-lg font-semibold mb-4 pb-2 border-b">
-              Ciri-ciri Wajah
-            </h4>
-            <div class="grid gap-4 md:grid-cols-4">
-              <FormKit
-                type="text"
-                label="Mata"
-                :disabled="true"
-                v-model="temujanjiDetail.mata"
-              />
-              <FormKit
-                type="text"
-                label="Telinga"
-                :disabled="true"
-                v-model="temujanjiDetail.telinga"
-              />
-              <FormKit
-                type="text"
-                label="Hidung"
-                :disabled="true"
-                v-model="temujanjiDetail.hidung"
-              />
-              <FormKit
-                type="text"
-                label="Mulut"
-                :disabled="true"
-                v-model="temujanjiDetail.mulut"
-              />
+            <div class="mb-8">
+              <h4 class="text-lg font-semibold mb-4 pb-2 border-b">
+                Ciri-ciri Wajah
+              </h4>
+              <div class="grid gap-4 md:grid-cols-4">
+                <FormKit
+                  type="text"
+                  label="Mata"
+                  :disabled="true"
+                  v-model="temujanjiDetail.mata"
+                />
+                <FormKit
+                  type="text"
+                  label="Telinga"
+                  :disabled="true"
+                  v-model="temujanjiDetail.telinga"
+                />
+                <FormKit
+                  type="text"
+                  label="Hidung"
+                  :disabled="true"
+                  v-model="temujanjiDetail.hidung"
+                />
+                <FormKit
+                  type="text"
+                  label="Mulut"
+                  :disabled="true"
+                  v-model="temujanjiDetail.mulut"
+                />
+              </div>
             </div>
-          </div>
 
-          <!-- Section 7: Maklumat Tambahan -->
-          <div class="mb-8">
-            <h4 class="text-lg font-semibold mb-4 pb-2 border-b">
-              Maklumat Tambahan
-            </h4>
-            <div class="grid gap-4 md:grid-cols-1">
-              <FormKit
-                type="textarea"
-                label="Parut, Tahi Lalat, Tatu dan Sebagainya"
-                :disabled="true"
-                v-model="temujanjiDetail.parut"
-              />
-              <FormKit
-                type="textarea"
-                label="Sejarah Perjalanan"
-                :disabled="true"
-                v-model="temujanjiDetail.sejarahPerjalanan"
-              />
-              <FormKit
-                type="text"
-                label="Persamaan Tandatangan"
-                :disabled="true"
-                v-model="temujanjiDetail.persamaanTandaTangan"
-              />
-              <FormKit
-                type="textarea"
-                label="Pemeriksaan Lain"
-                :disabled="true"
-                v-model="temujanjiDetail.pemeriksaanLain"
-              />
-              <FormKit
-                type="textarea"
-                label="Dapatan"
-                :disabled="true"
-                v-model="temujanjiDetail.dapatan"
-              />
+            <div class="mb-8">
+              <h4 class="text-lg font-semibold mb-4 pb-2 border-b">
+                Maklumat Tambahan
+              </h4>
+              <div class="grid gap-4 md:grid-cols-1">
+                <FormKit
+                  type="textarea"
+                  label="Parut, Tahi Lalat, Tatu dan Sebagainya"
+                  :disabled="true"
+                  v-model="temujanjiDetail.parut"
+                />
+                <FormKit
+                  type="textarea"
+                  label="Sejarah Perjalanan"
+                  :disabled="true"
+                  v-model="temujanjiDetail.sejarahPerjalanan"
+                />
+                <FormKit
+                  type="text"
+                  label="Persamaan Tandatangan"
+                  :disabled="true"
+                  v-model="temujanjiDetail.persamaanTandaTangan"
+                />
+                <FormKit
+                  type="textarea"
+                  label="Pemeriksaan Lain"
+                  :disabled="true"
+                  v-model="temujanjiDetail.pemeriksaanLain"
+                />
+              </div>
             </div>
-          </div>
+          </template>
 
-          <!-- Section 8: Laporan TD&B -->
+          <!-- Always show Laporan TD&B section -->
           <div class="mb-8">
             <h4 class="text-lg font-semibold mb-4 pb-2 border-b">
               Laporan TD&B

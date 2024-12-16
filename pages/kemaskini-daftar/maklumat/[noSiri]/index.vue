@@ -63,6 +63,9 @@ const timelineEvents = ref([]);
 const kelulusanKetuaBahagian = ref(null);
 const ulasanKetuaBahagian = ref("");
 
+// Add this computed property after other refs
+const hasForensicOfficer = computed(() => forensicOfficers.value.length > 0);
+
 // Fetch the status data
 const fetchStatusData = async () => {
   try {
@@ -185,6 +188,14 @@ const fetchTimelineData = async () => {
 
 // Open modals
 const openAddModal = () => {
+  if (hasForensicOfficer.value) {
+    $swal.fire({
+      title: "Tidak Dibenarkan",
+      text: "Hanya seorang pegawai forensik dibenarkan",
+      icon: "warning",
+    });
+    return;
+  }
   editMode.value = false;
   selectedPegawai.value = null;
   fetchAvailableOfficers();
@@ -480,9 +491,11 @@ const openSemakModal = () => {
   const userRoles = roles;
   if (userRoles.includes("Ketua Bahagian")) {
     showSemakKetuaModal.value = true;
-  } else {
-    showSemakModal.value = true;
   }
+
+  // else {
+  //   showSemakModal.value = true;
+  // }
 };
 
 // Add new close function for Ketua modal
@@ -677,14 +690,14 @@ const showReportDetails = async (reportId) => {
         <h3 class="text-2xl font-bold tracking-tight">Status Permohonan</h3>
       </div>
       <div class="flex gap-x-2">
-        <!-- <rs-button
+        <rs-button
           v-if="buttonPermissions.semak"
           @click="openSemakModal"
           variant="primary"
         >
           <Icon name="ph:check" class="mr-2 w-4 h-4" />
           Semak
-        </rs-button> -->
+        </rs-button>
         <rs-button
           v-if="buttonPermissions.tolak"
           @click="openTolakModal"
@@ -737,7 +750,11 @@ const showReportDetails = async (reportId) => {
           Pegawai Forensik Yang Terlibat
         </h3>
       </div>
-      <rs-button v-if="isKetuaBahagian" @click="openAddModal" variant="primary">
+      <rs-button
+        v-if="isKetuaBahagian && !hasForensicOfficer"
+        @click="openAddModal"
+        variant="primary"
+      >
         <Icon name="ph:plus" class="mr-2 w-4 h-4" />
         Tambah Pegawai
       </rs-button>
@@ -1347,7 +1364,7 @@ const showReportDetails = async (reportId) => {
     <!-- Terima Modal -->
     <rs-modal v-model="showTerimaModal" @close="closeTerimaModal">
       <template #header>
-        <h3>FR 3: Borang Akuan Penerimaan Barang Kes</h3>
+        <h3>FR 2: Borang Semakan Permohonan Analisis</h3>
       </template>
       <template #body>
         <FormKit type="form" :actions="false" @submit="handleTerimaSubmit">
