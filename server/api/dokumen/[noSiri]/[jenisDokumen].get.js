@@ -9,7 +9,9 @@ export default defineEventHandler(async (event) => {
     const templateName = `${jenisDokumen}.docx`;
     const templatePath = join(
       process.cwd(),
-      "assets/document/templates",
+      process.env.SERVER === "false"
+        ? "assets/document/templates"
+        : "../assets/document/templates",
       templateName
     );
 
