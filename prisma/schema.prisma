@@ -446,6 +446,8 @@ model user {
   userRank                                              String?                      @db.VarChar(255)
   userOfficerNumber                                     String?                      @db.VarChar(255)
   userStatus                                            String?                      @db.VarChar(255)
+  userLastLogin                                         DateTime?                    @db.DateTime(0)
+  userLastLoginIP                                       String?                      @db.VarChar(255)
   userCreatedDate                                       DateTime?                    @db.DateTime(0)
   userModifiedDate                                      DateTime?                    @db.DateTime(0)
   document                                              document[]

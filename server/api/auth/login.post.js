@@ -51,6 +51,19 @@ export default defineEventHandler(async (event) => {
 
     const roleNames = roles.map((r) => r.role.roleName);
 
+    // Update last login information
+    const clientIP = event.node.req.headers['x-forwarded-for'] || 
+                    event.node.req.socket.remoteAddress || 
+                    'Unknown';
+                    
+    await prisma.user.update({
+      where: { userID: user.userID },
+      data: {
+        userLastLogin: new Date(),
+        userLastLoginIP: clientIP
+      }
+    });
+
     const accessToken = generateAccessToken({
       username: user.userUsername,
       roles: roleNames,

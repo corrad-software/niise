@@ -17,81 +17,112 @@ definePageMeta({
 const userStore = useUserStore();
 
 // Common data for all roles
-const lastLoginDetail = ref({
-  date: DateTime.now().toFormat("yyyy-MM-dd"),
-  time: DateTime.now().toFormat("HH:mm:ss"),
-  ip: "192.168.1.1",
+const { data: dashboardResponse } = await useFetch('/api/dashboard');
+const { data: notificationsResponse } = await useFetch('/api/dashboard/notifications');
+
+// Add watchers to debug API responses
+watch(dashboardResponse, (newVal) => {
+  console.log('Dashboard Data:', newVal);
 });
 
-const notifications = ref([
-  {
-    title: "Permohonan Baru",
-    message: "Permohonan #12345 telah dihantar",
-    time: "2 jam yang lalu",
-  },
-  {
-    title: "Permohonan Diluluskan",
-    message: "Permohonan #12340 telah diluluskan",
-    time: "5 jam yang lalu",
-  },
-  // Add more notifications as needed
-]);
+watch(notificationsResponse, (newVal) => {
+  console.log('Notifications Data:', newVal);
+});
+
+const lastLoginDetail = computed(() => {
+  const loginData = dashboardResponse.value?.data?.lastLogin;
+  if (!loginData) {
+    return {
+      date: DateTime.now().toFormat("yyyy-MM-dd"),
+      time: DateTime.now().toFormat("HH:mm:ss"),
+      ip: "192.168.1.1",
+    };
+  }
+  return loginData;
+});
+
+const notifications = computed(() => {
+  const notifData = notificationsResponse.value?.data;
+  if (!notifData || !Array.isArray(notifData) || notifData.length === 0) {
+    return [
+      {
+        title: "Permohonan Baru",
+        message: "Permohonan #12345 telah dihantar",
+        time: "2 jam yang lalu",
+      },
+      {
+        title: "Permohonan Diluluskan",
+        message: "Permohonan #12340 telah diluluskan",
+        time: "5 jam yang lalu",
+      },
+    ];
+  }
+  return notifData;
+});
 
 // Role-specific summary data
 const summaryData = computed(() => {
-  if (
-    ["Pegawai Penyiasat", "Pegawai Penyiasat JIM"].includes(userStore.roles[0])
-  ) {
+  const stats = dashboardResponse.value?.data?.stats || {};
+  console.log('Stats data:', stats);
+  
+  if (["Pegawai Penyiasat", "Pegawai Penyiasat JIM"].includes(userStore.roles[0])) {
     return [
       {
         title: "Login Terakhir",
         value: formatLastLogin(lastLoginDetail.value),
         icon: "ic:outline-access-time",
+        color: "cyan",
       },
       {
         title: "Jumlah Permohonan Dihantar",
-        value: "45",
+        value: stats.dihantar?.toString() || "0",
         icon: "ic:outline-send",
+        color: "blue",
       },
       {
         title: "Jumlah Permohonan Draf",
-        value: "12",
+        value: stats.draft?.toString() || "0",
         icon: "material-symbols:draft",
+        color: "orange",
       },
       {
         title: "Jumlah Permohonan Ditolak",
-        value: "5",
+        value: stats.rejected?.toString() || "0",
         icon: "ic:outline-cancel",
+        color: "red",
       },
       {
         title: "Jumlah Permohonan Diluluskan",
-        value: "28",
+        value: stats.approved?.toString() || "0",
         icon: "ic:outline-check-circle",
+        color: "green",
       },
     ];
-  } else if (
-    ["Ketua Bahagian", "Pegawai Kaunter"].includes(userStore.roles[0])
-  ) {
+  } else if (["Ketua Bahagian", "Pegawai Kaunter"].includes(userStore.roles[0])) {
     return [
       {
         title: "Login Terakhir",
         value: formatLastLogin(lastLoginDetail.value),
         icon: "ic:outline-access-time",
+        color: "cyan",
       },
       {
         title: "Jumlah Permohonan Dihantar",
-        value: "85",
+        value: stats.dihantar?.toString() || "0",
         icon: "ic:outline-send",
+        color: "blue",
       },
       {
         title: "Jumlah Permohonan Ditolak",
-        value: "15",
+        value: stats.ditolak?.toString() || "0",
         icon: "ic:outline-cancel",
+        color: "red",
       },
       {
         title: "Jumlah Permohonan Diluluskan",
-        value: "70",
+        value: stats.diluluskan?.toString() || "0",
         icon: "ic:outline-check-circle",
+        color: "green",
       },
     ];
   } else if (userStore.roles[0] === "Pegawai Forensik") {
@@ -100,47 +131,85 @@ const summaryData = computed(() => {
         title: "Login Terakhir",
         value: formatLastLogin(lastLoginDetail.value),
         icon: "ic:outline-access-time",
+        color: "cyan",
       },
       {
         title: "Jumlah Permohonan Dihantar",
-        value: "65",
+        value: stats.dihantar?.toString() || "0",
         icon: "ic:outline-send",
+        color: "blue",
       },
       {
         title: "Jumlah Permohonan Selesai",
-        value: "50",
+        value: stats.completed?.toString() || "0",
         icon: "ic:outline-task-alt",
+        color: "green",
       },
     ];
   }
   return [];
 });
 
-// Modified chart data structure
-const series = ref([
-  {
-    name: "Permohonan",
-    data: [30, 40, 35, 50, 45, 60, 55, 65, 70, 80, 75, 85], // Default data
-  },
-]);
+// Modified chart data structure based on API response
+const series = computed(() => {
+  console.log('Monthly Stats:', dashboardResponse.value?.data?.monthlyStats);
+  const monthlyData = dashboardResponse.value?.data?.monthlyStats || [];
+  const months = Array(12).fill(0);
+
+  // Process monthly data based on role
+  monthlyData.forEach(stat => {
+    if (stat._count && stat.create_at) {
+      const month = new Date(stat.create_at).getMonth();
+      if (month >= 0 && month < 12) {
+        // For PP, show all permohonan
+        // For others, only show diluluskan
+        if (["Pegawai Penyiasat", "Pegawai Penyiasat JIM"].includes(userStore.roles[0])) {
+          months[month] += stat._count;
+        } else if (stat.status_permohonan === "Permohonan Diluluskan") {
+          months[month] += stat._count;
+        }
+      }
+    }
+  });
+
+  return [{
+    name: ["Pegawai Penyiasat", "Pegawai Penyiasat JIM"].includes(userStore.roles[0])
+      ? "Total Permohonan"
+      : "Permohonan Diluluskan",
+    data: months,
+  }];
+});
 
 // Modified chart options
 const chartOptions = computed(() => ({
   chart: {
     id: "apexChart",
-    height: 350,
     type: "line",
+    toolbar: {
+      show: true,
+    },
+    zoom: {
+      enabled: true,
+    },
   },
   stroke: {
     curve: "smooth",
-    width: 2,
+    width: 3,
+  },
+  colors: ['#0EA5E9'], // Tailwind blue-500
+  grid: {
+    borderColor: '#E2E8F0', // Tailwind gray-200
+    row: {
+      colors: ['transparent'],
+      opacity: 0.5,
+    },
   },
   legend: {
     position: "top",
+    horizontalAlign: "left",
   },
   theme: {
     mode: "light",
-    palette: "palette1",
   },
   xaxis: {
     categories: [
@@ -157,10 +226,54 @@ const chartOptions = computed(() => ({
       "Nov",
       "Dec",
     ],
+    axisBorder: {
+      show: true,
+      color: '#E2E8F0', // Tailwind gray-200
+    },
+    axisTicks: {
+      show: true,
+      color: '#E2E8F0', // Tailwind gray-200
+    },
+    labels: {
+      style: {
+        colors: '#64748B', // Tailwind gray-500
+        fontSize: '12px',
+      },
+    },
   },
   yaxis: {
     title: {
       text: "Jumlah Permohonan",
+      style: {
+        fontSize: '14px',
+        fontWeight: 500,
+        color: '#64748B', // Tailwind gray-500
+      },
+    },
+    min: 0,
+    forceNiceScale: true,
+    labels: {
+      style: {
+        colors: '#64748B', // Tailwind gray-500
+        fontSize: '12px',
+      },
+      formatter: function (value) {
+        return Math.round(value);
+      },
+    },
+  },
+  markers: {
+    size: 5,
+    colors: ['#0EA5E9'], // Tailwind blue-500
+    strokeColors: '#fff',
+    strokeWidth: 2,
+  },
+  tooltip: {
+    theme: 'light',
+    y: {
+      formatter: function(value) {
+        return value + " permohonan";
+      },
     },
   },
   responsive: [
@@ -175,28 +288,102 @@ const chartOptions = computed(() => ({
   ],
 }));
 
-// For pie chart
-const pieChartSeries = ref([150, 100, 75, 50]); // Values from evidenceTypeData
+// For pie chart - evidence type statistics
+const pieChartSeries = computed(() => {
+  console.log('Evidence Stats:', dashboardResponse.value?.data?.evidenceStats); // Debug log
+  const evidenceStats = dashboardResponse.value?.data?.evidenceStats || [];
+  return evidenceStats.map(stat => stat._count || 0);
+});
 
-const pieChartOptions = computed(() => ({
-  chart: {
-    id: "pieChart",
-  },
-  labels: ["Passport", "Mallpass", "Dokumen", "Lain-lain"],
-  theme: {
-    mode: "light",
-    palette: "palette1",
-  },
-  responsive: [
-    {
-      breakpoint: 480,
-      options: {
-        chart: { width: 200 },
-        legend: { position: "bottom" },
+const pieChartOptions = computed(() => {
+  const evidenceStats = dashboardResponse.value?.data?.evidenceStats || [];
+  const labels = evidenceStats.map(stat => stat.nama) || ["Passport", "Mallpass", "Dokumen", "Lain-lain"];
+  
+  return {
+    chart: {
+      id: "pieChart",
+      type: 'pie',
+      toolbar: {
+        show: true,
       },
     },
-  ],
-}));
+    labels,
+    colors: [
+      '#0EA5E9', // blue-500
+      '#22C55E', // green-500
+      '#EAB308', // yellow-500
+      '#EF4444', // red-500
+      '#8B5CF6', // purple-500
+      '#EC4899', // pink-500
+    ],
+    legend: {
+      position: 'bottom',
+      horizontalAlign: 'center',
+      fontSize: '14px',
+      markers: {
+        width: 12,
+        height: 12,
+        radius: 6,
+      },
+      itemMargin: {
+        horizontal: 10,
+        vertical: 5
+      },
+      formatter: function(seriesName, opts) {
+        return [seriesName, ' - ', opts.w.globals.series[opts.seriesIndex]]
+      }
+    },
+    stroke: {
+      width: 0,
+      colors: ['#fff']
+    },
+    dataLabels: {
+      enabled: true,
+      style: {
+        fontSize: '14px',
+        fontFamily: 'inherit',
+        fontWeight: 'normal',
+      },
+      dropShadow: {
+        enabled: false
+      },
+      formatter: function(val, opts) {
+        return opts.w.config.labels[opts.seriesIndex]
+      }
+    },
+    tooltip: {
+      enabled: true,
+      theme: 'light',
+      y: {
+        formatter: function(val) {
+          return val + ' barang bukti'
+        }
+      }
+    },
+    plotOptions: {
+      pie: {
+        donut: {
+          size: '0%'
+        },
+        expandOnClick: true
+      }
+    },
+    responsive: [
+      {
+        breakpoint: 480,
+        options: {
+          chart: {
+            width: '100%'
+          },
+          legend: {
+            position: 'bottom',
+            fontSize: '12px',
+          }
+        }
+      }
+    ]
+  };
+});
 
 // Format function using Luxon
 const formatLastLogin = (login) => {
@@ -214,6 +401,24 @@ const formatLastLogin = (login) => {
     return "-";
   }
 };
+
+const getNotificationIcon = (title) => {
+  if (title.includes('Baru') || title.includes('Dihantar')) {
+    return 'ic:outline-mail';
+  }
+  if (title.includes('Diterima') || title.includes('Diluluskan')) {
+    return 'ic:outline-check-circle';
+  }
+  if (title.includes('Ditolak')) {
+    return 'ic:outline-cancel';
+  }
+  return 'ic:outline-info';
+};
+
+// Conditionally show pie chart only for Pegawai Penyiasat
+const showPieChart = computed(() => {
+  return ["Pegawai Penyiasat", "Pegawai Penyiasat JIM"].includes(userStore.roles[0]);
+});
 </script>
 
 <template>
@@ -222,105 +427,58 @@ const formatLastLogin = (login) => {
 
     <!-- Summary Cards -->
     <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
-      <!-- Login Card -->
-      <rs-card class="transition-all duration-300 hover:shadow-lg mb-0">
+      <rs-card 
+        v-for="(item, index) in summaryData" 
+        :key="index"
+        class="transition-all duration-300 hover:shadow-lg mb-0"
+      >
         <div class="pt-3 pb-3 px-5 flex items-center gap-4">
           <div
-            class="p-5 flex justify-center items-center bg-cyan-500/20 rounded-2xl"
+            class="p-5 flex justify-center items-center rounded-2xl"
+            :class="{
+              'bg-cyan-500/20': item.color === 'cyan',
+              'bg-blue-500/20': item.color === 'blue',
+              'bg-orange-500/20': item.color === 'orange',
+              'bg-red-500/20': item.color === 'red',
+              'bg-green-500/20': item.color === 'green',
+              'bg-purple-500/20': item.color === 'purple',
+              'bg-indigo-500/20': item.color === 'indigo',
+              'bg-yellow-500/20': item.color === 'yellow',
+            }"
           >
             <Icon
-              class="text-cyan-600 text-3xl"
-              name="ic:outline-access-time"
+              :name="item.icon"
+              class="text-3xl"
+              :class="{
+                'text-cyan-600': item.color === 'cyan',
+                'text-blue-600': item.color === 'blue',
+                'text-orange-600': item.color === 'orange',
+                'text-red-600': item.color === 'red',
+                'text-green-600': item.color === 'green',
+                'text-purple-600': item.color === 'purple',
+                'text-indigo-600': item.color === 'indigo',
+                'text-yellow-600': item.color === 'yellow',
+              }"
             />
           </div>
           <div class="flex-1 truncate">
-            <span class="block font-bold text-2xl leading-tight text-cyan-600">
-              {{ formatLastLogin(lastLoginDetail) }}
-            </span>
-            <span class="text-sm font-medium text-gray-600">
-              Login Terakhir
-            </span>
-          </div>
-        </div>
-      </rs-card>
-
-      <!-- Permohonan Dihantar Card -->
-      <rs-card class="transition-all duration-300 hover:shadow-lg mb-0">
-        <div class="pt-3 pb-3 px-5 flex items-center gap-4">
-          <div
-            class="p-5 flex justify-center items-center bg-blue-500/20 rounded-2xl"
-          >
-            <Icon class="text-blue-600 text-3xl" name="ic:outline-send" />
-          </div>
-          <div class="flex-1 truncate">
-            <span class="block font-bold text-2xl leading-tight text-blue-600"
-              >45</span
+            <span 
+              class="block font-bold text-2xl leading-tight"
+              :class="{
+                'text-cyan-600': item.color === 'cyan',
+                'text-blue-600': item.color === 'blue',
+                'text-orange-600': item.color === 'orange',
+                'text-red-600': item.color === 'red',
+                'text-green-600': item.color === 'green',
+                'text-purple-600': item.color === 'purple',
+                'text-indigo-600': item.color === 'indigo',
+                'text-yellow-600': item.color === 'yellow',
+              }"
             >
-            <span class="text-sm font-medium text-gray-600">
-              Jumlah Permohonan Dihantar
+              {{ item.value }}
             </span>
-          </div>
-        </div>
-      </rs-card>
-
-      <!-- Permohonan Draf Card -->
-      <rs-card class="transition-all duration-300 hover:shadow-lg mb-0">
-        <div class="pt-3 pb-3 px-5 flex items-center gap-4">
-          <div
-            class="p-5 flex justify-center items-center bg-amber-500/20 rounded-2xl"
-          >
-            <Icon
-              class="text-amber-600 text-3xl"
-              name="material-symbols:draft"
-            />
-          </div>
-          <div class="flex-1 truncate">
-            <span class="block font-bold text-2xl leading-tight text-amber-600"
-              >12</span
-            >
             <span class="text-sm font-medium text-gray-600">
-              Jumlah Permohonan Draf
-            </span>
-          </div>
-        </div>
-      </rs-card>
-
-      <!-- Permohonan Ditolak Card -->
-      <rs-card class="transition-all duration-300 hover:shadow-lg mb-0">
-        <div class="pt-3 pb-3 px-5 flex items-center gap-4">
-          <div
-            class="p-5 flex justify-center items-center bg-red-500/20 rounded-2xl"
-          >
-            <Icon class="text-red-600 text-3xl" name="ic:outline-cancel" />
-          </div>
-          <div class="flex-1 truncate">
-            <span class="block font-bold text-2xl leading-tight text-red-600"
-              >5</span
-            >
-            <span class="text-sm font-medium text-gray-600">
-              Jumlah Permohonan Ditolak
-            </span>
-          </div>
-        </div>
-      </rs-card>
-
-      <!-- Permohonan Diluluskan Card -->
-      <rs-card class="transition-all duration-300 hover:shadow-lg mb-0">
-        <div class="pt-3 pb-3 px-5 flex items-center gap-4">
-          <div
-            class="p-5 flex justify-center items-center bg-green-500/20 rounded-2xl"
-          >
-            <Icon
-              class="text-green-600 text-3xl"
-              name="ic:outline-check-circle"
-            />
-          </div>
-          <div class="flex-1 truncate">
-            <span class="block font-bold text-2xl leading-tight text-green-600"
-              >28</span
-            >
-            <span class="text-sm font-medium text-gray-600">
-              Jumlah Permohonan Diluluskan
+              {{ item.title }}
             </span>
           </div>
         </div>
@@ -330,20 +488,53 @@ const formatLastLogin = (login) => {
     <!-- Notifications -->
     <rs-card class="mb-6">
       <template #header>
-        <h2 class="text-xl font-bold text-primary">Notifikasi</h2>
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-bold text-primary">Notifikasi</h2>
+          <!-- <button class="text-sm text-gray-500 hover:text-primary transition-colors">
+            Lihat Semua
+          </button> -->
+        </div>
       </template>
       <template #body>
-        <div class="divide-y">
+        <div class="space-y-6">
           <div
             v-for="(notification, index) in notifications"
             :key="index"
-            class="py-4 flex justify-between items-start"
+            class="flex items-start space-x-4 group"
           >
-            <div>
-              <h3 class="font-semibold">{{ notification.title }}</h3>
-              <p class="text-gray-600">{{ notification.message }}</p>
+            <!-- Status Icon -->
+            <div 
+              class="mt-1 w-8 h-8 rounded-full flex items-center justify-center"
+              :class="{
+                'bg-blue-100 text-blue-600': notification.title.includes('Baru') || notification.title.includes('Dihantar'),
+                'bg-green-100 text-green-600': notification.title.includes('Diterima') || notification.title.includes('Diluluskan'),
+                'bg-red-100 text-red-600': notification.title.includes('Ditolak'),
+                'bg-gray-100 text-gray-600': !notification.title.includes('Baru') && 
+                  !notification.title.includes('Diterima') && 
+                  !notification.title.includes('Ditolak') &&
+                  !notification.title.includes('Diluluskan')
+              }"
+            >
+              <Icon
+                :name="getNotificationIcon(notification.title)"
+                class="text-xl"
+              />
             </div>
-            <span class="text-sm text-gray-500">{{ notification.time }}</span>
+
+            <!-- Content -->
+            <div class="flex-1 min-w-0">
+              <div class="flex justify-between items-start">
+                <h3 class="text-sm font-semibold text-gray-900 group-hover:text-primary transition-colors">
+                  {{ notification.title }}
+                </h3>
+                <span class="text-xs text-gray-500 whitespace-nowrap ml-2">
+                  {{ notification.time }}
+                </span>
+              </div>
+              <p class="mt-1 text-sm text-gray-600 line-clamp-2">
+                {{ notification.message }}
+              </p>
+            </div>
           </div>
         </div>
       </template>
@@ -354,9 +545,9 @@ const formatLastLogin = (login) => {
       <template #header>
         <h2 class="text-xl font-bold text-primary">
           {{
-            userStore.roles[0] === "Pegawai Forensik"
-              ? "Total Permohonan Selesai Tahunan"
-              : "Total Permohonan Tahunan"
+            ["Pegawai Penyiasat", "Pegawai Penyiasat JIM"].includes(userStore.roles[0])
+              ? "Total Permohonan Tahunan"
+              : "Total Permohonan Diluluskan Tahunan"
           }}
         </h2>
       </template>
@@ -373,15 +564,8 @@ const formatLastLogin = (login) => {
       </template>
     </rs-card>
 
-    <!-- Pie Chart -->
-    <rs-card
-      v-if="
-        ['Pegawai Penyiasat', 'Pegawai Penyiasat JIM'].includes(
-          userStore.roles[0]
-        )
-      "
-      class="mb-6"
-    >
+    <!-- Pie Chart - Only show for Pegawai Penyiasat -->
+    <rs-card v-if="showPieChart" class="mb-6">
       <template #header>
         <h2 class="text-xl font-bold text-primary">Jumlah Bahan Bukti</h2>
       </template>
