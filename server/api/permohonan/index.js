@@ -87,6 +87,8 @@ export default defineEventHandler(async (event) => {
               "Temujanji Ditolak",
             ],
           };
+
+      whereCondition.create_by = userID;
     }
 
     const permohonan = await prisma.permohonan.findMany({

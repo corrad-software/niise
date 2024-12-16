@@ -235,7 +235,7 @@ onMounted(() => {
       </div>
 
       <!-- Pemohon Role Cards -->
-      <template v-if="userStore.roles.includes('Pegawai Penyiasat')">
+      <template v-if="userStore.roles.includes('Pegawai Penyiasat') || userStore.roles.includes('Pegawai Penyiasat JIM')">
         <rs-card class="p-4 md:col-span-2 lg:col-span-4 mb-0">
           <div class="space-y-2">
             <h3 class="text-sm font-medium text-muted-foreground">

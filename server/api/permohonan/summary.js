@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
           pegawai_forensikID: userID,
         },
       };
-    } else if (roles.includes("Pegawai Penyiasat")) {
+    } else if (roles.includes("Pegawai Penyiasat") || roles.includes("Pegawai Penyiasat JIM")) {
       whereConditions.create_by = userID;
     }
 

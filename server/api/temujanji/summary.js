@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
       jumlahTemujanjiHariIni: 0,
     };
 
-    if (roles.includes("Pegawai Penyiasat")) {
+    if (roles.includes("Pegawai Penyiasat") || roles.includes("Pegawai Penyiasat JIM")) {
       // Get all pemohon records for the user
       const pemohonList = await prisma.pemohon.findMany({
         where: {

@@ -1,4 +1,7 @@
 <script setup>
+import { useUserStore } from "~/stores/user";
+const userStore = useUserStore();
+
 definePageMeta({
   title: "Kemaskini Permohonan",
   middleware: ["auth"],
@@ -293,6 +296,43 @@ const resetForm = () => {
   tarikhTemujanji.value = "";
   slotMasa.value = "";
 };
+
+const generateBarang = async () => {
+  if (!noKertasSiasatan.value) {
+    $swal.fire({
+      title: "Ralat!",
+      text: "No Kertas Siasatan diperlukan untuk jana barang",
+      icon: "error",
+      confirmButtonText: "OK",
+    });
+    return;
+  }
+
+  try {
+    const response = await $fetch(
+      `/api/jana-barang?noKertasSiasatan=${noKertasSiasatan.value}`
+    );
+
+    if (response.statusCode === 200) {
+      // Update the barangList with the retrieved data
+      barangList.value = response.data;
+    } else {
+      $swal.fire({
+        title: "Ralat!",
+        text: response.message,
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
+  } catch (error) {
+    $swal.fire({
+      title: "Ralat!",
+      text: "Gagal menjana barang. Sila cuba lagi.",
+      icon: "error",
+      confirmButtonText: "OK",
+    });
+  }
+};
 </script>
 
 <template>
@@ -435,10 +475,27 @@ const resetForm = () => {
           <div
             class="flex flex-col md:flex-row items-center justify-between mb-2"
           >
-            <h3 class="mb-2">Senarai Barang</h3>
-            <rs-button type="button" @click="openBarangModal" variant="primary">
+            <h3 class="mb-2">
+              Senarai Barang<span class="text-red-500">*</span>
+            </h3>
+            <rs-button
+              v-if="!userStore.roles.includes('Pegawai Penyiasat JIM')"
+              type="button"
+              @click="openBarangModal"
+              variant="primary"
+            >
               <Icon name="ph:plus" class="w-4 h-4 mr-2" />
               Tambah Barang
+            </rs-button>
+            <rs-button
+              v-else-if="userStore.roles.includes('Pegawai Penyiasat JIM')"
+              type="button"
+              @click="generateBarang"
+              variant="secondary"
+              :disabled="!noKertasSiasatan"
+            >
+              <Icon name="ph:arrow-counter-clockwise" class="w-4 h-4 mr-2" />
+              Jana Barang
             </rs-button>
           </div>
           <table
@@ -484,9 +541,10 @@ const resetForm = () => {
                 <td class="border border-gray-300 p-2">
                   <div class="flex gap-2">
                     <rs-button
+                      v-if="!userStore.roles.includes('Pegawai Penyiasat JIM')"
                       type="button"
                       @click="editBarang(index)"
-                      variant="warning"
+                      variant="primary-outline"
                       class="mr-2"
                     >
                       <Icon name="ph:pencil" class="w-4 h-4 mr-2" />
@@ -495,7 +553,7 @@ const resetForm = () => {
                     <rs-button
                       type="button"
                       @click="removeBarang(index)"
-                      variant="danger"
+                      variant="danger-outline"
                     >
                       <Icon name="ph:trash" class="w-4 h-4 mr-2" />
                       Buang
