@@ -186,26 +186,11 @@ const cetakBorang = async (noSiri, jenisDokumen) => {
       },
     });
 
-    // Make API call to get the document
-    const { data } = await useFetch(`/api/dokumen/${noSiri}/${jenisDokumen}`, {
-      method: "GET",
-    });
-
-    console.log(data.value);
-
-    if (data.value.statusCode != 200) {
-      $swal.fire({
-        icon: "error",
-        title: "Ralat",
-        text: data.value.message,
-      });
-      return;
-    }
-
-    // Create a blob from the response with updated MIME type
-    const blob = new Blob([data.value.data], {
-      type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    });
+    // Get document from URL
+    const response = await fetch(
+      `https://niise.corrad.ai/uploads/${jenisDokumen}.docx`
+    );
+    const blob = await response.blob();
 
     // Create a URL for the blob
     const url = window.URL.createObjectURL(blob);
