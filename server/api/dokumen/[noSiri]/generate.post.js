@@ -2,7 +2,7 @@ import { join } from "path";
 import { readFile, writeFile } from "fs/promises";
 import { mkdir } from "fs/promises";
 import { createError } from "h3";
-import html_to_pdf from "html-pdf-node";
+import puppeteer from "puppeteer";
 
 export default defineEventHandler(async (event) => {
   try {
@@ -97,13 +97,38 @@ export default defineEventHandler(async (event) => {
       }
     });
 
-    console.log(htmlContent);
-
     // Generate PDF
     const filename = `${jenisDokumen}_${noSiri}_${Date.now()}.pdf`;
     const outputPath = join(uploadsDir, filename);
 
-    const options = {
+    // Modify browser launch options based on environment
+    const browserOptions = {
+      headless: true,
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+      ],
+    };
+
+    // Add conditional executable path
+    if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+      browserOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+    } else if (process.platform === "win32") {
+      // For Windows, let Puppeteer use the bundled Chromium
+      browserOptions.executablePath = null;
+    }
+
+    const browser = await puppeteer.launch(browserOptions);
+
+    const page = await browser.newPage();
+
+    // Set content and generate PDF
+    await page.setContent(htmlContent, {
+      waitUntil: "networkidle0",
+    });
+
+    const pdfBuffer = await page.pdf({
       format: "A4",
       printBackground: true,
       margin: {
@@ -113,12 +138,9 @@ export default defineEventHandler(async (event) => {
         left: "0mm",
       },
       preferCSSPageSize: true,
-    };
+    });
 
-    const file = { content: htmlContent };
-
-    // Generate PDF using html-pdf-node
-    const pdfBuffer = await html_to_pdf.generatePdf(file, options);
+    await browser.close();
 
     // Write the PDF to file
     await writeFile(outputPath, pdfBuffer);
