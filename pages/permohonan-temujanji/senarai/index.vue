@@ -186,30 +186,25 @@ const cetakBorang = async (noSiri, jenisDokumen) => {
       },
     });
 
-    // Get document from URL
-    const response = await fetch(
-      `https://niise.corrad.ai/uploads/${jenisDokumen}.docx`
-    );
-    const blob = await response.blob();
+    // Generate document using API with dummy data
+    const response = await $fetch(`/api/dokumen/${noSiri}/generate`, {
+      method: "POST",
+      body: {
+        jenisDokumen,
+      },
+    });
 
-    // Create a URL for the blob
-    const url = window.URL.createObjectURL(blob);
-
-    // Create a temporary link element
-    const link = document.createElement("a");
-    link.href = url;
-
-    // Set the filename based on the document type with .docx extension
-    const filename = `${jenisDokumen}_${noSiri}.docx`;
-    link.setAttribute("download", filename);
-
-    // Append link to body, click it, and remove it
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    // Clean up the URL object
-    window.URL.revokeObjectURL(url);
+    if (response.statusCode === 200) {
+      // Create a link to download the file
+      const link = document.createElement("a");
+      link.href = response.data.url;
+      link.setAttribute("download", response.data.filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      throw new Error("Failed to generate document");
+    }
 
     // Close loading dialog
     $swal.close();

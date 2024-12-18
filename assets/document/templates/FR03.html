@@ -5,52 +5,151 @@
 <meta name=Generator content="Microsoft Word 15 (filtered)">
 <title>1</title>
 <style>
-<!--
- /* Font Definitions */
- @font-face
-	{font-family:Wingdings;
-	panose-1:5 0 0 0 0 0 0 0 0 0;}
-@font-face
-	{font-family:SimSun;
-	panose-1:2 1 6 0 3 1 1 1 1 1;}
-@font-face
-	{font-family:"Cambria Math";
-	panose-1:2 4 5 3 5 4 6 3 2 4;}
-@font-face
-	{font-family:Calibri;
-	panose-1:2 15 5 2 2 2 4 3 2 4;}
-@font-face
-	{font-family:"\@SimSun";
-	panose-1:2 1 6 0 3 1 1 1 1 1;}
-@font-face
-	{font-family:Tahoma;
-	panose-1:2 11 6 4 3 5 4 4 2 4;}
-@font-face
-	{font-family:"Zurich Cn BT";}
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0in;
-	text-autospace:none;
-	font-size:10.0pt;
-	font-family:"Times New Roman",serif;}
- /* Page Definitions */
- @page WordSection1
-	{size:595.0pt 841.6pt;
-	margin:.5in .5in .5in .5in;}
-div.WordSection1
-	{page:WordSection1;}
-@page WordSection2
-	{size:595.0pt 841.6pt;
-	margin:.5in .5in .5in .5in;}
-div.WordSection2
-	{page:WordSection2;}
- /* List Definitions */
- ol
-	{margin-bottom:0in;}
-ul
-	{margin-bottom:0in;}
--->
-</style>
+    /* Font Definitions */
+    @font-face {
+      font-family: Wingdings;
+      panose-1: 5 0 0 0 0 0 0 0 0 0;
+    }
+    @font-face {
+      font-family: SimSun;
+      panose-1: 2 1 6 0 3 1 1 1 1 1;
+    }
+    @font-face {
+      font-family: "Cambria Math";
+      panose-1: 2 4 5 3 5 4 6 3 2 4;
+    }
+    @font-face {
+      font-family: Calibri;
+      panose-1: 2 15 5 2 2 2 4 3 2 4;
+    }
+    @font-face {
+      font-family: "\@SimSun";
+      panose-1: 2 1 6 0 3 1 1 1 1 1;
+    }
+    @font-face {
+      font-family: Tahoma;
+      panose-1: 2 11 6 4 3 5 4 4 2 4;
+    }
+    @font-face {
+      font-family: "Zurich Cn BT";
+    }
+
+    /* Page Definitions */
+    @page {
+      size: A4;
+      margin: 0;
+    }
+
+    /* Reset body defaults */
+    body {
+      margin: 0;
+      padding: 0;
+      background: white;
+    }
+
+    /* Main content sections */
+    .WordSection1,
+    .WordSection2 {
+      width: 21cm;
+      min-height: 29.7cm;
+      padding: 2cm;
+      margin: 0 auto;
+      background: white;
+      box-sizing: border-box;
+      page-break-after: always;
+    }
+
+    .WordSection2:last-child {
+      page-break-after: auto;
+    }
+
+    /* Style Definitions */
+    p.MsoNormal,
+    li.MsoNormal,
+    div.MsoNormal {
+      margin: 0in;
+      text-autospace: none;
+      font-size: 10pt;
+      font-family: "Times New Roman", serif;
+    }
+    p.MsoHeader,
+    li.MsoHeader,
+    div.MsoHeader {
+      margin: 0in;
+      text-autospace: none;
+      font-size: 10pt;
+      font-family: "Times New Roman", serif;
+    }
+    p.MsoNoSpacing,
+    li.MsoNoSpacing,
+    div.MsoNoSpacing {
+      margin: 0in;
+      text-autospace: none;
+      font-size: 10pt;
+      font-family: "Times New Roman", serif;
+    }
+    p.MsoListParagraph,
+    li.MsoListParagraph,
+    div.MsoListParagraph {
+      margin-top: 0in;
+      margin-right: 0in;
+      margin-bottom: 10pt;
+      margin-left: 0.5in;
+      line-height: 115%;
+      font-size: 11pt;
+      font-family: "Calibri", sans-serif;
+    }
+    p.MsoListParagraphCxSpFirst,
+    li.MsoListParagraphCxSpFirst,
+    div.MsoListParagraphCxSpFirst {
+      margin-top: 0in;
+      margin-right: 0in;
+      margin-bottom: 0in;
+      margin-left: 0.5in;
+      line-height: 115%;
+      font-size: 11pt;
+      font-family: "Calibri", sans-serif;
+    }
+    p.MsoListParagraphCxSpMiddle,
+    li.MsoListParagraphCxSpMiddle,
+    div.MsoListParagraphCxSpMiddle {
+      margin-top: 0in;
+      margin-right: 0in;
+      margin-bottom: 0in;
+      margin-left: 0.5in;
+      line-height: 115%;
+      font-size: 11pt;
+      font-family: "Calibri", sans-serif;
+    }
+    p.MsoListParagraphCxSpLast,
+    li.MsoListParagraphCxSpLast,
+    div.MsoListParagraphCxSpLast {
+      margin-top: 0in;
+      margin-right: 0in;
+      margin-bottom: 10pt;
+      margin-left: 0.5in;
+      line-height: 115%;
+      font-size: 11pt;
+      font-family: "Calibri", sans-serif;
+    }
+
+    /* Table adjustments */
+    table {
+      width: 100% !important;
+      max-width: 100%;
+      margin: 0 auto;
+      box-sizing: border-box;
+      border-collapse: collapse;
+    }
+
+    /* Remove transformations that might interfere */
+    div.WordSection1,
+    div.WordSection2 {
+      position: static;
+      left: auto;
+      transform: none;
+    }
+  </style>
 
 </head>
 
@@ -75,7 +174,7 @@ width:420px;height:130px'>
  <tr>
   <td height=24></td>
   <td rowspan=2 align=left valign=top><img width=105 height=111
-  src="FR03_files/image001.png"
+  src="https://niise.corrad.ai/uploads/logo-form.png"
   alt="Description: G:\outline logo img latest 3.jpg"></td>
  </tr>
  <tr>
@@ -88,13 +187,13 @@ width:420px;height:130px'>
     <td>
     <div style='padding:3.6pt 7.2pt 3.6pt 7.2pt'>
     <p class=MsoNormal style='line-height:150%'><span lang=MS style='font-size:
-    9.0pt;line-height:150%;font-family:"Arial",sans-serif'>No. Ruj Makmal :</span><b><span
+    9.0pt;line-height:150%;font-family:"Arial",sans-serif'>No. Ruj Makmal : {noRujMakmal}</span><b><span
     lang=MS style='font-size:11.0pt;line-height:150%;font-family:"Arial",sans-serif'>
     </span></b></p>
     <p class=MsoNormal style='line-height:150%'><span lang=MS style='font-size:
-    9.0pt;line-height:150%;font-family:"Arial",sans-serif'>No. Ruj Tuan : </span></p>
+    9.0pt;line-height:150%;font-family:"Arial",sans-serif'>No. Ruj Tuan : {noRujTuan}</span></p>
     <p class=MsoNormal style='line-height:150%'><span lang=MS style='font-size:
-    9.0pt;line-height:150%;font-family:"Arial",sans-serif'>Tarikh : </span></p>
+    9.0pt;line-height:150%;font-family:"Arial",sans-serif'>Tarikh : {tarikh}</span></p>
     <p class=MsoNormal style='line-height:150%'><span lang=MS style='font-size:
     9.0pt;line-height:150%;font-family:"Arial",sans-serif'>&nbsp;</span></p>
     </div>
@@ -143,392 +242,330 @@ line-height:150%'><b><span lang=MS style='line-height:150%;font-family:"Arial",s
 <p class=MsoNormal style='line-height:200%'><span lang=MS style='line-height:
 200%;font-family:"Arial",sans-serif'>Adalah saya </span><span lang=MS
 style='font-size:8.0pt;line-height:200%;font-family:"Arial",sans-serif'>(<i>Nama</i>)</span><span
-lang=MS style='line-height:200%;font-family:"Arial",sans-serif'> __________________________________
+lang=MS style='line-height:200%;font-family:"Arial",sans-serif'> {nama}
 </span><span lang=MS style='font-size:8.0pt;line-height:200%;font-family:"Arial",sans-serif'>(<i>Pangkat</i>)</span><span
-lang=MS style='line-height:200%;font-family:"Arial",sans-serif'> ______________
+lang=MS style='line-height:200%;font-family:"Arial",sans-serif'> {pangkat}
 </span><span lang=MS style='font-size:8.0pt;line-height:200%;font-family:"Arial",sans-serif'>(Kad
 Kuasa)</span><span lang=MS style='line-height:200%;font-family:"Arial",sans-serif'>
-_______________</span></p>
+{kadKuasa}</span></p>
 
 <p class=MsoNormal style='text-align:justify;text-justify:inter-ideograph;
 line-height:200%'><span lang=MS style='line-height:200%;font-family:"Arial",sans-serif'>mengaku
 <b>MENERIMA</b> barang kes seperti yang tersebut di bawah ini pada </span><i><span
 lang=MS style='font-size:8.0pt;line-height:200%;font-family:"Arial",sans-serif'>(Tarikh)</span></i><span
 lang=MS style='line-height:200%;font-family:"Arial",sans-serif'>
-_________________ </span><i><span lang=MS style='font-size:8.0pt;line-height:
+{tarikhTerima} </span><i><span lang=MS style='font-size:8.0pt;line-height:
 200%;font-family:"Arial",sans-serif'>(Jam)</span></i><span lang=MS
-style='line-height:200%;font-family:"Arial",sans-serif'> _____________</span></p>
+style='line-height:200%;font-family:"Arial",sans-serif'> {jamTerima}</span></p>
 
 <p class=MsoNormal style='line-height:150%'><b><span lang=MS style='line-height:
 150%;font-family:"Arial",sans-serif'>&nbsp;</span></b></p>
 
 <div align=center>
 
-<table class=MsoNormalTable border=1 cellspacing=0 cellpadding=0
- style='border-collapse:collapse;border:none'>
- <tr>
-  <td width=36 style='width:26.7pt;border:solid windowtext 1.0pt;padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal align=center style='text-align:center;line-height:150%'><b><span
-  lang=MS style='line-height:150%;font-family:"Arial",sans-serif;color:black'>Bil</span></b></p>
-  </td>
-  <td width=416 style='width:311.85pt;border:solid windowtext 1.0pt;border-left:
-  none;padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal align=center style='text-align:center;line-height:150%'><b><span
-  lang=MS style='line-height:150%;font-family:"Arial",sans-serif;color:black'>Perkara</span></b></p>
-  </td>
-  <td width=85 style='width:63.75pt;border:solid windowtext 1.0pt;border-left:
-  none;padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal align=center style='text-align:center;line-height:150%'><b><span
-  lang=MS style='line-height:150%;font-family:"Arial",sans-serif;color:black'>Tanda</span></b></p>
-  </td>
-  <td width=170 style='width:127.6pt;border:solid windowtext 1.0pt;border-left:
-  none;padding:0in 5.4pt 0in 5.4pt'>
-  <p class=MsoNormal align=center style='text-align:center;line-height:150%'><b><span
-  lang=MS style='line-height:150%;font-family:"Arial",sans-serif;color:black'>Kuantiti</span></b></p>
-  </td>
- </tr>
- <tr style='height:.2in'>
-  <td width=36 style='width:26.7pt;border:solid windowtext 1.0pt;border-top:
-  none;padding:0in 5.4pt 0in 5.4pt;height:.2in'>
-  <p class=MsoNormal align=center style='text-align:center;line-height:150%'><b><span
-  lang=MS style='line-height:150%;font-family:"Arial",sans-serif;color:black'>&nbsp;</span></b></p>
-  </td>
-  <td width=416 style='width:311.85pt;border-top:none;border-left:none;
-  border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:.2in'>
-  <p class=MsoNormal style='line-height:150%'><b><span lang=MS
-  style='line-height:150%;font-family:"Arial",sans-serif;color:black'>&nbsp;</span></b></p>
-  </td>
-  <td width=85 style='width:63.75pt;border-top:none;border-left:none;
-  border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:.2in'>
-  <p class=MsoNormal align=center style='text-align:center;line-height:150%'><b><span
-  lang=MS style='line-height:150%;font-family:"Arial",sans-serif;color:black'>&nbsp;</span></b></p>
-  </td>
-  <td width=170 style='width:127.6pt;border-top:none;border-left:none;
-  border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:.2in'>
-  <p class=MsoNormal align=center style='text-align:center;line-height:150%'><b><span
-  lang=MS style='line-height:150%;font-family:"Arial",sans-serif;color:black'>&nbsp;</span></b></p>
-  </td>
- </tr>
- <tr style='height:.2in'>
-  <td width=36 style='width:26.7pt;border:solid windowtext 1.0pt;border-top:
-  none;padding:0in 5.4pt 0in 5.4pt;height:.2in'>
-  <p class=MsoNormal align=center style='text-align:center;line-height:150%'><b><span
-  lang=MS style='line-height:150%;font-family:"Arial",sans-serif;color:black'>&nbsp;</span></b></p>
-  </td>
-  <td width=416 valign=top style='width:311.85pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:.2in'>
-  <p class=MsoNormal>&nbsp;</p>
-  </td>
-  <td width=85 style='width:63.75pt;border-top:none;border-left:none;
-  border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:.2in'>
-  <p class=MsoNormal align=center style='text-align:center;line-height:150%'><b><span
-  lang=MS style='line-height:150%;font-family:"Arial",sans-serif;color:black'>&nbsp;</span></b></p>
-  </td>
-  <td width=170 style='width:127.6pt;border-top:none;border-left:none;
-  border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:.2in'>
-  <p class=MsoNormal align=center style='text-align:center;line-height:150%'><b><span
-  lang=MS style='line-height:150%;font-family:"Arial",sans-serif;color:black'>&nbsp;</span></b></p>
-  </td>
- </tr>
- <tr style='height:.2in'>
-  <td width=36 style='width:26.7pt;border:solid windowtext 1.0pt;border-top:
-  none;padding:0in 5.4pt 0in 5.4pt;height:.2in'>
-  <p class=MsoNormal align=center style='text-align:center;line-height:150%'><b><span
-  lang=MS style='line-height:150%;font-family:"Arial",sans-serif;color:black'>&nbsp;</span></b></p>
-  </td>
-  <td width=416 valign=top style='width:311.85pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:.2in'>
-  <p class=MsoNormal>&nbsp;</p>
-  </td>
-  <td width=85 valign=top style='width:63.75pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:.2in'>
-  <p class=MsoNormal align=center style='text-align:center'><b><span
-  style='font-family:"Arial",sans-serif'>&nbsp;</span></b></p>
-  </td>
-  <td width=170 valign=top style='width:127.6pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:.2in'>
-  <p class=MsoNormal align=center style='text-align:center'>&nbsp;</p>
-  </td>
- </tr>
- <tr style='height:.2in'>
-  <td width=36 style='width:26.7pt;border:solid windowtext 1.0pt;border-top:
-  none;padding:0in 5.4pt 0in 5.4pt;height:.2in'>
-  <p class=MsoNormal align=center style='text-align:center;line-height:150%'><b><span
-  lang=MS style='line-height:150%;font-family:"Arial",sans-serif;color:black'>&nbsp;</span></b></p>
-  </td>
-  <td width=416 valign=top style='width:311.85pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:.2in'>
-  <p class=MsoNormal>&nbsp;</p>
-  </td>
-  <td width=85 valign=top style='width:63.75pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:.2in'>
-  <p class=MsoNormal align=center style='text-align:center'><b><span
-  style='font-family:"Arial",sans-serif'>&nbsp;</span></b></p>
-  </td>
-  <td width=170 valign=top style='width:127.6pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:.2in'>
-  <p class=MsoNormal align=center style='text-align:center'>&nbsp;</p>
-  </td>
- </tr>
- <tr style='height:.2in'>
-  <td width=36 style='width:26.7pt;border:solid windowtext 1.0pt;border-top:
-  none;padding:0in 5.4pt 0in 5.4pt;height:.2in'>
-  <p class=MsoNormal align=center style='text-align:center;line-height:150%'><b><span
-  lang=MS style='line-height:150%;font-family:"Arial",sans-serif;color:black'>&nbsp;</span></b></p>
-  </td>
-  <td width=416 valign=top style='width:311.85pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:.2in'>
-  <p class=MsoNormal>&nbsp;</p>
-  </td>
-  <td width=85 valign=top style='width:63.75pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:.2in'>
-  <p class=MsoNormal align=center style='text-align:center'><b><span
-  style='font-family:"Arial",sans-serif'>&nbsp;</span></b></p>
-  </td>
-  <td width=170 valign=top style='width:127.6pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:.2in'>
-  <p class=MsoNormal align=center style='text-align:center'>&nbsp;</p>
-  </td>
- </tr>
- <tr style='height:3.25pt'>
-  <td width=36 style='width:26.7pt;border:solid windowtext 1.0pt;border-top:
-  none;padding:0in 5.4pt 0in 5.4pt;height:3.25pt'>
-  <p class=MsoNormal align=center style='text-align:center;line-height:150%'><b><span
-  lang=MS style='line-height:150%;font-family:"Arial",sans-serif;color:black'>&nbsp;</span></b></p>
-  </td>
-  <td width=416 valign=top style='width:311.85pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:3.25pt'>
-  <p class=MsoNormal>&nbsp;</p>
-  </td>
-  <td width=85 valign=top style='width:63.75pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:3.25pt'>
-  <p class=MsoNormal align=center style='text-align:center'><b><span
-  style='font-family:"Arial",sans-serif'>&nbsp;</span></b></p>
-  </td>
-  <td width=170 valign=top style='width:127.6pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:3.25pt'>
-  <p class=MsoNormal>&nbsp;</p>
-  </td>
- </tr>
- <tr style='height:3.25pt'>
-  <td width=36 style='width:26.7pt;border:solid windowtext 1.0pt;border-top:
-  none;padding:0in 5.4pt 0in 5.4pt;height:3.25pt'>
-  <p class=MsoNormal align=center style='text-align:center;line-height:150%'><b><span
-  lang=MS style='line-height:150%;font-family:"Arial",sans-serif;color:black'>&nbsp;</span></b></p>
-  </td>
-  <td width=416 valign=top style='width:311.85pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:3.25pt'>
-  <p class=MsoNormal>&nbsp;</p>
-  </td>
-  <td width=85 valign=top style='width:63.75pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:3.25pt'>
-  <p class=MsoNormal align=center style='text-align:center'><b><span
-  style='font-family:"Arial",sans-serif'>&nbsp;</span></b></p>
-  </td>
-  <td width=170 valign=top style='width:127.6pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:3.25pt'>
-  <p class=MsoNormal>&nbsp;</p>
-  </td>
- </tr>
- <tr style='height:3.25pt'>
-  <td width=36 style='width:26.7pt;border:solid windowtext 1.0pt;border-top:
-  none;padding:0in 5.4pt 0in 5.4pt;height:3.25pt'>
-  <p class=MsoNormal align=center style='text-align:center;line-height:150%'><b><span
-  lang=MS style='line-height:150%;font-family:"Arial",sans-serif;color:black'>&nbsp;</span></b></p>
-  </td>
-  <td width=416 valign=top style='width:311.85pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:3.25pt'>
-  <p class=MsoNormal>&nbsp;</p>
-  </td>
-  <td width=85 valign=top style='width:63.75pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:3.25pt'>
-  <p class=MsoNormal align=center style='text-align:center'><b><span
-  style='font-family:"Arial",sans-serif'>&nbsp;</span></b></p>
-  </td>
-  <td width=170 valign=top style='width:127.6pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:3.25pt'>
-  <p class=MsoNormal>&nbsp;</p>
-  </td>
- </tr>
- <tr style='height:3.25pt'>
-  <td width=36 style='width:26.7pt;border:solid windowtext 1.0pt;border-top:
-  none;padding:0in 5.4pt 0in 5.4pt;height:3.25pt'>
-  <p class=MsoNormal align=center style='text-align:center;line-height:150%'><b><span
-  lang=MS style='line-height:150%;font-family:"Arial",sans-serif;color:black'>&nbsp;</span></b></p>
-  </td>
-  <td width=416 valign=top style='width:311.85pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:3.25pt'>
-  <p class=MsoNormal>&nbsp;</p>
-  </td>
-  <td width=85 valign=top style='width:63.75pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:3.25pt'>
-  <p class=MsoNormal align=center style='text-align:center'><b><span
-  style='font-family:"Arial",sans-serif'>&nbsp;</span></b></p>
-  </td>
-  <td width=170 valign=top style='width:127.6pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:3.25pt'>
-  <p class=MsoNormal>&nbsp;</p>
-  </td>
- </tr>
- <tr style='height:3.25pt'>
-  <td width=36 style='width:26.7pt;border:solid windowtext 1.0pt;border-top:
-  none;padding:0in 5.4pt 0in 5.4pt;height:3.25pt'>
-  <p class=MsoNormal align=center style='text-align:center;line-height:150%'><b><span
-  lang=MS style='line-height:150%;font-family:"Arial",sans-serif;color:black'>&nbsp;</span></b></p>
-  </td>
-  <td width=416 valign=top style='width:311.85pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:3.25pt'>
-  <p class=MsoNormal>&nbsp;</p>
-  </td>
-  <td width=85 valign=top style='width:63.75pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:3.25pt'>
-  <p class=MsoNormal align=center style='text-align:center'><b><span
-  style='font-family:"Arial",sans-serif'>&nbsp;</span></b></p>
-  </td>
-  <td width=170 valign=top style='width:127.6pt;border-top:none;border-left:
-  none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
-  padding:0in 5.4pt 0in 5.4pt;height:3.25pt'>
-  <p class=MsoNormal>&nbsp;</p>
-  </td>
- </tr>
-</table>
+    <table
+    class="MsoNormalTable"
+    border="1"
+    cellspacing="0"
+    cellpadding="0"
+    style="border-collapse: collapse; border: none"
+  >
+    <tr style="height: 19.85pt">
+      <td
+        width="36"
+        style="
+          width: 26.7pt;
+          border: solid windowtext 1pt;
+          padding: 0in 5.4pt 0in 5.4pt;
+          height: 19.85pt;
+        "
+      >
+        <p class="MsoNormal" align="center" style="text-align: center">
+          <b
+            ><span
+              lang="MS"
+              style="
+                font-size: 11pt;
+                font-family: 'Arial', sans-serif;
+                color: black;
+              "
+              >Bil</span
+            ></b
+          >
+        </p>
+      </td>
+      <td
+        width="293"
+        style="
+          width: 219.7pt;
+          border: solid windowtext 1pt;
+          border-left: none;
+          padding: 0in 5.4pt 0in 5.4pt;
+          height: 19.85pt;
+        "
+      >
+        <p class="MsoNormal" align="center" style="text-align: center">
+          <b
+            ><span
+              lang="MS"
+              style="
+                font-size: 11pt;
+                font-family: 'Arial', sans-serif;
+                color: black;
+              "
+              >Perkara</span
+            ></b
+          >
+        </p>
+      </td>
+      <td
+        width="66"
+        style="
+          width: 49.6pt;
+          border: solid windowtext 1pt;
+          border-left: none;
+          padding: 0in 5.4pt 0in 5.4pt;
+          height: 19.85pt;
+        "
+      >
+        <p class="MsoNormal" align="center" style="text-align: center">
+          <b
+            ><span
+              lang="MS"
+              style="
+                font-size: 11pt;
+                font-family: 'Arial', sans-serif;
+                color: black;
+              "
+              >Tanda</span
+            ></b
+          >
+        </p>
+      </td>
+      <td
+        width="189"
+        style="
+          width: 141.75pt;
+          border: solid windowtext 1pt;
+          border-left: none;
+          padding: 0in 5.4pt 0in 5.4pt;
+          height: 19.85pt;
+        "
+      >
+        <p class="MsoNormal" align="center" style="text-align: center">
+          <b
+            ><span
+              lang="MS"
+              style="
+                font-size: 11pt;
+                font-family: 'Arial', sans-serif;
+                color: black;
+              "
+              >Keadaan</span
+            ></b
+          >
+        </p>
+      </td>
+      <td
+        width="123"
+        style="
+          width: 92.15pt;
+          border: solid windowtext 1pt;
+          border-left: none;
+          padding: 0in 5.4pt 0in 5.4pt;
+          height: 19.85pt;
+        "
+      >
+        <p class="MsoNormal" align="center" style="text-align: center">
+          <b
+            ><span
+              lang="MS"
+              style="
+                font-size: 11pt;
+                font-family: 'Arial', sans-serif;
+                color: black;
+              "
+              >Kuantiti</span
+            ></b
+          >
+        </p>
+      </td>
+    </tr>
+    {#each barangKes as item}
+    <tr style="height: 19.85pt">
+      <td
+        width="36"
+        valign="top"
+        style="
+          width: 26.7pt;
+          border: solid windowtext 1pt;
+          border-top: none;
+          padding: 0in 5.4pt 0in 5.4pt;
+          height: 19.85pt;
+        "
+      >
+        <p class="MsoNormal">
+          <span
+            lang="MS"
+            style="
+              font-size: 11pt;
+              font-family: 'Arial', sans-serif;
+              color: black;
+            "
+            >{item.bil}</span
+          >
+        </p>
+      </td>
+      <td
+        width="293"
+        valign="top"
+        style="
+          width: 219.7pt;
+          border-top: none;
+          border-left: none;
+          border-bottom: solid windowtext 1pt;
+          border-right: solid windowtext 1pt;
+          padding: 0in 5.4pt 0in 5.4pt;
+          height: 19.85pt;
+        "
+      >
+        <p class="MsoNormal">
+          <span
+            lang="MS"
+            style="
+              font-size: 11pt;
+              font-family: 'Arial', sans-serif;
+              color: black;
+            "
+            >{item.perkara}</span
+          >
+        </p>
+      </td>
+      <td
+        width="66"
+        valign="top"
+        style="
+          width: 49.6pt;
+          border-top: none;
+          border-left: none;
+          border-bottom: solid windowtext 1pt;
+          border-right: solid windowtext 1pt;
+          padding: 0in 5.4pt 0in 5.4pt;
+          height: 19.85pt;
+        "
+      >
+        <p class="MsoNormal">
+          <span
+            lang="MS"
+            style="
+              font-size: 11pt;
+              font-family: 'Arial', sans-serif;
+              color: black;
+            "
+            >{item.tanda}</span
+          >
+        </p>
+      </td>
+      <td
+        width="189"
+        valign="top"
+        style="
+          width: 141.75pt;
+          border-top: none;
+          border-left: none;
+          border-bottom: solid windowtext 1pt;
+          border-right: solid windowtext 1pt;
+          padding: 0in 5.4pt 0in 5.4pt;
+          height: 19.85pt;
+        "
+      >
+        <p class="MsoNormal">
+          <span
+            lang="MS"
+            style="
+              font-size: 11pt;
+              font-family: 'Arial', sans-serif;
+              color: black;
+            "
+            >{item.keadaan}</span
+          >
+        </p>
+      </td>
+      <td
+        width="123"
+        valign="top"
+        style="
+          width: 92.15pt;
+          border-top: none;
+          border-left: none;
+          border-bottom: solid windowtext 1pt;
+          border-right: solid windowtext 1pt;
+          padding: 0in 5.4pt 0in 5.4pt;
+          height: 19.85pt;
+        "
+      >
+        <p class="MsoNormal">
+          <span
+            lang="MS"
+            style="
+              font-size: 11pt;
+              font-family: 'Arial', sans-serif;
+              color: black;
+            "
+            >{item.kuantiti}</span
+          >
+        </p>
+      </td>
+    </tr>
+    {/each}
+  </table>
 
 </div>
 
-<p class=MsoNormal style='text-align:justify;text-justify:inter-ideograph;
-line-height:150%'><b><span lang=MS style='line-height:150%;font-family:"Arial",sans-serif'>&nbsp;</span></b></p>
-
-<p class=MsoNormal style='text-align:justify;text-justify:inter-ideograph;
-line-height:150%'><b><span lang=MS style='line-height:150%;font-family:"Arial",sans-serif'>&nbsp;</span></b></p>
-
-<p class=MsoNormal style='text-align:justify;text-justify:inter-ideograph;
-line-height:150%'><b><span lang=MS style='line-height:150%;font-family:"Arial",sans-serif'>&nbsp;</span></b></p>
-
-<p class=MsoNormal style='text-align:justify;text-justify:inter-ideograph;
-line-height:150%'><b><span lang=MS style='line-height:150%;font-family:"Arial",sans-serif'>&nbsp;</span></b></p>
-
-<p class=MsoNormal style='text-align:justify;text-justify:inter-ideograph;
-line-height:150%'><b><span lang=MS style='line-height:150%;font-family:"Arial",sans-serif'>&nbsp;</span></b></p>
-
-<p class=MsoNormal style='text-align:justify;text-justify:inter-ideograph;
-line-height:150%'>
-
-<table cellpadding=0 cellspacing=0 align=left>
- <tr>
-  <td width=93 height=14></td>
-  <td width=160></td>
-  <td width=227></td>
-  <td width=159></td>
- </tr>
- <tr>
-  <td height=1></td>
-  <td colspan=2></td>
-  <td rowspan=2 align=left valign=top><img width=159 height=2
-  src="FR03_files/image002.png"></td>
- </tr>
- <tr>
-  <td height=1></td>
-  <td rowspan=2 align=left valign=top><img width=160 height=2
-  src="FR03_files/image003.png"></td>
- </tr>
- <tr>
-  <td height=1></td>
- </tr>
-</table>
 
 <b><span lang=MS style='line-height:150%;font-family:"Arial",sans-serif'>&nbsp;</span></b></p>
 
 <br clear=ALL>
 
-<p class=MsoNormal style='margin-left:70.9pt;text-align:justify;text-justify:
-inter-ideograph;line-height:150%'><b><span lang=MS style='line-height:150%;
-font-family:"Arial",sans-serif'>(Tandatangan Penyerah )                                    
-                      (Tandatangan Penerima )</span></b></p>
+<div style="width: 100%; text-align: center; margin-top: 10px;">
+  <div style="display: flex; justify-content: space-around; margin-bottom: 10px;">
+    <div style="width: 200px; border-bottom: 1px solid black;">&nbsp;</div>
+    <div style="width: 200px; border-bottom: 1px solid black;">&nbsp;</div>
+  </div>
+  
+  <div style="display: flex; justify-content: space-around; margin-bottom: 30px;">
+    <div class=MsoNormal style="width: 200px;">(Tandatangan Penyerah)</div>
+    <div class=MsoNormal style="width: 200px;">(Tandatangan Penerima)</div>
+  </div>
 
+  <div style="display: flex; justify-content: space-around;">
+    <div style="width: 300px; text-align: left;">
+      <p class=MsoNormal style='line-height:200%'><span style='font-family:"Arial",sans-serif'>Nama          
+      : ______________________________</span></p>
+      <p class=MsoNormal style='line-height:200%'><span style='font-family:"Arial",sans-serif'>Jawatan      
+      : ______________________________</span></p>
+      <p class=MsoNormal style='line-height:200%'><span style='font-family:"Arial",sans-serif'>No.
+      KP         : ______________________________</span></p>
+      <p class=MsoNormal style='line-height:200%'><span style='font-family:"Arial",sans-serif'>Kad
+      Kuasa  : ______________________________</span></p>
+    </div>
+    <div style="width: 300px; text-align: left;">
+      <p class=MsoNormal style='line-height:200%'><span style='font-family:"Arial",sans-serif'>Nama          
+      : ______________________________</span></p>
+      <p class=MsoNormal style='line-height:200%'><span style='font-family:"Arial",sans-serif'>Jawatan      
+      : ______________________________</span></p>
+      <p class=MsoNormal style='line-height:200%'><span style='font-family:"Arial",sans-serif'>No.
+      KP         : ______________________________</span></p>
+      <p class=MsoNormal style='line-height:200%'><span style='font-family:"Arial",sans-serif'>Kad
+      Kuasa  : ______________________________</span></p>
+    </div>
+  </div>
 </div>
 
 <b><span lang=MS style='font-size:10.0pt;line-height:150%;font-family:"Arial",sans-serif'><br
 clear=all style='page-break-before:auto'>
 </span></b>
 
-<div class=WordSection2>
-
-<p class=MsoNormal align=right style='text-align:right;line-height:150%'><span
-style='position:relative;z-index:251657728'><span style='left:0px;position:
-absolute;left:0px;top:-5px;width:718px;height:141px'>
-
-<table cellpadding=0 cellspacing=0 align=left>
- <tr>
-  <td width=0 height=0></td>
-  <td width=332></td>
-  <td width=34></td>
-  <td width=352></td>
- </tr>
- <tr>
-  <td height=11></td>
-  <td colspan=2></td>
-  <td rowspan=2 align=left valign=top><img width=352 height=138
-  src="FR03_files/image004.png"></td>
- </tr>
- <tr>
-  <td height=127></td>
-  <td rowspan=2 width=332 height=130 style='vertical-align:top'><span
-  style='position:absolute;left:0pt;z-index:251657728'>
-  <table cellpadding=0 cellspacing=0 width="100%">
-   <tr>
-    <td>
-    <div style='padding:3.6pt 7.2pt 3.6pt 7.2pt'>
-    <p class=MsoNormal style='line-height:200%'><span style='font-family:"Arial",sans-serif'>Nama          
-    : ______________________________</span></p>
-    <p class=MsoNormal style='line-height:200%'><span style='font-family:"Arial",sans-serif'>Jawatan      
-    : ______________________________</span></p>
-    <p class=MsoNormal style='line-height:200%'><span style='font-family:"Arial",sans-serif'>No.
-    KP         : ______________________________</span></p>
-    <p class=MsoNormal style='line-height:200%'><span style='font-family:"Arial",sans-serif'>Kad
-    Kuasa  : ______________________________</span></p>
-    </div>
-    </td>
-   </tr>
-  </table>
-  </span>&nbsp;</td>
- </tr>
- <tr>
-  <td height=3></td>
- </tr>
-</table>
-
-</span></span><span lang=MS style='font-family:"Arial",sans-serif'>&nbsp;</span></p>
-
-</div>
 
 </body>
 
