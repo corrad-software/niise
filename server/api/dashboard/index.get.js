@@ -225,7 +225,7 @@ export default defineEventHandler(async (event) => {
 
     return {
       statusCode: 200,
-      message: "Success",
+      message: "Berjaya",
       data: {
         lastLogin,
         stats: permohonanStats,

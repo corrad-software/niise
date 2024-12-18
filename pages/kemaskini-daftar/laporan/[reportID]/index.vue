@@ -151,12 +151,12 @@ const submitForm = async (formData) => {
     });
 
     if (data.value.statusCode === 200) {
-      $swal.fire("Success", "Report updated successfully", "success");
+      $swal.fire("Berjaya", "Laporan berjaya dikemaskini", "success");
     } else {
       $swal.fire("Error", data.value.message, "error");
     }
   } catch (error) {
-    $swal.fire("Error", error.message || "Failed to submit report", "error");
+    $swal.fire("Error", error.message || "Gagal mengemaskini laporan", "error");
   }
 };
 

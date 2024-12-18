@@ -132,7 +132,7 @@ export default defineEventHandler(async (event) => {
 
     return {
       statusCode: 200,
-      message: "Success",
+      message: "Berjaya",
       data: formattedNotifications,
     };
   } catch (error) {

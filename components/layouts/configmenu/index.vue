@@ -185,7 +185,7 @@ const resetTheme = () => {
           <FormKit
             type="color"
             v-model="rgbColor.success"
-            label="Success"
+            label="Berjaya"
             :classes="{
               label: '!font-medium !text-sm mb-0',
               outer: '!mb-0',
@@ -227,7 +227,7 @@ const resetTheme = () => {
           Info Color
         </rs-button>
         <rs-button variant="success" class="w-full mb-4 cursor-default">
-          Success Color
+          Berjaya Color
         </rs-button>
         <rs-button variant="warning" class="w-full mb-4 cursor-default">
           Warning Color

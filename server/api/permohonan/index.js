@@ -112,7 +112,7 @@ export default defineEventHandler(async (event) => {
 
     return {
       statusCode: 200,
-      message: "Success",
+      message: "Berjaya",
       data: permohonan.map((item, index) => {
         // Combine date and time
         let tarikhMasa = null;
