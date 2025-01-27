@@ -215,7 +215,7 @@ onMounted(() => {
 
             <div class="flex justify-end">
               <RsButton
-                variant="danger-outline"
+                variant="info-outline"
                 size="sm"
                 @click="resetFilters"
               >
@@ -267,7 +267,7 @@ onMounted(() => {
           <h3 class="text-2xl font-bold tracking-tight">
             {{ selectedDocument.jenisDokumen }}
           </h3>
-          <RsButton variant="secondary" @click="backToList">
+          <RsButton variant="info" @click="backToList">
             Kembali ke Senarai
           </RsButton>
         </div>

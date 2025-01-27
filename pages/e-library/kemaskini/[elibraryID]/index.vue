@@ -386,7 +386,7 @@ const resetForm = () => {
         <h3 class="text-lg font-semibold">Gambar Sedia Ada</h3>
         <rs-button
           @click="previewAllImages"
-          variant="primary"
+          variant="info"
           size="sm"
           class="px-3 inline-flex items-center justify-center"
         >
@@ -439,7 +439,7 @@ const resetForm = () => {
               <h3 class="text-lg font-semibold">Butiran Maklumat</h3>
               <rs-button
                 btn-type="reset"
-                variant="danger-outline"
+                variant="info-outline"
                 @click="resetForm"
               >
                 <Icon name="ic:round-refresh" class="w-4 h-4 mr-2" />
@@ -609,7 +609,7 @@ const resetForm = () => {
           <div class="flex justify-end gap-2 mt-6">
             <rs-button
               @click="goBack"
-              variant="danger"
+              variant="info"
               size="sm"
               class="px-4 py-2"
             >
@@ -618,7 +618,7 @@ const resetForm = () => {
             </rs-button>
             <rs-button
               btn-type="submit"
-              variant="primary"
+              variant="info"
               :disabled="isSubmitting"
               size="sm"
               class="px-4 py-2"

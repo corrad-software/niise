@@ -545,7 +545,7 @@ onMounted(() => {
             <rs-button
               v-if="data.value.status != 'Permohonan Dihantar'"
               @click="lihat(data.value.noSiri)"
-              variant="secondary-outline"
+              variant="info-outline"
               size="sm"
               class="px-3 inline-flex items-center justify-center w-[100px]"
             >
@@ -559,7 +559,7 @@ onMounted(() => {
               "
             >
               <rs-button
-                variant="danger"
+                variant="info"
                 size="sm"
                 class="px-3 inline-flex items-center justify-center w-[100px]"
                 @click="handleTolak(data.value.noSiri)"
@@ -568,7 +568,7 @@ onMounted(() => {
                 Tolak
               </rs-button>
               <rs-button
-                variant="success"
+                variant="info"
                 size="sm"
                 class="px-3 inline-flex items-center justify-center w-[100px]"
                 @click="handleTerima(data.value.noSiri)"
@@ -586,7 +586,7 @@ onMounted(() => {
                 !userStore.roles.includes('Ketua Bahagian')
               "
               @click="kemaskini(data.value.noSiri)"
-              variant="primary-outline"
+              variant="info-outline"
               size="sm"
               class="px-3 inline-flex items-center justify-center w-[100px]"
             >

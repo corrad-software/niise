@@ -693,7 +693,7 @@ const showReportDetails = async (reportId) => {
         <rs-button
           v-if="buttonPermissions.semak"
           @click="openSemakModal"
-          variant="primary"
+          variant="info"
         >
           <Icon name="ph:check" class="mr-2 w-4 h-4" />
           Semak
@@ -701,7 +701,7 @@ const showReportDetails = async (reportId) => {
         <rs-button
           v-if="buttonPermissions.tolak"
           @click="openTolakModal"
-          variant="danger"
+          variant="info"
         >
           <Icon name="ph:x" class="mr-2 w-4 h-4" />
           Tolak
@@ -709,7 +709,7 @@ const showReportDetails = async (reportId) => {
         <rs-button
           v-if="buttonPermissions.terima"
           @click="openTerimaModal"
-          variant="success"
+          variant="info"
         >
           <Icon name="ph:check" class="mr-2 w-4 h-4" />
           Terima
@@ -753,7 +753,7 @@ const showReportDetails = async (reportId) => {
       <rs-button
         v-if="isKetuaBahagian && !hasForensicOfficer"
         @click="openAddModal"
-        variant="primary"
+        variant="info"
       >
         <Icon name="ph:plus" class="mr-2 w-4 h-4" />
         Tambah Pegawai
@@ -798,7 +798,7 @@ const showReportDetails = async (reportId) => {
           <div class="flex gap-2">
             <rs-button
               @click="openEditModal(data.text.userID, data.text.assignID)"
-              variant="primary-outline"
+              variant="info-outline"
               size="sm"
             >
               <Icon name="ph:pencil" class="mr-2 w-4 h-4" />
@@ -806,7 +806,7 @@ const showReportDetails = async (reportId) => {
             </rs-button>
             <rs-button
               @click="confirmDelete(data.text.userID, data.text.assignID)"
-              variant="danger-outline"
+              variant="info-outline"
               size="sm"
             >
               <Icon name="ph:trash" class="mr-2 w-4 h-4" />
@@ -905,7 +905,7 @@ const showReportDetails = async (reportId) => {
         <template v-slot:tindakan="data">
           <rs-button
             @click="generateReport(data.text)"
-            variant="primary"
+            variant="info"
             size="sm"
           >
             <Icon name="ph:file" class="mr-2 w-4 h-4" />
@@ -1047,7 +1047,7 @@ const showReportDetails = async (reportId) => {
         >
           <template #tindakan="{ text }">
             <rs-button
-              variant="secondary-outline"
+              variant="info-outline"
               size="sm"
               class="px-3 inline-flex items-center justify-center w-[100px]"
               @click="showReportDetails(text)"
@@ -1243,7 +1243,7 @@ const showReportDetails = async (reportId) => {
         <div class="flex justify-end px-4 py-3 bg-gray-50 dark:bg-gray-800">
           <rs-button
             @click="showReportModal = false"
-            variant="danger"
+            variant="info"
             size="sm"
             class="px-4 py-2 inline-flex items-center justify-center shadow-sm"
           >
@@ -1256,7 +1256,7 @@ const showReportDetails = async (reportId) => {
 
     <div class="flex justify-end gap-2">
       <rs-button
-        variant="danger"
+        variant="info"
         @click="navigateTo('/kemaskini-daftar/senarai')"
       >
         <Icon name="pajamas:reply" class="mr-2 w-4 h-4" />
@@ -1286,11 +1286,11 @@ const showReportDetails = async (reportId) => {
           />
 
           <div class="flex justify-end gap-2">
-            <rs-button variant="secondary" @click="closeModal">
+            <rs-button variant="info" @click="closeModal">
               <Icon name="ph:x" class="mr-2 w-4 h-4" />
               Tutup
             </rs-button>
-            <rs-button variant="primary" btn-type="submit">
+            <rs-button variant="info" btn-type="submit">
               <Icon name="ci:save" class="mr-2 w-4 h-4" />
               Simpan
             </rs-button>
@@ -1349,10 +1349,10 @@ const showReportDetails = async (reportId) => {
             validation="required"
           />
           <div class="flex justify-end gap-2 mt-4">
-            <rs-button variant="danger" @click="closeSemakModal"
+            <rs-button variant="info" @click="closeSemakModal"
               >Batal</rs-button
             >
-            <rs-button variant="primary" btn-type="submit">Hantar</rs-button>
+            <rs-button variant="info" btn-type="submit">Hantar</rs-button>
           </div>
         </FormKit>
       </template>
@@ -1410,10 +1410,10 @@ const showReportDetails = async (reportId) => {
             validation="required"
           />
           <div class="flex justify-end gap-2 mt-4">
-            <rs-button variant="danger" @click="closeTerimaModal"
+            <rs-button variant="info" @click="closeTerimaModal"
               >Batal</rs-button
             >
-            <rs-button variant="primary" btn-type="submit">Hantar</rs-button>
+            <rs-button variant="info" btn-type="submit">Hantar</rs-button>
           </div>
         </FormKit>
       </template>
@@ -1449,10 +1449,10 @@ const showReportDetails = async (reportId) => {
             }"
           />
           <div class="flex justify-end gap-2 mt-4">
-            <rs-button variant="secondary" @click="closeTolakModal"
+            <rs-button variant="info" @click="closeTolakModal"
               >Batal</rs-button
             >
-            <rs-button variant="danger" btn-type="submit">Hantar</rs-button>
+            <rs-button variant="info" btn-type="submit">Hantar</rs-button>
           </div>
         </FormKit>
       </template>
@@ -1494,10 +1494,10 @@ const showReportDetails = async (reportId) => {
             }"
           />
           <div class="flex justify-end gap-2 mt-4">
-            <rs-button variant="danger" @click="closeSemakKetuaModal"
+            <rs-button variant="info" @click="closeSemakKetuaModal"
               >Batal</rs-button
             >
-            <rs-button variant="primary" btn-type="submit">Hantar</rs-button>
+            <rs-button variant="info" btn-type="submit">Hantar</rs-button>
           </div>
         </FormKit>
       </template>

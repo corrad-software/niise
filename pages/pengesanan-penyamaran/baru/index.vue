@@ -254,11 +254,11 @@ definePageMeta({
 
         <!-- Action Buttons -->
         <div class="flex justify-end gap-4 mt-4">
-          <rs-button @click="goBack" variant="danger">
+          <rs-button @click="goBack" variant="info">
             <Icon name="pajamas:reply" class="w-4 h-4 mr-2" />
             Kembali
           </rs-button>
-          <rs-button btn-type="submit" variant="success">
+          <rs-button btn-type="submit" variant="info">
             <Icon name="ci:save" class="w-4 h-4 mr-2" />
             Simpan
           </rs-button>

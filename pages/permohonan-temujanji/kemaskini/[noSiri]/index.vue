@@ -343,7 +343,7 @@ const generateBarang = async () => {
       <div>
         <h3 class="text-2xl font-bold tracking-tight">Permohonan Baru</h3>
       </div>
-      <rs-button btn-type="reset" variant="danger-outline" @click="resetForm">
+      <rs-button btn-type="reset" variant="info-outline" @click="resetForm">
         <Icon name="ic:round-refresh" class="w-4 h-4 mr-2" />
         Padam Borang
       </rs-button>
@@ -482,7 +482,7 @@ const generateBarang = async () => {
               v-if="!userStore.roles.includes('Pegawai Penyiasat JIM')"
               type="button"
               @click="openBarangModal"
-              variant="primary"
+              variant="info"
             >
               <Icon name="ph:plus" class="w-4 h-4 mr-2" />
               Tambah Barang
@@ -491,7 +491,7 @@ const generateBarang = async () => {
               v-else-if="userStore.roles.includes('Pegawai Penyiasat JIM')"
               type="button"
               @click="generateBarang"
-              variant="secondary"
+              variant="info"
               :disabled="!noKertasSiasatan"
             >
               <Icon name="ph:arrow-counter-clockwise" class="w-4 h-4 mr-2" />
@@ -544,7 +544,7 @@ const generateBarang = async () => {
                       v-if="!userStore.roles.includes('Pegawai Penyiasat JIM')"
                       type="button"
                       @click="editBarang(index)"
-                      variant="primary-outline"
+                      variant="info-outline"
                       class="mr-2"
                     >
                       <Icon name="ph:pencil" class="w-4 h-4 mr-2" />
@@ -553,7 +553,7 @@ const generateBarang = async () => {
                     <rs-button
                       type="button"
                       @click="removeBarang(index)"
-                      variant="danger-outline"
+                      variant="info-outline"
                     >
                       <Icon name="ph:trash" class="w-4 h-4 mr-2" />
                       Buang
@@ -586,15 +586,15 @@ const generateBarang = async () => {
 
         <!-- Action Buttons -->
         <div class="flex justify-end gap-4 mt-8">
-          <rs-button @click="navigateBack" variant="danger">
+          <rs-button @click="navigateBack" variant="info">
             <Icon name="pajamas:reply" class="w-4 h-4 mr-2" />
             Kembali</rs-button
           >
-          <rs-button @click.prevent="simpan" variant="primary">
+          <rs-button @click.prevent="simpan" variant="info">
             <Icon name="ci:save" class="w-4 h-4 mr-2" />
             Simpan
           </rs-button>
-          <rs-button btn-type="submit" variant="success">
+          <rs-button btn-type="submit" variant="info">
             <Icon
               name="streamline:interface-upload-laptop-arrow-computer-download-internet-laptop-network-server-up-upload"
               class="w-4 h-4 mr-2"
@@ -685,7 +685,7 @@ const generateBarang = async () => {
               type="button"
               btn-type="reset"
               @click="cancelBarangModal"
-              variant="danger"
+              variant="info"
             >
               <Icon name="ph:x" class="w-4 h-4 mr-2" />
               Batal
@@ -693,7 +693,7 @@ const generateBarang = async () => {
             <rs-button
               type="submit"
               btn-type="submit"
-              variant="success"
+              variant="info"
               :disabled="!formState.valid"
             >
               <Icon name="ci:save" class="w-4 h-4 mr-2" />

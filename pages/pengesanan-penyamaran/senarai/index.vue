@@ -304,7 +304,7 @@ onMounted(() => {
       <rs-button
         v-if="showButton.tambah"
         @click="addAppointment"
-        variant="primary"
+        variant="info"
         class="h-10"
       >
         <Icon
@@ -366,7 +366,7 @@ onMounted(() => {
               <rs-button
                 v-if="showButton.keputusan"
                 @click="resultAppointment(data.text.id)"
-                variant="secondary-outline"
+                variant="info-outline"
                 size="sm"
                 class="px-3 inline-flex items-center justify-center w-[100px]"
                 :disabled="data.value.tindakan.disabled"
@@ -378,7 +378,7 @@ onMounted(() => {
               <rs-button
                 v-if="showButton.kemaskini"
                 @click="updateAppointment(data.text.id)"
-                variant="primary-outline"
+                variant="info-outline"
                 size="sm"
                 class="px-3 inline-flex items-center justify-center w-[100px]"
               >

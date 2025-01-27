@@ -200,7 +200,7 @@ const resetForm = () => {
       <div>
         <h3 class="text-2xl font-bold tracking-tight">Kemaskini Permohonan</h3>
       </div>
-      <rs-button btn-type="reset" variant="danger-outline" @click="resetForm">
+      <rs-button btn-type="reset" variant="info-outline" @click="resetForm">
         <Icon name="ic:round-refresh" class="w-4 h-4 mr-2" />
         Padam Borang
       </rs-button>
@@ -321,11 +321,11 @@ const resetForm = () => {
 
         <!-- Action Buttons -->
         <div class="flex justify-end gap-4 mt-8">
-          <rs-button @click="navigateBack" variant="danger">
+          <rs-button @click="navigateBack" variant="info">
             <Icon name="pajamas:reply" class="w-4 h-4 mr-2" />
             Kembali
           </rs-button>
-          <rs-button btn-type="submit" variant="success">
+          <rs-button btn-type="submit" variant="info">
             <Icon name="ci:save" class="w-4 h-4 mr-2" />
             Hantar
           </rs-button>

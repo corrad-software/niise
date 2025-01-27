@@ -414,7 +414,7 @@ const formatDate = (dateString) => {
     <div class="flex justify-between items-center mb-4">
       <h1 class="text-2xl font-bold">Laporan Bahan Bukti</h1>
       <rs-button
-        variant="primary"
+        variant="info"
         @click="generatePDF"
         :disabled="!generatedData.dapatan?.value"
       >
@@ -724,11 +724,11 @@ const formatDate = (dateString) => {
         </div>
 
         <div class="flex justify-end gap-2">
-          <rs-button variant="danger" btn-type="reset" @click="previousPage()">
+          <rs-button variant="info" btn-type="reset" @click="previousPage()">
             <Icon name="pajamas:reply" class="w-4 h-4 mr-2" />
             Kembali</rs-button
           >
-          <rs-button type="submit" btn-type="submit">
+          <rs-button variant="info" type="submit" btn-type="submit">
             <Icon name="ic:round-save" class="w-4 h-4 mr-2" />
             Simpan
           </rs-button>

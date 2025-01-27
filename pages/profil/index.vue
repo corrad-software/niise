@@ -179,7 +179,7 @@ const changePassword = async () => {
         </div>
 
         <div class="flex justify-end mt-6">
-          <rs-button btn-type="submit" variant="primary">
+          <rs-button btn-type="submit" variant="info">
             <Icon name="ci:save" class="w-4 h-4 mr-2" />
             Kemaskini Profil
           </rs-button>
@@ -273,7 +273,7 @@ const changePassword = async () => {
         </FormKit>
 
         <div class="flex justify-end mt-6">
-          <rs-button btn-type="submit" variant="warning">
+          <rs-button btn-type="submit" variant="info">
             <Icon name="ph:lock-bold" class="w-4 h-4 mr-2" />
             Tukar Kata Laluan
           </rs-button>

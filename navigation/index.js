@@ -9,18 +9,18 @@ export default [
         icon: "ph:house-duotone",
       },
       {
-        title: "Semakan",
+        title: "Semakan Forensik",
         icon: "ph:user-list-duotone",
         child: [
           {
             title: "Semua",
-            path: "/kemaskini-daftar/senarai",
+            path: "/kemaskini-daftar/senarai-pengesahan",
             child: [],
             meta: {},
           },
           {
             title: "Menunggu Pengesahan",
-            path: "/kemaskini-daftar/senarai-pengesahan",
+            path: "/kemaskini-daftar/senarai",
             child: [],
             meta: {},
           },
@@ -32,7 +32,7 @@ export default [
         },
       },
       {
-        title: "Semakan",
+        title: "Semakan Forensik",
         icon: "ph:user-list-duotone",
         child: [
           {
@@ -55,7 +55,7 @@ export default [
         },
       },
       {
-        title: "Permohonan Temujanji",
+        title: "Semakan Forensik",
         path: "/permohonan-temujanji/senarai",
         icon: "ph:calendar-blank-duotone",
         meta: {

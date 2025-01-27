@@ -159,15 +159,15 @@ onMounted(() => {
         >
           <button class="icon-btn profile px-2">
             <img
-              class="w-8 h-8 object-cover rounded-full"
-              src="@/assets/img/user/default.svg"
+              class="w-8 h-8 object-cover rounded-full p-1 bg-[#E4E6E7]"
+              src="@/assets/img/avatar/user.webp"
             />
             <div
               v-if="isDesktop"
               class="grid grid-cols-1 text-left ml-3 flex-none"
             >
               <p class="font-semibold text-sm truncate w-24 mb-0">
-                {{ user.username }}
+                {{ user.name }}
               </p>
             </div>
             <Icon name="ic:outline-keyboard-arrow-down" class="ml-3" />

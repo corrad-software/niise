@@ -329,7 +329,7 @@ const cetakBorang = async (noSiri, jenisDokumen) => {
       <div>
         <h3 class="text-2xl font-bold tracking-tight">Senarai Permohonan</h3>
       </div>
-      <rs-button @click="permohonanBaru()" variant="primary" class="h-10">
+      <rs-button @click="permohonanBaru()" variant="info" class="h-10">
         <Icon
           name="streamline:computer-desktop-add-desktop-device-display-add-plus-computer"
           class="mr-2 w-4 h-4"
@@ -394,7 +394,7 @@ const cetakBorang = async (noSiri, jenisDokumen) => {
           >
             <rs-button
               @click="kemaskini(data.value.noSiri)"
-              variant="primary-outline"
+              variant="info-outline"
               size="sm"
               class="px-3 inline-flex items-center justify-center w-[100px]"
             >
@@ -405,7 +405,7 @@ const cetakBorang = async (noSiri, jenisDokumen) => {
             <rs-button
               v-if="data.value.status === 'Permohonan Draf'"
               @click="hapus(data.value.noSiri)"
-              variant="danger-outline"
+              variant="info-outline"
               size="sm"
               class="px-3 inline-flex items-center justify-center w-[100px]"
             >
@@ -419,7 +419,7 @@ const cetakBorang = async (noSiri, jenisDokumen) => {
 
           <div v-else-if="data.value.status === 'Permohonan Diluluskan'">
             <rs-button
-              variant="secondary-outline"
+              variant="info-outline"
               size="sm"
               class="px-3 inline-flex items-center justify-center w-[100px]"
               @click="lihatMaklumat(data.value.noSiri)"
