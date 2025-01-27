@@ -167,10 +167,10 @@ onMounted(() => {
               class="grid grid-cols-1 text-left ml-3 flex-none"
             >
               <p class="font-semibold text-sm truncate w-24 mb-0">
-                {{ user.name }}
+                {{ user?.name }}
               </p>
               <p class="text-xs truncate w-24 mb-0 text-gray-300">
-                {{ user.rank }}
+                {{ user?.roles[0] || "N/A" }}
               </p>
             </div>
             <Icon name="ic:outline-keyboard-arrow-down" class="ml-3" />
