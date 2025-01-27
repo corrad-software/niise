@@ -431,7 +431,7 @@ const previewAllImages = (images) => {
       <div>
         <h3 class="text-2xl font-bold tracking-tight">Senarai Dokumen</h3>
       </div>
-      <rs-button @click="navigateTo('/e-library/tambah')">
+      <rs-button variant="info" @click="navigateTo('/e-library/tambah')">
         <Icon name="ph:plus" class="mr-2 w-4 h-4" />
         Tambah Dokumen
       </rs-button>
