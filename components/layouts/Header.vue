@@ -169,6 +169,9 @@ onMounted(() => {
               <p class="font-semibold text-sm truncate w-24 mb-0">
                 {{ user.name }}
               </p>
+              <p class="text-xs truncate w-24 mb-0 text-gray-300">
+                {{ user.rank }}
+              </p>
             </div>
             <Icon name="ic:outline-keyboard-arrow-down" class="ml-3" />
           </button>
