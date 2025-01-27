@@ -313,14 +313,14 @@ const selectReportType = (type) => {
             </h4>
             <div class="flex gap-4">
               <rs-button
-                :variant="reportType === 'online' ? 'primary' : 'secondary'"
+                :variant="reportType === 'online' ? 'info' : 'info'"
                 @click="selectReportType('online')"
               >
                 <Icon name="mdi:web" class="w-4 h-4 mr-2" />
                 Semakan Online
               </rs-button>
               <rs-button
-                :variant="reportType === 'offline' ? 'primary' : 'secondary'"
+                :variant="reportType === 'offline' ? 'info' : 'info'"
                 @click="selectReportType('offline')"
               >
                 <Icon name="mdi:office-building" class="w-4 h-4 mr-2" />
