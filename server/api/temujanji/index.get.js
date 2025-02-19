@@ -54,7 +54,7 @@ export default defineEventHandler(async (event) => {
       },
     });
 
-    console.log(appointments[0].temujanji_detail.dapatan);
+    // console.log(appointments[0].temujanji_detail.dapatan);
 
     return {
       statusCode: 200,
