@@ -3,10 +3,14 @@ import { writeFile } from "fs/promises";
 import { join } from "path";
 import { mkdir } from "fs/promises";
 
-// Add allowed file types
+// Separate allowed file types for images and documents
 const ALLOWED_FILE_TYPES = {
-  "application/pdf": "pdf",
-  "image/jpeg": "jpg",
+  IMAGES: {
+    "image/jpeg": "jpg",
+  },
+  DOCUMENTS: {
+    "application/pdf": "pdf",
+  },
 };
 
 export default defineEventHandler(async (event) => {
@@ -34,87 +38,184 @@ export default defineEventHandler(async (event) => {
         modified_at: new Date(),
       },
       include: {
-        // Include related permohonan and user data
         permohonan: {
           include: {
             pemohon: {
               include: {
-                user: true, // This will get us the pemohon's email
+                user: true,
               },
             },
+          },
+        },
+        report_doc_support: {
+          include: {
+            document: true,
           },
         },
       },
     });
 
-    // Handle document uploads
-    if (body.documentTambahan?.length > 0) {
-      // Ensure uploads directory exists
-      const uploadsDir = join(
-        process.env.SERVER == "true"
-          ? join(process.cwd(), "../public/uploads")
-          : join(process.cwd(), "public/uploads")
-      );
-      await mkdir(uploadsDir, { recursive: true });
+    // Ensure uploads directory exists
+    const uploadsDir = join(
+      process.env.SERVER == "true"
+        ? join(process.cwd(), "../public/uploads")
+        : join(process.cwd(), "public/uploads")
+    );
+    await mkdir(uploadsDir, { recursive: true });
 
-      for (const doc of body.documentTambahan) {
-        // Extract file data
-        const matches = doc.file.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    // First, handle deletion of removed files only if we have existing IDs arrays
+    if (Array.isArray(body.existingImageIds) || Array.isArray(body.existingDocIds)) {
+      // Get all existing documents for this report
+      const existingDocs = await prisma.report_doc_support.findMany({
+        where: { 
+          reportID: parseInt(reportID),
+          document: {
+            documentStatus: "ACTIVE"
+          }
+        },
+        include: {
+          document: true
+        }
+      });
+
+      // Process deletions for both images and documents
+      const existingIds = [...(body.existingImageIds || []), ...(body.existingDocIds || [])];
+      
+      // Delete documents not in existingIds
+      for (const doc of existingDocs) {
+        if (!existingIds.includes(doc.documentID)) {
+          await prisma.$transaction([
+            // Mark document as deleted
+            prisma.document.update({
+              where: { documentID: doc.document.documentID },
+              data: { documentStatus: "DELETED" }
+            }),
+            // Remove report_doc_support relationship
+            prisma.report_doc_support.delete({
+              where: { report_attachID: doc.report_attachID }
+            })
+          ]);
+        }
+      }
+    }
+
+    // Handle new image uploads (gambar)
+    if (body.gambar?.length > 0) {
+      // Create all images and their supporting relationships
+      await Promise.all(body.gambar.map(async (image) => {
+        const matches = image.base64.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
 
         if (!matches || matches.length !== 3) {
-          throw new Error("Invalid base64 string");
+          throw new Error("Invalid image base64 string");
         }
 
         const fileType = matches[1];
         const base64Data = matches[2];
 
-        // Validate file type
-        if (!ALLOWED_FILE_TYPES[fileType]) {
-          throw new Error(
-            "Jenis fail tidak dibenarkan. Sila muat naik fail PDF atau JPG sahaja."
-          );
+        // Validate image type
+        if (!ALLOWED_FILE_TYPES.IMAGES[fileType]) {
+          throw new Error("Jenis gambar tidak dibenarkan. Sila muat naik fail JPG sahaja.");
         }
 
-        const extension = ALLOWED_FILE_TYPES[fileType];
-        const fileName = `report_${reportID}_${Date.now()}_${
-          doc.nama
-        }.${extension}`;
+        const extension = ALLOWED_FILE_TYPES.IMAGES[fileType];
+        const fileName = `report_image_${reportID}_${Date.now()}_${Math.random().toString(36).substring(7)}.${extension}`;
         const filePath = join(uploadsDir, fileName);
 
-        // Save file to disk
+        // Save image to disk
         await writeFile(filePath, base64Data, "base64");
 
-        // Create document record
-        const savedDocument = await prisma.document.create({
-          data: {
-            documentName: doc.nama,
-            documentURL: `/uploads/${fileName}`,
-            documentType: "LAPORAN_SOKONGAN",
-            documentExtension: extension,
-            imageMIMEType: fileType,
-            documentSize: Math.round(base64Data.length * 0.75),
-            documentStatus: "ACTIVE",
-            documentCreatedDate: new Date().toISOString(),
-            user: {
-              connect: {
-                userID: userID,
+        // Create document record and supporting relationship in a transaction
+        await prisma.$transaction(async (prisma) => {
+          // Create document record
+          const newDoc = await prisma.document.create({
+            data: {
+              documentName: image.name,
+              documentURL: `/uploads/${fileName}`,
+              documentType: "LAPORAN_GAMBAR",
+              documentExtension: extension,
+              imageMIMEType: fileType,
+              documentSize: Math.round(base64Data.length * 0.75),
+              documentStatus: "ACTIVE",
+              documentCreatedDate: new Date().toISOString(),
+              user: {
+                connect: {
+                  userID: userID,
+                },
               },
             },
-          },
-        });
+          });
 
-        // Create report_doc_support record
-        await prisma.report_doc_support.create({
-          data: {
-            reportID: parseInt(reportID),
-            documentID: savedDocument.documentID,
-            keterangan: doc.keterangan,
-          },
+          // Create supporting relationship
+          await prisma.report_doc_support.create({
+            data: {
+              reportID: parseInt(reportID),
+              documentID: newDoc.documentID,
+              keterangan: "Report Image"
+            }
+          });
         });
-      }
+      }));
     }
 
-    // Send email notification to pemohon
+    // Handle new document uploads (documentTambahan)
+    if (body.documentTambahan?.length > 0) {
+      // Create all documents and their supporting relationships
+      await Promise.all(body.documentTambahan.map(async (doc) => {
+        const matches = doc.base64.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+
+        if (!matches || matches.length !== 3) {
+          throw new Error("Invalid document base64 string");
+        }
+
+        const fileType = matches[1];
+        const base64Data = matches[2];
+
+        // Validate document type
+        if (!ALLOWED_FILE_TYPES.DOCUMENTS[fileType]) {
+          throw new Error("Jenis dokumen tidak dibenarkan. Sila muat naik fail PDF sahaja.");
+        }
+
+        const extension = ALLOWED_FILE_TYPES.DOCUMENTS[fileType];
+        const fileName = `report_doc_${reportID}_${Date.now()}_${Math.random().toString(36).substring(7)}.${extension}`;
+        const filePath = join(uploadsDir, fileName);
+
+        // Save document to disk
+        await writeFile(filePath, base64Data, "base64");
+
+        // Create document record and supporting relationship in a transaction
+        await prisma.$transaction(async (prisma) => {
+          // Create document record
+          const newDoc = await prisma.document.create({
+            data: {
+              documentName: doc.nama,
+              documentURL: `/uploads/${fileName}`,
+              documentType: "LAPORAN_SOKONGAN",
+              documentExtension: extension,
+              imageMIMEType: fileType,
+              documentSize: Math.round(base64Data.length * 0.75),
+              documentStatus: "ACTIVE",
+              documentCreatedDate: new Date().toISOString(),
+              user: {
+                connect: {
+                  userID: userID,
+                },
+              },
+            },
+          });
+
+          // Create supporting relationship
+          await prisma.report_doc_support.create({
+            data: {
+              reportID: parseInt(reportID),
+              documentID: newDoc.documentID,
+              keterangan: doc.keterangan || null
+            }
+          });
+        });
+      }));
+    }
+
+    // Send email notification
     if (updatedReport.permohonan?.pemohon?.user?.userEmail) {
       await sendMail({
         to: updatedReport.permohonan.pemohon.user.userEmail,

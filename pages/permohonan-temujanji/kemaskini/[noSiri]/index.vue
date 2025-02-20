@@ -418,7 +418,7 @@ const getCurrentDate = () => {
             class="flex flex-col md:flex-row items-center justify-between mb-2"
           >
             <h3 class="mb-2">Senarai Barang</h3>
-            <rs-button type="button" @click="openBarangModal" variant="primary">
+            <rs-button type="button" @click="openBarangModal" variant="info">
               <Icon name="ph:plus" class="w-4 h-4 mr-2" />
               Tambah Barang
             </rs-button>
@@ -451,7 +451,7 @@ const getCurrentDate = () => {
                     <rs-button
                       type="button"
                       @click="editBarang(index)"
-                      variant="warning"
+                      variant="info"
                       class="mr-2"
                     >
                       <Icon name="ph:pencil" class="w-4 h-4 mr-2" />
@@ -460,7 +460,7 @@ const getCurrentDate = () => {
                     <rs-button
                       type="button"
                       @click="removeBarang(index)"
-                      variant="danger"
+                      variant="info"
                     >
                       <Icon name="ph:trash" class="w-4 h-4 mr-2" />
                       Buang
@@ -493,11 +493,11 @@ const getCurrentDate = () => {
 
         <!-- Action Buttons -->
         <div class="flex justify-end gap-4 mt-8">
-          <rs-button @click="navigateBack" variant="danger">
+          <rs-button @click="navigateBack" variant="info">
             <Icon name="pajamas:reply" class="w-4 h-4 mr-2" />
             Kembali</rs-button
           >
-          <rs-button @click.prevent="simpan" variant="primary">
+          <rs-button @click.prevent="simpan" variant="info">
             <Icon name="ci:save" class="w-4 h-4 mr-2" />
             Simpan
           </rs-button>
@@ -592,7 +592,7 @@ const getCurrentDate = () => {
               type="button"
               btn-type="reset"
               @click="cancelBarangModal"
-              variant="danger"
+              variant="info"
             >
               <Icon name="ph:x" class="w-4 h-4 mr-2" />
               Batal

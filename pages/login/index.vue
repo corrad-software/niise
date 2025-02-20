@@ -39,8 +39,8 @@ const login = async () => {
 
       $swal.fire({
         position: "center",
-        title: "Success",
-        text: "Login Success",
+        title: "Berjaya",
+        text: "Login Berjaya",
         icon: "success",
         timer: 2000,
         showConfirmButton: false,

@@ -189,7 +189,7 @@ function numberComma(x) {
     </div>
     <!-- <rs-button
       class="!p-2"
-      variant="primary-outline"
+      variant="info-outline"
       @click="getCodemirrorStates"
     >
       Get state</rs-button

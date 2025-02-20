@@ -422,7 +422,7 @@ const previewAllImages = (images) => {
       <div>
         <h3 class="text-2xl font-bold tracking-tight">Senarai Dokumen</h3>
       </div>
-      <rs-button @click="navigateTo('/e-library/tambah')">
+      <rs-button variant="info" @click="navigateTo('/e-library/tambah')">
         <Icon name="ph:plus" class="mr-2 w-4 h-4" />
         Tambah Dokumen
       </rs-button>
@@ -461,7 +461,7 @@ const previewAllImages = (images) => {
           <div class="flex gap-2">
             <rs-button
               @click="uploadItem(text.id)"
-              variant="success"
+              variant="info"
               size="sm"
               class="px-3 inline-flex items-center justify-center w-[110px]"
               title="Muat Naik"
@@ -471,7 +471,7 @@ const previewAllImages = (images) => {
             </rs-button>
             <rs-button
               @click="updateItem(text.id)"
-              variant="warning"
+              variant="info"
               size="sm"
               class="px-3 inline-flex items-center justify-center w-[110px]"
               title="Kemaskini"
@@ -550,7 +550,7 @@ const previewAllImages = (images) => {
             <!-- Action Buttons -->
             <div class="flex justify-end gap-2 mt-4 px-4">
               <rs-button
-                variant="danger"
+                variant="info"
                 @click="showUploadModal = false"
                 :disabled="isSubmitting"
                 size="sm"
@@ -561,7 +561,7 @@ const previewAllImages = (images) => {
               </rs-button>
               <rs-button
                 btn-type="submit"
-                variant="primary"
+                variant="info"
                 :disabled="uploadedImages.length === 0 || isSubmitting"
                 size="sm"
                 class="px-4 py-2 inline-flex items-center justify-center shadow-sm"
@@ -617,7 +617,7 @@ const previewAllImages = (images) => {
               </h3>
               <rs-button
                 @click="previewAllImages(selectedDetails.images)"
-                variant="primary"
+                variant="info"
                 size="sm"
                 class="px-3 inline-flex items-center justify-center"
               >
@@ -653,7 +653,7 @@ const previewAllImages = (images) => {
         <div class="flex justify-end px-4 py-3 bg-gray-50 dark:bg-gray-800">
           <rs-button
             @click="showDetailsModal = false"
-            variant="danger"
+            variant="info"
             size="sm"
             class="px-4 py-2 inline-flex items-center justify-center shadow-sm"
           >

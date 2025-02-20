@@ -70,7 +70,7 @@ onMounted(() => {
           <rs-button
             @click="navigateTo(`/dokumen-library/kemaskini/${data.text}`)"
             size="sm"
-            variant="primary"
+            variant="info"
             class="py-1 px-2"
           >
             kemaskini

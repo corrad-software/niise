@@ -294,7 +294,7 @@ onMounted(async () => {
         >
           <template #tindakan="{ text }">
             <rs-button
-              variant="secondary-outline"
+              variant="info-outline"
               size="sm"
               class="px-3 inline-flex items-center justify-center w-[100px]"
               @click="showReportDetails(text)"
@@ -309,7 +309,7 @@ onMounted(async () => {
 
       <!-- Action Buttons -->
       <div class="flex justify-end gap-4 mt-8 border-t pt-4">
-        <rs-button @click="$router.back()" variant="danger">
+        <rs-button @click="$router.back()" variant="info">
           <Icon name="pajamas:reply" class="w-4 h-4 mr-2" />
           Kembali
         </rs-button>
@@ -458,7 +458,7 @@ onMounted(async () => {
               </h3>
               <rs-button
                 @click="previewAllImages(selectedReport.report_doc_support)"
-                variant="primary"
+                variant="info"
                 size="sm"
                 class="px-3 inline-flex items-center justify-center"
               >
@@ -498,7 +498,7 @@ onMounted(async () => {
         <div class="flex justify-end px-4 py-3 bg-gray-50 dark:bg-gray-800">
           <rs-button
             @click="showReportModal = false"
-            variant="danger"
+            variant="info"
             size="sm"
             class="px-4 py-2 inline-flex items-center justify-center shadow-sm"
           >

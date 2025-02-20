@@ -217,10 +217,10 @@ const resetTheme = () => {
         </div>
         <hr class="my-4" />
         <p class="text-sm mb-3 font-bold">Preview</p>
-        <rs-button variant="primary" class="w-full mb-4 cursor-default">
+        <rs-button variant="info" class="w-full mb-4 cursor-default">
           Primary Color
         </rs-button>
-        <rs-button variant="secondary" class="w-full mb-4 cursor-default">
+        <rs-button variant="info" class="w-full mb-4 cursor-default">
           Secondary Color
         </rs-button>
         <rs-button variant="info" class="w-full mb-4 cursor-default">
@@ -229,10 +229,10 @@ const resetTheme = () => {
         <rs-button variant="success" class="w-full mb-4 cursor-default">
           Success Color
         </rs-button>
-        <rs-button variant="warning" class="w-full mb-4 cursor-default">
+        <rs-button variant="info" class="w-full mb-4 cursor-default">
           Warning Color
         </rs-button>
-        <rs-button variant="danger" class="w-full mb-4 cursor-default">
+        <rs-button variant="info" class="w-full mb-4 cursor-default">
           Danger Color
         </rs-button>
       </div>

@@ -466,7 +466,7 @@ onMounted(() => {
             <!-- View Button -->
             <rs-button
               @click="lihat(data.value.noSiri)"
-              variant="secondary-outline"
+              variant="info-outline"
               size="sm"
               class="px-3 inline-flex items-center justify-center w-[100px]"
             >
@@ -481,7 +481,7 @@ onMounted(() => {
                 !userStore.roles.includes('Ketua Bahagian')
               "
               @click="kemaskini(data.value.noSiri)"
-              variant="primary-outline"
+              variant="info-outline"
               size="sm"
               class="px-3 inline-flex items-center justify-center w-[100px]"
             >

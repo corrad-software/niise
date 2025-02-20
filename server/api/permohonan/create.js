@@ -166,6 +166,7 @@ export default defineEventHandler(async (event) => {
       message: isDraft
         ? "Rekod telah berjaya disimpan. (Status CMN-S001)"
         : "Permohonan pemeriksaan forensik telah dihantar. (Status FOR-S001)",
+      caseReferenceID,
     };
   } catch (error) {
     console.log(error);

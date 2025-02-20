@@ -255,7 +255,7 @@ onMounted(() => {
       <div class="flex justify-between items-center">
         <h2 class="text-lg font-semibold mb-4">Gambar Sedia Ada</h2>
         <div class="flex justify-end mb-4">
-          <rs-button @click="previewAllImages" variant="primary">
+          <rs-button @click="previewAllImages" variant="info">
             Papar Semua Gambar
           </rs-button>
         </div>
@@ -427,7 +427,7 @@ onMounted(() => {
 
           <!-- Action Buttons -->
           <div class="flex justify-end gap-2 mt-4">
-            <rs-button @click="goBack" variant="danger">Kembali</rs-button>
+            <rs-button @click="goBack" variant="info">Kembali</rs-button>
             <rs-button
               btn-type="submit"
               variant="success"

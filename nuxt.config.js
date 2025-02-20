@@ -566,5 +566,10 @@ export default defineNuxtConfig({
         requestSizeLimiter: false,
       },
     },
+    "/api/laporan/**": {
+      security: {
+        requestSizeLimiter: false,
+      },
+    },
   },
 });

@@ -195,9 +195,8 @@ const getJenisBarangLabel = (value) => {
         <h3 class="text-2xl font-bold tracking-tight">Kemaskini Permohonan</h3>
       </div>
     </div>
-
-    <rs-card class="mt-4 px-4 py-6">
-      <FormKit type="form" :actions="false" @submit="submitForm">
+    <FormKit type="form" :actions="false" @submit="submitForm">
+      <rs-card class="mt-4 px-4 py-6">
         <!-- Pemohon Section -->
         <div class="grid gap-6 md:grid-cols-3">
           <FormKit
@@ -247,6 +246,12 @@ const getJenisBarangLabel = (value) => {
             disabled
           />
         </div>
+      </rs-card>
+
+      <rs-card class="mt-4 px-4 py-6">
+        <h3 class="text-2xl font-bold tracking-tight mb-4">
+          Maklumat Kes Kejadian
+        </h3>
 
         <!-- No Kertas & Laporan Section -->
         <FormKit
@@ -267,16 +272,6 @@ const getJenisBarangLabel = (value) => {
           v-model="ringkasanKenyataanKes"
         />
 
-        <!-- Bilangan Section -->
-        <!-- <FormKit
-          type="number"
-          label="Bilangan"
-          v-model="bilangan"
-          validation="required|number"
-          disabled
-        /> -->
-
-        <!-- Barang Section -->
         <div class="mb-4">
           <h3 class="mb-2">
             Senarai Barang<span class="text-red-500">*</span>
@@ -308,19 +303,19 @@ const getJenisBarangLabel = (value) => {
           </table>
           <div v-else class="text-gray-500 mb-2">Tiada barang ditambah</div>
         </div>
+      </rs-card>
 
-        <!-- Action Buttons -->
-        <div class="flex justify-end gap-4 mt-8">
-          <rs-button @click="navigateBack" variant="danger">
-            <Icon name="pajamas:reply" class="w-4 h-4 mr-2" />
-            Kembali
-          </rs-button>
-          <rs-button btn-type="submit" variant="success">
-            <Icon name="ci:save" class="w-4 h-4 mr-2" />
-            Hantar
-          </rs-button>
-        </div>
-      </FormKit>
-    </rs-card>
+      <!-- Action Buttons -->
+      <div class="flex justify-end gap-4 mt-8">
+        <rs-button @click="navigateBack" variant="info">
+          <Icon name="pajamas:reply" class="w-4 h-4 mr-2" />
+          Kembali
+        </rs-button>
+        <rs-button btn-type="submit" variant="info">
+          <Icon name="ci:save" class="w-4 h-4 mr-2" />
+          Sahkan
+        </rs-button>
+      </div>
+    </FormKit>
   </div>
 </template>

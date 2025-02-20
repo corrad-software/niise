@@ -45,6 +45,11 @@ export default defineEventHandler(async (event) => {
           },
         },
         report_doc_support: {
+          where: {
+            document: {
+              documentStatus: "ACTIVE",
+            },
+          },
           include: {
             document: {
               select: {
@@ -73,6 +78,40 @@ export default defineEventHandler(async (event) => {
       report.permohonan.permohonan_penolakan?.user;
 
     const headOfDivision = report.permohonan.permohonan_approval?.[0]?.user;
+
+    // Get all images from report_doc_support
+    const allImages = report.report_doc_support
+      .filter(
+        (doc) =>
+          doc.document.documentType === "LAPORAN_GAMBAR" ||
+          doc.document.imageMIMEType?.startsWith("image/")
+      )
+      .map((doc) => ({
+        documentID: doc.document.documentID,
+        documentName: doc.document.documentName,
+        documentURL: doc.document.documentURL,
+        type: doc.document.imageMIMEType,
+        size: doc.document.documentSize,
+        extension: doc.document.documentExtension,
+        createdDate: doc.document.documentCreatedDate,
+      }));
+
+    // Get all supporting documents (PDFs)
+    const supportingDocs = report.report_doc_support
+      .filter(
+        (doc) =>
+          doc.document.documentType === "LAPORAN_SOKONGAN" ||
+          doc.document.imageMIMEType === "application/pdf"
+      )
+      .map((doc) => ({
+        documentID: doc.document.documentID,
+        documentName: doc.document.documentName,
+        documentURL: doc.document.documentURL,
+        type: doc.document.imageMIMEType,
+        size: doc.document.documentSize,
+        extension: doc.document.documentExtension,
+        createdDate: doc.document.documentCreatedDate,
+      }));
 
     const reportData = {
       kesId: report.permohonan.no_siri,
@@ -119,17 +158,8 @@ export default defineEventHandler(async (event) => {
         value: report.lookup_report_dapatanTolookup?.lookupID,
         label: report.lookup_report_dapatanTolookup?.lookupValue,
       },
-      documentTambahan: report.report_doc_support.map((doc) => ({
-        nama: doc.document.documentName,
-        keterangan: doc.keterangan || "",
-        preview: {
-          url: doc.document.documentURL,
-          type: doc.document.imageMIMEType,
-          size: doc.document.documentSize,
-          extension: doc.document.documentExtension,
-          createdDate: doc.document.documentCreatedDate,
-        },
-      })),
+      gambar: allImages,
+      documentTambahan: supportingDocs,
     };
 
     return { statusCode: 200, data: reportData };

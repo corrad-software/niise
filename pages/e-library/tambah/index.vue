@@ -325,13 +325,13 @@ const goBack = () => {
 
           <!-- Form Actions -->
           <div class="flex justify-end gap-2 mt-6">
-            <rs-button @click="goBack" variant="danger" class="px-4 py-2">
+            <rs-button @click="goBack" variant="info" class="px-4 py-2">
               <Icon name="pajamas:reply" class="w-4 h-4 mr-2" />
               Kembali
             </rs-button>
             <rs-button
               btn-type="submit"
-              variant="primary"
+              variant="info"
               :disabled="isSubmitting"
               class="px-4 py-2"
             >

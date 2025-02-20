@@ -28,14 +28,14 @@
         />
 
         <div class="flex justify-end gap-2 mt-4">
-          <rs-button type="button" @click="navigateBack()" variant="danger"
+          <rs-button type="button" @click="navigateBack()" variant="info"
             >Kembali</rs-button
           >
           <rs-button
             type="submit"
             @click="confirmSah"
             btn-type="submit"
-            variant="success"
+            variant="info"
             >Sah</rs-button
           >
         </div>

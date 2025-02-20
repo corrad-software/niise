@@ -271,7 +271,7 @@ onMounted(() => {
         <h3 class="text-lg font-semibold">Gambar Sedia Ada</h3>
         <rs-button
           @click="previewAllImages"
-          variant="primary"
+          variant="info"
           size="sm"
           class="px-3 inline-flex items-center justify-center"
         >
@@ -454,7 +454,7 @@ onMounted(() => {
           <div class="flex justify-end gap-2 mt-6">
             <rs-button
               @click="goBack"
-              variant="danger"
+              variant="info"
               size="sm"
               class="px-4 py-2"
             >
@@ -463,7 +463,7 @@ onMounted(() => {
             </rs-button>
             <rs-button
               type="submit"
-              variant="primary"
+              variant="info"
               :disabled="isSubmitting"
               size="sm"
               class="px-4 py-2"

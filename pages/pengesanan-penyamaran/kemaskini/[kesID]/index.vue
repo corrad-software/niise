@@ -511,7 +511,7 @@ const formatFileSize = (bytes) => {
 
         <!-- Action Buttons -->
         <div class="flex justify-end gap-2 mt-4">
-          <rs-button @click="goBack" variant="danger">Kembali</rs-button>
+          <rs-button @click="goBack" variant="info">Kembali</rs-button>
           <rs-button btn-type="submit" variant="success">Kemaskini</rs-button>
         </div>
       </FormKit>

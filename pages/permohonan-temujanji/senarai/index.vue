@@ -285,7 +285,7 @@ onMounted(() => {
       <div>
         <h3 class="text-2xl font-bold tracking-tight">Senarai Permohonan</h3>
       </div>
-      <rs-button @click="permohonanBaru()" variant="primary" class="h-10">
+      <rs-button @click="permohonanBaru()" variant="info" class="h-10">
         <Icon
           name="streamline:computer-desktop-add-desktop-device-display-add-plus-computer"
           class="mr-2 w-4 h-4"
@@ -322,6 +322,7 @@ onMounted(() => {
         </template>
         <template v-slot:status="data">
           <rs-badge
+            class="w-full"
             :variant="
               data.text === 'Permohonan Draf'
                 ? 'warning'
@@ -346,7 +347,7 @@ onMounted(() => {
           >
             <rs-button
               @click="kemaskini(data.value.noSiri)"
-              variant="primary-outline"
+              variant="info-outline"
               size="sm"
               class="px-3 inline-flex items-center justify-center w-[100px]"
             >
@@ -356,7 +357,7 @@ onMounted(() => {
 
             <rs-button
               @click="hapus(data.value.noSiri)"
-              variant="danger-outline"
+              variant="info-outline"
               size="sm"
               class="px-3 inline-flex items-center justify-center w-[100px]"
             >
@@ -370,7 +371,7 @@ onMounted(() => {
 
           <div v-else-if="data.value.status === 'Permohonan Diluluskan'">
             <rs-button
-              variant="secondary-outline"
+              variant="info-outline"
               size="sm"
               class="px-3 inline-flex items-center justify-center w-[100px]"
               @click="lihatMaklumat(data.value.noSiri)"

@@ -404,7 +404,7 @@ const removeChild = (type, data) => {
               <div v-for="(val, index) in element.meta.auth.user">
                 <rs-badge
                   v-if="index < 5"
-                  variant="danger"
+                  variant="info"
                   class="mr-1 text-sm"
                 >
                   {{ val }}
@@ -416,7 +416,7 @@ const removeChild = (type, data) => {
               <div v-for="(val, index) in element.meta.auth.role">
                 <rs-badge
                   v-if="index < 5"
-                  variant="warning"
+                  variant="info"
                   class="mr-1 text-sm"
                 >
                   {{ val }}
