@@ -35,7 +35,9 @@ const currentAssignID = ref(null);
 const isKetuaBahagian = ref(true);
 const isKetuaJabatan = ref(false);
 
+
 const sebabPenolakanOptions = ref([]);
+const selectedSebabPenolakan = ref(null);
 
 // Status Section
 const showStatusSection = ref(false);
@@ -1413,6 +1415,7 @@ const showReportDetails = async (reportId) => {
       <template #body>
         <FormKit type="form" :actions="false" @submit="handleTolakSubmit">
           <FormKit
+            v-model="selectedSebabPenolakan"
             type="select"
             name="sebabPenolakan"
             label="Sebab penolakan permohonan"
@@ -1423,6 +1426,7 @@ const showReportDetails = async (reportId) => {
             }"
           />
           <FormKit
+            v-if="selectedSebabPenolakan === 12"
             type="textarea"
             name="lainLainSebab"
             label="Lain-lain sebab"
@@ -1480,7 +1484,7 @@ const showReportDetails = async (reportId) => {
             <rs-button variant="info" @click="closeSemakKetuaModal"
               >Batal</rs-button
             >
-            <rs-button variant="info" btn-type="submit">Hantar</rs-button>
+            <rs-button variant="info" btn-type="submit">Sahkan</rs-button>
           </div>
         </FormKit>
       </template>

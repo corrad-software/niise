@@ -537,7 +537,12 @@ onMounted(fetchTemujanji);
               <Icon name="pajamas:reply" class="w-4 h-4 mr-2" />
               Kembali
             </rs-button>
-            <rs-button btn-type="submit" variant="success" class="mr-2">
+            <rs-button
+              v-if="!userStore.roles.includes('Pegawai Penyiasat')"
+              btn-type="submit"
+              variant="success"
+              class="mr-2"
+            >
               <Icon name="ci:save" class="w-4 h-4 mr-2" />
               Kemaskini
             </rs-button>

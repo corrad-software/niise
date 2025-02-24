@@ -1,6 +1,21 @@
 <script setup>
 import { useUserStore } from "~/stores/user";
 
+definePageMeta({
+  title: "Pengesanan Penyamaran Baru",
+  middleware: ["auth"],
+  breadcrumb: [
+    {
+      name: "Pengesanan Penyamaran",
+      path: "/pengesanan-penyamaran/senarai",
+    },
+    {
+      name: "Baru",
+      type: "current",
+    },
+  ],
+});
+  
 const { $swal } = useNuxtApp();
 const router = useRouter();
 const userStore = useUserStore();
@@ -91,20 +106,14 @@ const fileToBase64 = (file) => {
   });
 };
 
-definePageMeta({
-  title: "Pengesanan Penyamaran Baru",
-  middleware: ["auth"],
-  breadcrumb: [
-    {
-      name: "Pengesanan Penyamaran",
-      path: "/pengesanan-penyamaran/senarai",
-    },
-    {
-      name: "Baru",
-      type: "current",
-    },
-  ],
-});
+// Add this function before the template
+const getCurrentDate = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 </script>
 
 <template>
@@ -161,7 +170,10 @@ definePageMeta({
               type="date"
               label="Tarikh"
               v-model="tarikh"
-              validation="required|date"
+              :validation="'required|date|date_after:' + getCurrentDate()"
+              :validation-messages="{
+                date_after: 'Tarikh temujanji harus selepas hari ini',
+              }"
             />
             <FormKit
               type="time"

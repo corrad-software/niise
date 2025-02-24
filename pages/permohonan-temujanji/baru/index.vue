@@ -251,7 +251,7 @@ const getCurrentDate = () => {
 
     <div class="flex items-center justify-between space-y-2">
       <div>
-        <h3 class="text-2xl font-bold tracking-tight">Permohonan Baru</h3>
+        <h3 class="text-2xl font-bold tracking-tight">FR1 – Borang Permohonan Analisis</h3>
       </div>
     </div>
 

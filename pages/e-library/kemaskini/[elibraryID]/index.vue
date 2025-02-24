@@ -153,7 +153,7 @@ const removeImage = (index) => {
 };
 
 const submitForm = async () => {
-  try {
+  try {    
     isSubmitting.value = true;
     const { data } = await useFetch(`/api/elibrary/${elibraryID.value}`, {
       method: "PUT",
@@ -462,7 +462,7 @@ onMounted(() => {
               Kembali
             </rs-button>
             <rs-button
-              type="submit"
+              btn-type="submit"
               variant="info"
               :disabled="isSubmitting"
               size="sm"

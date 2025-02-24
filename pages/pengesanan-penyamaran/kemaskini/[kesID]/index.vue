@@ -117,10 +117,9 @@ const validateFile = (file) => {
     return "Saiz fail tidak boleh melebihi 5MB";
   }
 
-  // Check file type
-  const allowedTypes = ["application/pdf", "image/jpeg", "image/jpg"];
-  if (!allowedTypes.includes(file.type)) {
-    return "Format fail tidak sah. Sila muat naik fail PDF atau JPG sahaja";
+  // Check file type - only allow PDF
+  if (file.type !== "application/pdf") {
+    return "Format fail tidak sah. Sila muat naik fail PDF sahaja";
   }
 
   return true;
@@ -495,9 +494,9 @@ const formatFileSize = (bytes) => {
                 <FormKit
                   v-model="formData.laporanTdb"
                   type="file"
-                  label="Laporan Sistem TD&B (JPG/PDF)"
+                  label="Laporan Sistem TD&B (PDF)"
                   validation="required"
-                  accept=".pdf,.jpg,.jpeg"
+                  accept=".pdf"
                   :help="
                     currentDocument
                       ? 'Muat naik untuk menggantikan dokumen sedia ada'
