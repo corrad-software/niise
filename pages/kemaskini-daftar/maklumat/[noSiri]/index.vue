@@ -35,7 +35,6 @@ const currentAssignID = ref(null);
 const isKetuaBahagian = ref(true);
 const isKetuaJabatan = ref(false);
 
-
 const sebabPenolakanOptions = ref([]);
 const selectedSebabPenolakan = ref(null);
 
@@ -739,10 +738,24 @@ const showReportDetails = async (reportId) => {
           Pegawai Forensik Yang Terlibat
         </h3>
       </div>
-      <rs-button v-if="isKetuaBahagian" @click="openAddModal" variant="info">
-        <Icon name="ph:plus" class="mr-2 w-4 h-4" />
-        Tambah Pegawai
-      </rs-button>
+      <div class="flex flex-col items-end">
+        <rs-button
+          v-if="isKetuaBahagian"
+          @click="openAddModal"
+          variant="info"
+          :disabled="forensicOfficers.length > 0"
+          class="inline-flex items-center justify-center"
+        >
+          <Icon name="ph:plus" class="mr-2 w-4 h-4" />
+          Tambah Pegawai
+        </rs-button>
+        <p
+          v-if="forensicOfficers.length > 0"
+          class="text-xs text-gray-500 mt-2 italic"
+        >
+          Maksimum 1 pegawai forensik boleh ditambah
+        </p>
+      </div>
     </div>
 
     <!-- LIST: Pegawai Forensic Yang Terlibat -->
@@ -751,13 +764,11 @@ const showReportDetails = async (reportId) => {
         v-if="forensicOfficers.length > 0"
         :data="forensicOfficers"
         :options="{
-          variant: 'info',
           striped: true,
           borderless: false,
         }"
         :options-advanced="{
           sortable: true,
-
           filterable: false,
         }"
         advanced
@@ -1334,9 +1345,7 @@ const showReportDetails = async (reportId) => {
             validation="required"
           />
           <div class="flex justify-end gap-2 mt-4">
-            <rs-button variant="info" @click="closeSemakModal"
-              >Batal</rs-button
-            >
+            <rs-button variant="info" @click="closeSemakModal">Batal</rs-button>
             <rs-button variant="info" btn-type="submit">Hantar</rs-button>
           </div>
         </FormKit>
@@ -1436,9 +1445,7 @@ const showReportDetails = async (reportId) => {
             }"
           />
           <div class="flex justify-end gap-2 mt-4">
-            <rs-button variant="info" @click="closeTolakModal"
-              >Batal</rs-button
-            >
+            <rs-button variant="info" @click="closeTolakModal">Batal</rs-button>
             <rs-button variant="info" btn-type="submit">Hantar</rs-button>
           </div>
         </FormKit>
