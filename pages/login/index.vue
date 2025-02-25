@@ -18,7 +18,7 @@ const recaptchaToken = ref("");
 const togglePasswordVisibility = ref(false);
 
 const login = async () => {
-  if (!recaptchaToken.value && ENV.public.server == "TRUE") {
+  if (!recaptchaToken.value && ENV.public.server == "true") {
     $swal.fire({
       title: "Error!",
       text: "Please complete the reCAPTCHA verification",
@@ -156,7 +156,7 @@ const handleExpiredCallback = (a) => {
           </FormKit>
           <div class="col-span-2 mb-4">
             <RecaptchaV2
-              v-if="ENV.public.server == 'TRUE'"
+              v-if="ENV.public.server == 'true'"
               @widget-id="handleWidgetId"
               @error-callback="handleErrorCallback"
               @expired-callback="handleExpiredCallback"
