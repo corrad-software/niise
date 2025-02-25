@@ -9,13 +9,24 @@ definePageMeta({
 });
 
 const { $swal } = useNuxtApp();
+const ENV = useRuntimeConfig();
 const username = ref("");
 const password = ref("");
 const userStore = useUserStore();
+const recaptchaToken = ref("");
 
 const togglePasswordVisibility = ref(false);
 
 const login = async () => {
+  if (!recaptchaToken.value && ENV.public.server == "TRUE") {
+    $swal.fire({
+      title: "Error!",
+      text: "Please complete the reCAPTCHA verification",
+      icon: "error",
+    });
+    return;
+  }
+
   try {
     const res = await useFetch("/api/auth/login", {
       method: "POST",
@@ -23,6 +34,7 @@ const login = async () => {
       body: JSON.stringify({
         username: username.value,
         password: password.value,
+        recaptchaToken: recaptchaToken.value,
       }),
     });
 
@@ -62,14 +74,16 @@ const login = async () => {
 const handleWidgetId = (widgetId) => {
   console.log("Widget ID: ", widgetId);
 };
-const handleErrorCalback = () => {
+const handleErrorCallback = () => {
   console.log("Error callback");
 };
-const handleExpiredCallback = () => {
-  console.log("Expired callback");
-};
 const handleLoadCallback = (response) => {
-  console.log("Load callback", response);
+  // console.log("Load callback", response);
+  recaptchaToken.value = response;
+};
+
+const handleExpiredCallback = (a) => {
+  console.log("Expired callback", a);
 };
 </script>
 
@@ -142,8 +156,9 @@ const handleLoadCallback = (response) => {
           </FormKit>
           <div class="col-span-2 mb-4">
             <RecaptchaV2
+              v-if="ENV.public.server == 'TRUE'"
               @widget-id="handleWidgetId"
-              @error-callback="handleErrorCalback"
+              @error-callback="handleErrorCallback"
               @expired-callback="handleExpiredCallback"
               @load-callback="handleLoadCallback"
             />

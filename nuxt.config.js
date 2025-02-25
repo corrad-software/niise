@@ -12,6 +12,16 @@ export default defineNuxtConfig({
       password: process.env.NUXT_SMTP_PASSWORD,
       secure: process.env.NUXT_SMTP_SECURE,
     },
+    recaptcha: {
+      siteKey: process.env.NUXT_RECAPTCHA_SITE_KEY,
+      secretKey: process.env.NUXT_RECAPTCHA_SECRECT_KEY,
+    },
+    public: {
+      recaptcha: {
+        siteKey: process.env.NUXT_RECAPTCHA_SITE_KEY,
+      },
+      server: process.env.SERVER,
+    },
   },
   modules: [
     "@nuxtjs/tailwindcss",
