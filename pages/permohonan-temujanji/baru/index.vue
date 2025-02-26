@@ -349,7 +349,6 @@ const getCurrentDate = () => {
           type="text"
           label="No Kertas Siasatan"
           v-model="noKertasSiasatan"
-          validation="required"
         />
 
         <!-- No Laporan Polis Input -->
@@ -357,7 +356,6 @@ const getCurrentDate = () => {
           type="text"
           label="No Laporan Polis"
           v-model="noLaporanPolis"
-          validation="required"
         />
 
         <!-- Ringkasan Kenyataan Kes Input -->
@@ -365,7 +363,6 @@ const getCurrentDate = () => {
           type="textarea"
           label="Ringkasan Kenyataan Kes"
           v-model="ringkasanKenyataanKes"
-          validation="required"
         />
 
         <!-- Bilangan Input -->

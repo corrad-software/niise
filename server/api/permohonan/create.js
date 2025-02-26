@@ -59,7 +59,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // 4. Check for invalid symbols in text fields
-  const hasInvalidSymbols = (text) => /[^a-zA-Z0-9\s]/.test(text); // Allow alphanumeric and spaces
+  const hasInvalidSymbols = (text) => /[^a-zA-Z0-9\s]/.test(text);
 
   const fieldsToCheck = [
     namaPemohon,
@@ -81,14 +81,14 @@ export default defineEventHandler(async (event) => {
   let permohonanStatus = isDraft ? "Permohonan Draf" : "Permohonan Dihantar";
 
   try {
-    // Insert into `permohonan` table
+    // Insert into `permohonan` table with pemohon's user information
     const newPermohonan = await prisma.permohonan.create({
       data: {
         no_siri: caseReferenceID,
         status_permohonan: permohonanStatus,
         pemohon: {
           create: {
-            userID: userID, // Assuming the user is authenticated, replace with actual user ID
+            userID: userID,
             nama_pemohon: namaPemohon,
             pangkat_pemohon: pangkatPemohon,
             no_pegawai_pemohon: noPegawaiPemohon,
@@ -109,13 +109,20 @@ export default defineEventHandler(async (event) => {
         tarikh_temujanji: tarikhTemujanji
           ? new Date(tarikhTemujanji)
           : undefined,
-        slot_masa: slotMasa ? new Date(`1970-01-01T${slotMasa}`) : undefined, // Convert slotMasa string to Time
+        slot_masa: slotMasa ? new Date(`1970-01-01T${slotMasa}`) : undefined,
         user_permohonan_create_byTouser: {
           connect: {
             userID: userID,
           },
         },
         create_at: new Date(),
+      },
+      include: {
+        pemohon: {
+          include: {
+            user: true,
+          },
+        },
       },
     });
 
@@ -133,32 +140,274 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // 6. Send confirmation email
+    // 6. Send confirmation email if not draft
     if (!isDraft) {
-      await sendEmail({
-        to: [
-          /* pemohon, pegawai_kaunter, ketua_bahagian */
-        ],
-        subject: `Permohonan Baru: ${caseReferenceID}`,
-        body: `
-            Case ID: ${caseReferenceID}
-            Appointment Date: ${tarikhTemujanji}
-            Time Slot: ${slotMasa}
-            Barang: ${barangList
-              .map(
-                (barang) =>
-                  `${barang.tandaBarang} - ${barang.kuantitiBarang} units`
-              )
-              .join(", ")}
-            Pemohon Details: ${namaPemohon} (${pangkatPemohon})
-            ${
-              isPenghantarSameAsPemohon
-                ? ""
-                : `Penghantar Details: ${namaPenghantar} (${pangkatPenghantar})`
-            }
-            Ringkasan Kenyataan Kes: ${ringkasanKenyataanKes}
-          `,
-      });
+      try {
+        console.log(`[Email Process Start] - Permohonan ${caseReferenceID}`);
+
+        // Get emails for Pegawai Kaunter and Ketua Bahagian
+        console.log("[Email] Fetching officer emails from database...");
+        const roleUsers = await prisma.user.findMany({
+          where: {
+            AND: [
+              {
+                userrole: {
+                  some: {
+                    role: {
+                      roleName: {
+                        in: ["Pegawai Kaunter", "Ketua Bahagian"],
+                      },
+                    },
+                  },
+                },
+              },
+              { userStatus: "ACTIVE" },
+              { userEmail: { not: null } },
+            ],
+          },
+          select: {
+            userEmail: true,
+            userFullName: true,
+            userrole: {
+              include: {
+                role: true,
+              },
+            },
+          },
+        });
+
+        console.log(`[Email] Found ${roleUsers.length} active users with roles`);
+
+        // Group emails by role
+        const emailRecipients = {
+          pegawaiKaunter: roleUsers
+            .filter((user) =>
+              user.userrole.some((ur) => ur.role.roleName === "Pegawai Kaunter")
+            )
+            .map((u) => ({ email: u.userEmail, name: u.userFullName })),
+          ketuaBahagian: roleUsers
+            .filter((user) =>
+              user.userrole.some((ur) => ur.role.roleName === "Ketua Bahagian")
+            )
+            .map((u) => ({ email: u.userEmail, name: u.userFullName })),
+        };
+
+        // Get pemohon's email
+        const pemohonEmail = newPermohonan.pemohon?.user?.userEmail;
+        const pemohonName = newPermohonan.pemohon?.user?.userFullName;
+
+        // Log detailed recipient information
+        console.log("[Email] Recipient Details:", {
+          pemohon: pemohonEmail ? { email: pemohonEmail, name: pemohonName } : "Not found",
+          pegawaiKaunter: {
+            count: emailRecipients.pegawaiKaunter.length,
+            recipients: emailRecipients.pegawaiKaunter,
+          },
+          ketuaBahagian: {
+            count: emailRecipients.ketuaBahagian.length,
+            recipients: emailRecipients.ketuaBahagian,
+          },
+        });
+
+        // Send email to Pemohon
+        if (pemohonEmail) {
+          console.log(`[Email] Attempting to send email to Pemohon: ${pemohonEmail}`);
+          const pemohonMailResult = await sendMail({
+            to: [pemohonEmail],
+            subject: `Pengesahan Permohonan: ${caseReferenceID}`,
+            html: `
+              <h1>Pengesahan Permohonan Pemeriksaan Forensik</h1>
+              <p>Terima kasih kerana menghantar permohonan pemeriksaan forensik. Berikut adalah butiran permohonan anda:</p>
+              <p><strong>No. Siri:</strong> ${caseReferenceID}</p>
+              <p><strong>Status:</strong> ${permohonanStatus}</p>
+              <p><strong>Tarikh Temujanji:</strong> ${
+                tarikhTemujanji
+                  ? new Date(tarikhTemujanji).toLocaleDateString("ms-MY")
+                  : "-"
+              }</p>
+              <p><strong>Slot Masa:</strong> ${slotMasa || "-"}</p>
+              <h2>Butiran Barang:</h2>
+              <ul>
+                ${barangList
+                  .map(
+                    (barang) => `
+                  <li>${barang.tandaBarang} - ${barang.kuantitiBarang} unit</li>
+                `
+                  )
+                  .join("")}
+              </ul>
+              <p>Permohonan anda akan disemak oleh pegawai bertugas. Anda akan menerima notifikasi setelah permohonan anda disemak.</p>
+              <br>
+              <p>Sila log masuk ke sistem untuk melihat status terkini permohonan anda.</p>
+            `,
+            text: `
+              Pengesahan Permohonan Pemeriksaan Forensik
+
+              Terima kasih kerana menghantar permohonan pemeriksaan forensik. Berikut adalah butiran permohonan anda:
+
+              No. Siri: ${caseReferenceID}
+              Status: ${permohonanStatus}
+              Tarikh Temujanji: ${
+                tarikhTemujanji
+                  ? new Date(tarikhTemujanji).toLocaleDateString("ms-MY")
+                  : "-"
+              }
+              Slot Masa: ${slotMasa || "-"}
+
+              Butiran Barang:
+              ${barangList
+                .map(
+                  (barang) => `- ${barang.tandaBarang} - ${barang.kuantitiBarang} unit`
+                )
+                .join("\n")}
+
+              Permohonan anda akan disemak oleh pegawai bertugas. Anda akan menerima notifikasi setelah permohonan anda disemak.
+
+              Sila log masuk ke sistem untuk melihat status terkini permohonan anda.
+            `,
+          });
+
+          if (!pemohonMailResult.success) {
+            console.error("[Email] Failed to send email to pemohon:", {
+              email: pemohonEmail,
+              error: pemohonMailResult.error,
+              caseRef: caseReferenceID,
+            });
+          } else {
+            console.log(`[Email] Successfully sent email to Pemohon: ${pemohonEmail}`);
+          }
+        } else {
+          console.warn("[Email] Pemohon email not found:", {
+            caseRef: caseReferenceID,
+            pemohonId: newPermohonan.pemohon?.id,
+          });
+        }
+
+        // Send notification to Pegawai Kaunter and Ketua Bahagian
+        const officerRecipients = [
+          ...emailRecipients.pegawaiKaunter.map(r => r.email),
+          ...emailRecipients.ketuaBahagian.map(r => r.email),
+        ].filter(Boolean);
+
+        if (officerRecipients.length > 0) {
+          console.log(`[Email] Attempting to send email to ${officerRecipients.length} officers`);
+          const officerMailResult = await sendMail({
+            to: officerRecipients,
+            subject: `Permohonan Baru Untuk Semakan: ${caseReferenceID}`,
+            html: `
+              <h1>Permohonan Pemeriksaan Forensik Baru Untuk Semakan</h1>
+              <p>Terdapat permohonan baru yang memerlukan semakan:</p>
+              <p><strong>No. Siri:</strong> ${caseReferenceID}</p>
+              <p><strong>Tarikh Temujanji:</strong> ${
+                tarikhTemujanji
+                  ? new Date(tarikhTemujanji).toLocaleDateString("ms-MY")
+                  : "-"
+              }</p>
+              <p><strong>Slot Masa:</strong> ${slotMasa || "-"}</p>
+              <h2>Butiran Pemohon:</h2>
+              <ul>
+                <li><strong>Nama:</strong> ${namaPemohon}</li>
+                <li><strong>Pangkat:</strong> ${pangkatPemohon}</li>
+                <li><strong>No. Pegawai:</strong> ${noPegawaiPemohon}</li>
+              </ul>
+              ${
+                !isPenghantarSameAsPemohon
+                  ? `
+                <h2>Butiran Penghantar:</h2>
+                <ul>
+                  <li><strong>Nama:</strong> ${namaPenghantar}</li>
+                  <li><strong>Pangkat:</strong> ${pangkatPenghantar}</li>
+                  <li><strong>No. Pegawai:</strong> ${noPegawaiPenghantar}</li>
+                </ul>
+              `
+                  : ""
+              }
+              <h2>Butiran Barang:</h2>
+              <ul>
+                ${barangList
+                  .map(
+                    (barang) => `
+                  <li>${barang.tandaBarang} - ${barang.kuantitiBarang} unit</li>
+                `
+                  )
+                  .join("")}
+              </ul>
+              <h2>Ringkasan Kenyataan Kes:</h2>
+              <p>${ringkasanKenyataanKes || "-"}</p>
+              <br>
+              <p>Sila log masuk ke sistem untuk membuat semakan permohonan ini.</p>
+            `,
+            text: `
+              Permohonan Pemeriksaan Forensik Baru Untuk Semakan
+
+              Terdapat permohonan baru yang memerlukan semakan:
+
+              No. Siri: ${caseReferenceID}
+              Tarikh Temujanji: ${
+                tarikhTemujanji
+                  ? new Date(tarikhTemujanji).toLocaleDateString("ms-MY")
+                  : "-"
+              }
+              Slot Masa: ${slotMasa || "-"}
+
+              Butiran Pemohon:
+              Nama: ${namaPemohon}
+              Pangkat: ${pangkatPemohon}
+              No. Pegawai: ${noPegawaiPemohon}
+
+              ${
+                !isPenghantarSameAsPemohon
+                  ? `
+                Butiran Penghantar:
+                Nama: ${namaPenghantar}
+                Pangkat: ${pangkatPenghantar}
+                No. Pegawai: ${noPegawaiPenghantar}
+                `
+                  : ""
+              }
+
+              Butiran Barang:
+              ${barangList
+                .map(
+                  (barang) => `- ${barang.tandaBarang} - ${barang.kuantitiBarang} unit`
+                )
+                .join("\n")}
+
+              Ringkasan Kenyataan Kes:
+              ${ringkasanKenyataanKes || "-"}
+
+              Sila log masuk ke sistem untuk membuat semakan permohonan ini.
+            `,
+          });
+
+          if (!officerMailResult.success) {
+            console.error("[Email] Failed to send email to officers:", {
+              recipients: officerRecipients,
+              error: officerMailResult.error,
+              caseRef: caseReferenceID,
+            });
+          } else {
+            console.log("[Email] Successfully sent email to officers:", {
+              recipientCount: officerRecipients.length,
+              caseRef: caseReferenceID,
+            });
+          }
+        } else {
+          console.warn("[Email] No active officers found for notification:", {
+            caseRef: caseReferenceID,
+            totalUsers: roleUsers.length,
+          });
+        }
+
+        console.log(`[Email Process Complete] - Permohonan ${caseReferenceID}`);
+      } catch (emailError) {
+        console.error("[Email] Error in email notification process:", {
+          error: emailError,
+          caseRef: caseReferenceID,
+          stack: emailError.stack,
+        });
+        // Don't throw error as permohonan was created successfully
+      }
     }
 
     return {
@@ -169,7 +418,7 @@ export default defineEventHandler(async (event) => {
       caseReferenceID,
     };
   } catch (error) {
-    console.log(error);
+    console.error("Error:", error);
     return {
       statusCode: 500,
       message: "Terdapat masalah. Silakan cuba lagi.",
@@ -181,16 +430,11 @@ export default defineEventHandler(async (event) => {
 const generateCaseReferenceID = () => {
   const now = new Date();
   const year = now.getFullYear().toString();
-  const month = String(now.getMonth() + 1).padStart(2, "0"); // JS month is zero-indexed
+  const month = String(now.getMonth() + 1).padStart(2, "0");
   const day = String(now.getDate()).padStart(2, "0");
   const uniqueSerial = String(Math.floor(Math.random() * 1000000)).padStart(
     6,
     "0"
   );
   return `${year}${month}${day}-${uniqueSerial}`;
-};
-
-const sendEmail = async ({ to, subject, body }) => {
-  console.log("Sending email to", to);
-  return true;
 };
