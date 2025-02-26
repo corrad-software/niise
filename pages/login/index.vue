@@ -1,6 +1,6 @@
 <script setup>
 import { useUserStore } from "~/stores/user";
-import { RecaptchaV2 } from "vue3-recaptcha-v2";
+import { ref, onMounted } from 'vue';
 
 definePageMeta({
   title: "Login",
@@ -13,12 +13,21 @@ const ENV = useRuntimeConfig();
 const username = ref("");
 const password = ref("");
 const userStore = useUserStore();
-const recaptchaToken = ref("");
 
 const togglePasswordVisibility = ref(false);
 
+// Add recaptcha implementation
+const { recaptchaToken, initRecaptcha, renderRecaptcha } = useRecaptcha()
+
+onMounted(async () => {
+  if (ENV.public.server === 'true') {
+    await initRecaptcha()
+    renderRecaptcha('recaptcha-container')
+  }
+})
+
 const login = async () => {
-  if (!recaptchaToken.value && ENV.public.server == "true") {
+  if (!recaptchaToken.value && ENV.public.server === 'true') {
     $swal.fire({
       title: "Error!",
       text: "Please complete the reCAPTCHA verification",
@@ -155,13 +164,7 @@ const handleExpiredCallback = (a) => {
             </template>
           </FormKit>
           <div class="col-span-2 mb-4">
-            <RecaptchaV2
-              v-if="ENV.public.server == 'true'"
-              @widget-id="handleWidgetId"
-              @error-callback="handleErrorCallback"
-              @expired-callback="handleExpiredCallback"
-              @load-callback="handleLoadCallback"
-            />
+            <div v-if="ENV.public.server == 'true'" id="recaptcha-container"></div>
           </div>
           <NuxtLink
             class="col-span-2 flex items-center justify-end h-5 mt-1 text-primary hover:underline mb-5"
