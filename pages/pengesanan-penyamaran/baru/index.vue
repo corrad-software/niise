@@ -270,7 +270,7 @@ const getCurrentDate = () => {
             <Icon name="pajamas:reply" class="w-4 h-4 mr-2" />
             Kembali
           </rs-button>
-          <rs-button btn-type="submit" variant="success">
+          <rs-button btn-type="submit" variant="info">
             <Icon name="ci:save" class="w-4 h-4 mr-2" />
             Simpan
           </rs-button>

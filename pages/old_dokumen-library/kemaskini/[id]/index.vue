@@ -430,7 +430,7 @@ onMounted(() => {
             <rs-button @click="goBack" variant="info">Kembali</rs-button>
             <rs-button
               btn-type="submit"
-              variant="success"
+              variant="info"
               :disabled="isSubmitting"
             >
               {{ isSubmitting ? "Sedang Dikemaskini..." : "Kemaskini" }}

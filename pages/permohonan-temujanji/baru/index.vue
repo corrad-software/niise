@@ -464,7 +464,7 @@ const getCurrentDate = () => {
             <Icon name="ci:save" class="w-4 h-4 mr-2" />
             Simpan
           </rs-button>
-          <rs-button btn-type="submit" variant="success">
+          <rs-button btn-type="submit" variant="info">
             <Icon
               name="streamline:interface-upload-laptop-arrow-computer-download-internet-laptop-network-server-up-upload"
               class="w-4 h-4 mr-2"
@@ -563,7 +563,7 @@ const getCurrentDate = () => {
             <rs-button
               type="submit"
               btn-type="submit"
-              variant="success"
+              variant="info"
               :disabled="!formState.valid"
             >
               <Icon name="ci:save" class="w-4 h-4 mr-2" />

@@ -540,7 +540,7 @@ onMounted(fetchTemujanji);
             <rs-button
               v-if="!userStore.roles.includes('Pegawai Penyiasat')"
               btn-type="submit"
-              variant="success"
+              variant="info"
               class="mr-2"
             >
               <Icon name="ci:save" class="w-4 h-4 mr-2" />
