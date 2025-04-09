@@ -528,7 +528,13 @@ onMounted(() => {
     </div>
 
     <rs-card class="pt-6 px-6">
-      <Timeline :events="timelineEvents" />
+      <div v-if="timelineEvents.length > 0">
+        <Timeline :events="timelineEvents" />
+      </div>
+      <div v-else class="py-4 text-center text-gray-500">
+        <Icon name="ic:baseline-history" class="w-8 h-8 mx-auto mb-2" />
+        <p>Tiada sejarah aktiviti dijumpai.</p>
+      </div>
     </rs-card>
   </div>
 </template>
