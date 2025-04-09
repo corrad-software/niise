@@ -4,6 +4,7 @@ import { mkdir } from "fs/promises";
 
 export default defineEventHandler(async (event) => {
   try {
+    const { userID, roles } = event.context.user;
     const body = await readBody(event);
 
     // Validate required fields
@@ -80,6 +81,24 @@ export default defineEventHandler(async (event) => {
       },
       include: {
         document: true,
+      },
+    });
+
+    // Create log entry
+    await prisma.elibrary_log.create({
+      data: {
+        elibraryID: newElibrary.elibraryID,
+        userID: userID,
+        action: 'ADD',
+        changes: JSON.stringify({
+          jenisDokumen: body.elibrary_jenisDokumen,
+          negaraPengeluaran: body.elibrary_negaraPengeluaran,
+          tahunPengeluaran: body.elibrary_tahunPengeluaran,
+          ketulenan: body.elibrary_ketulenan,
+          maklumatTerperinci: body.elibrary_maklumatTerperinci,
+          ulasan: body.elibrary_ulasan,
+          documents: savedDocuments.length,
+        }),
       },
     });
 

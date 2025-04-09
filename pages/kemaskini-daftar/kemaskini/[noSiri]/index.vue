@@ -204,6 +204,9 @@ const getJenisBarangLabel = (value) => {
             label="Nama Pemohon"
             v-model="namaPemohon"
             validation="required"
+            :validation-messages="{
+              required: 'Nama Pemohon wajib diisi',
+            }"
             disabled
           />
           <FormKit
@@ -211,6 +214,9 @@ const getJenisBarangLabel = (value) => {
             label="Pangkat Pemohon"
             v-model="pangkatPemohon"
             validation="required"
+            :validation-messages="{
+              required: 'Pangkat Pemohon wajib diisi',
+            }"
             disabled
           />
           <FormKit
@@ -218,6 +224,9 @@ const getJenisBarangLabel = (value) => {
             label="No Pegawai Pemohon"
             v-model="noPegawaiPemohon"
             validation="required"
+            :validation-messages="{
+              required: 'No Pegawai Pemohon wajib diisi',
+            }"
             disabled
           />
         </div>
@@ -229,6 +238,9 @@ const getJenisBarangLabel = (value) => {
             label="Nama Penghantar"
             v-model="namaPenghantar"
             validation="required"
+            :validation-messages="{
+              required: 'Nama Penghantar wajib diisi',
+            }"
             disabled
           />
           <FormKit
@@ -236,6 +248,9 @@ const getJenisBarangLabel = (value) => {
             label="Pangkat Penghantar"
             v-model="pangkatPenghantar"
             validation="required"
+            :validation-messages="{
+              required: 'Pangkat Penghantar wajib diisi',
+            }"
             disabled
           />
           <FormKit
@@ -243,6 +258,9 @@ const getJenisBarangLabel = (value) => {
             label="No Pegawai Penghantar"
             v-model="noPegawaiPenghantar"
             validation="required"
+            :validation-messages="{
+              required: 'No Pegawai Penghantar wajib diisi',
+            }"
             disabled
           />
         </div>

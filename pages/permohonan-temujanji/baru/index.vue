@@ -251,12 +251,19 @@ const getCurrentDate = () => {
 
     <div class="flex items-center justify-between space-y-2">
       <div>
-        <h3 class="text-2xl font-bold tracking-tight">FR1 – Borang Permohonan Analisis</h3>
+        <h3 class="text-2xl font-bold tracking-tight">
+          FR1 – Borang Permohonan Analisis
+        </h3>
       </div>
     </div>
 
     <rs-card class="mt-4 px-4 py-6">
-      <FormKit type="form" :actions="false" @submit="submitForm">
+      <FormKit
+        type="form"
+        :actions="false"
+        @submit="submitForm"
+        incomplete-message="Medan mandatori yang bertanda * wajib diisi."
+      >
         <div class="grid gap-6 md:grid-cols-3">
           <!-- Nama Pemohon Input -->
           <FormKit
@@ -264,6 +271,9 @@ const getCurrentDate = () => {
             label="Nama Pemohon"
             v-model="namaPemohon"
             validation="required"
+            :validation-messages="{
+              required: 'Nama Pemohon wajib diisi',
+            }"
             :disabled="true"
           />
 
@@ -273,6 +283,9 @@ const getCurrentDate = () => {
             label="Pangkat Pemohon"
             v-model="pangkatPemohon"
             validation="required"
+            :validation-messages="{
+              required: 'Pangkat Pemohon wajib diisi',
+            }"
             :disabled="true"
           />
 
@@ -282,6 +295,9 @@ const getCurrentDate = () => {
             label="No Pegawai Pemohon"
             v-model="noPegawaiPemohon"
             validation="required"
+            :validation-messages="{
+              required: 'No Pegawai Pemohon wajib diisi',
+            }"
             :disabled="true"
           />
         </div>
@@ -302,6 +318,9 @@ const getCurrentDate = () => {
             label="Nama Penghantar"
             v-model="namaPenghantar"
             validation="required"
+            :validation-messages="{
+              required: 'Nama Penghantar wajib diisi',
+            }"
           />
 
           <!-- Conditionally render Pangkat Penghantar field if checkbox is not checked -->
@@ -311,6 +330,9 @@ const getCurrentDate = () => {
             label="Pangkat Penghantar"
             v-model="pangkatPenghantar"
             validation="required"
+            :validation-messages="{
+              required: 'Pangkat Penghantar wajib diisi',
+            }"
           />
 
           <!-- Conditionally render No Pegawai Penghantar field if checkbox is not checked -->
@@ -320,6 +342,9 @@ const getCurrentDate = () => {
             label="No Pegawai Penghantar"
             v-model="noPegawaiPenghantar"
             validation="required"
+            :validation-messages="{
+              required: 'No Pegawai Penghantar wajib diisi',
+            }"
           />
         </div>
 
@@ -331,6 +356,8 @@ const getCurrentDate = () => {
             v-model="tarikhTemujanji"
             :validation="'required|date|date_after:' + getCurrentDate()"
             :validation-messages="{
+              required: 'Tarikh temujanji wajib diisi',
+              date: 'Tarikh temujanji harus dalam format tarikh',
               date_after: 'Tarikh temujanji harus selepas hari ini',
             }"
           />
@@ -341,6 +368,9 @@ const getCurrentDate = () => {
             label="Slot masa"
             v-model="slotMasa"
             validation="required"
+            :validation-messages="{
+              required: 'Slot masa wajib diisi',
+            }"
           />
         </div>
 
@@ -490,6 +520,7 @@ const getCurrentDate = () => {
           :actions="false"
           @submit="saveBarangModal"
           #default="{ state: formState }"
+          incomplete-message="Medan mandatori yang bertanda * wajib diisi."
         >
           <FormKit
             type="select"

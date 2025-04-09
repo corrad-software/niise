@@ -445,6 +445,7 @@ model user {
   document                                            document[]
   dokumen_library_dokumen_library_create_byTouser     dokumen_library[]            @relation("dokumen_library_create_byTouser")
   dokumen_library_dokumen_library_modified_byTouser   dokumen_library[]            @relation("dokumen_library_modified_byTouser")
+  elibrary_log                                        elibrary_log[]
   pemohon                                             pemohon[]
   permohonan_permohonan_create_byTouser               permohonan[]                 @relation("permohonan_create_byTouser")
   permohonan_permohonan_modified_byTouser             permohonan[]                 @relation("permohonan_modified_byTouser")
@@ -475,24 +476,25 @@ model userrole {
 }
 
 model elibrary {
-  elibraryID                  Int        @id @default(autoincrement())
+  elibraryID                  Int            @id @default(autoincrement())
   elibrary_referenceID        Int?
-  elibrary_jenisDokumen       String     @db.VarChar(255)
-  elibrary_negaraPengeluaran  String     @db.VarChar(255)
+  elibrary_jenisDokumen       String         @db.VarChar(255)
+  elibrary_negaraPengeluaran  String         @db.VarChar(255)
   elibrary_tahunPengeluaran   Int
-  elibrary_ketulenan          String     @db.VarChar(100)
-  elibrary_maklumatTerperinci String?    @db.Text
-  elibrary_ulasan             String?    @db.VarChar(255)
-  elibrary_mukaSurat          String?    @db.VarChar(255)
-  elibrary_noDocument         String?    @db.VarChar(255)
-  elibrary_namaPemilik        String?    @db.VarChar(255)
-  elibrary_peralatanDigunakan String?    @db.VarChar(255)
-  elibrary_caraSemakan        String?    @db.VarChar(255)
-  elibrary_dapatan            String?    @db.VarChar(255)
-  created_at                  DateTime   @db.Timestamp(0)
-  updated_at                  DateTime   @db.Timestamp(0)
-  deleted_at                  DateTime?  @db.Timestamp(0)
+  elibrary_ketulenan          String         @db.VarChar(100)
+  elibrary_maklumatTerperinci String?        @db.Text
+  elibrary_ulasan             String?        @db.VarChar(255)
+  elibrary_mukaSurat          String?        @db.VarChar(255)
+  elibrary_noDocument         String?        @db.VarChar(255)
+  elibrary_namaPemilik        String?        @db.VarChar(255)
+  elibrary_peralatanDigunakan String?        @db.VarChar(255)
+  elibrary_caraSemakan        String?        @db.VarChar(255)
+  elibrary_dapatan            String?        @db.VarChar(255)
+  created_at                  DateTime       @db.Timestamp(0)
+  updated_at                  DateTime       @db.Timestamp(0)
+  deleted_at                  DateTime?      @db.Timestamp(0)
   document                    document[]
+  elibrary_log                elibrary_log[]
 }
 
 model dokumen_library {
@@ -519,4 +521,18 @@ model dokumen_library {
   @@index([create_by], map: "idx_create_by")
   @@index([modified_by], map: "idx_modified_by")
   @@index([reportID], map: "idx_reportID")
+}
+
+model elibrary_log {
+  elibraryLogID Int      @id @default(autoincrement())
+  elibraryID    Int
+  userID        Int
+  action        String   @db.VarChar(50)
+  changes       String?  @db.Text
+  created_at    DateTime @default(now()) @db.Timestamp(0)
+  elibrary      elibrary @relation(fields: [elibraryID], references: [elibraryID], onDelete: Cascade, onUpdate: NoAction, map: "elibrary_log_ibfk_1")
+  user          user     @relation(fields: [userID], references: [userID], onDelete: NoAction, onUpdate: NoAction, map: "elibrary_log_ibfk_2")
+
+  @@index([elibraryID], map: "elibraryID")
+  @@index([userID], map: "userID")
 }

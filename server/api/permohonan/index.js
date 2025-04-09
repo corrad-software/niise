@@ -76,6 +76,8 @@ export default defineEventHandler(async (event) => {
               "Permohonan Diluluskan",
             ],
           };
+
+      whereCondition.create_by = userID;
     }
 
     const permohonan = await prisma.permohonan.findMany({

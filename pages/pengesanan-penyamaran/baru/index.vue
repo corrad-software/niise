@@ -15,7 +15,7 @@ definePageMeta({
     },
   ],
 });
-  
+
 const { $swal } = useNuxtApp();
 const router = useRouter();
 const userStore = useUserStore();
@@ -129,7 +129,12 @@ const getCurrentDate = () => {
     </div>
 
     <rs-card class="mt-4 px-4 py-6">
-      <FormKit type="form" :actions="false" @submit="submitForm">
+      <FormKit
+        type="form"
+        :actions="false"
+        @submit="submitForm"
+        incomplete-message="Medan mandatori yang bertanda * wajib diisi."
+      >
         <!-- Section 1: Maklumat Pemohon -->
         <div class="mb-8">
           <h4 class="text-lg font-semibold mb-4 pb-2 border-b">
@@ -141,6 +146,9 @@ const getCurrentDate = () => {
               label="Nama Pemohon"
               v-model="pemohon.nama"
               validation="required"
+              :validation-messages="{
+                required: 'Nama Pemohon wajib diisi',
+              }"
               :disabled="true"
             />
             <FormKit
@@ -149,6 +157,9 @@ const getCurrentDate = () => {
               v-model="pemohon.jawatan"
               validation="required"
               :disabled="true"
+              :validation-messages="{
+                required: 'Jawatan Pemohon wajib diisi',
+              }"
             />
             <FormKit
               type="text"
@@ -156,6 +167,9 @@ const getCurrentDate = () => {
               v-model="pemohon.noPegawai"
               validation="required"
               :disabled="true"
+              :validation-messages="{
+                required: 'No Pegawai Pemohon wajib diisi',
+              }"
             />
           </div>
         </div>
@@ -172,6 +186,8 @@ const getCurrentDate = () => {
               v-model="tarikh"
               :validation="'required|date|date_after:' + getCurrentDate()"
               :validation-messages="{
+                required: 'Tarikh temujanji wajib diisi',
+                date: 'Tarikh temujanji harus dalam format tarikh',
                 date_after: 'Tarikh temujanji harus selepas hari ini',
               }"
             />
@@ -180,6 +196,9 @@ const getCurrentDate = () => {
               label="Masa"
               v-model="masa"
               validation="required"
+              :validation-messages="{
+                required: 'Masa temujanji wajib diisi',
+              }"
             />
           </div>
           <div class="mt-4">
@@ -189,6 +208,9 @@ const getCurrentDate = () => {
               v-model="jenisSemakan"
               :options="jenisSemakanOptions"
               validation="required"
+              :validation-messages="{
+                required: 'Jenis semakan wajib diisi',
+              }"
             />
           </div>
         </div>
@@ -218,6 +240,9 @@ const getCurrentDate = () => {
                 label="Muat Naik Gambar Subjek"
                 accept="image/*"
                 :validation="jenisSemakan === 'Hantar Gambar' ? 'required' : ''"
+                :validation-messages="{
+                  required: 'Gambar subjek wajib diisi',
+                }"
                 v-model="gambarSubjek"
               >
                 <template #label>
@@ -247,6 +272,9 @@ const getCurrentDate = () => {
                 label="Muat Naik Gambar Cap Jari"
                 accept="image/*"
                 :validation="jenisSemakan === 'Hantar Gambar' ? 'required' : ''"
+                :validation-messages="{
+                  required: 'Gambar cap jari wajib diisi',
+                }"
                 v-model="gambarCapJari"
               >
                 <template #label>

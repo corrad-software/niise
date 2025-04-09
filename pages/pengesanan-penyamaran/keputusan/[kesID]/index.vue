@@ -200,6 +200,9 @@ onMounted(fetchTemujanji);
                 label="Nama Pemohon"
                 v-model="pemohon.nama"
                 validation="required"
+                :validation-messages="{
+                  required: 'Nama Pemohon wajib diisi',
+                }"
                 :disabled="true"
               />
               <FormKit
@@ -207,6 +210,9 @@ onMounted(fetchTemujanji);
                 label="Jawatan Pemohon"
                 v-model="pemohon.jawatan"
                 validation="required"
+                :validation-messages="{
+                  required: 'Jawatan Pemohon wajib diisi',
+                }"
                 :disabled="true"
               />
               <FormKit
@@ -214,6 +220,9 @@ onMounted(fetchTemujanji);
                 label="No Pegawai Pemohon"
                 v-model="pemohon.noPegawai"
                 validation="required"
+                :validation-messages="{
+                  required: 'No Pegawai Pemohon wajib diisi',
+                }"
                 :disabled="true"
               />
             </div>
@@ -230,6 +239,10 @@ onMounted(fetchTemujanji);
                 label="Tarikh"
                 v-model="tarikh"
                 validation="required|date"
+                :validation-messages="{
+                  required: 'Tarikh wajib diisi',
+                  date: 'Tarikh harus dalam format tarikh',
+                }"
                 :disabled="true"
               />
               <FormKit
@@ -237,6 +250,9 @@ onMounted(fetchTemujanji);
                 label="Masa"
                 v-model="masa"
                 validation="required"
+                :validation-messages="{
+                  required: 'Masa wajib diisi',
+                }"
                 :disabled="true"
               />
             </div>
@@ -247,6 +263,9 @@ onMounted(fetchTemujanji);
                 v-model="jenisSemakan"
                 :options="jenisSemakanOptions"
                 :disabled="true"
+                :validation-messages="{
+                  required: 'Jenis semakan wajib diisi',
+                }"
               />
             </div>
           </div>

@@ -46,7 +46,12 @@ const handleRecaptcha = (response) => {
           <p class="text-sm text-gray-500">Semua medan adalah wajib</p>
         </div>
 
-        <FormKit type="form" :actions="false" @submit="register">
+        <FormKit
+          type="form"
+          :actions="false"
+          @submit="register"
+          incomplete-message="Medan mandatori yang bertanda * wajib diisi."
+        >
           <FormKit
             type="text"
             name="fullName"

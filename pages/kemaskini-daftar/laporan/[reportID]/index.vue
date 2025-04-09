@@ -354,7 +354,7 @@ const submitForm = async (formData) => {
 
 const generatePDF = async () => {
   const doc = new jsPDF();
-  
+
   // Set font sizes and margins
   const titleSize = 16;
   const subtitleSize = 11;
@@ -386,16 +386,16 @@ const generatePDF = async () => {
   // Add case details table
   doc.setFontSize(subtitleSize);
   doc.setLineWidth(0.1);
-  
+
   // First row headers
   doc.rect(margin, yPos, col1Width, 7);
   doc.rect(margin + col1Width, yPos, col2Width, 7);
   doc.rect(margin + col1Width + col2Width, yPos, col3Width, 7);
-  
+
   doc.text("NO KES ID", margin + 2, yPos + 5);
   doc.text("TAG NO.", margin + col1Width + 2, yPos + 5);
   doc.text("JENIS BARANG", margin + col1Width + col2Width + 2, yPos + 5);
-  
+
   yPos += 7;
 
   // First row values
@@ -403,11 +403,15 @@ const generatePDF = async () => {
   doc.rect(margin, yPos, col1Width, 7);
   doc.rect(margin + col1Width, yPos, col2Width, 7);
   doc.rect(margin + col1Width + col2Width, yPos, col3Width, 7);
-  
+
   doc.text(generatedData.value.kesId || "", margin + 2, yPos + 5);
   doc.text(generatedData.value.tagNo || "", margin + col1Width + 2, yPos + 5);
-  doc.text(generatedData.value.jenisBrg || "", margin + col1Width + col2Width + 2, yPos + 5);
-  
+  doc.text(
+    generatedData.value.jenisBrg || "",
+    margin + col1Width + col2Width + 2,
+    yPos + 5
+  );
+
   yPos += 12;
 
   // Add Jenis Pemeriksaan
@@ -428,7 +432,7 @@ const generatePDF = async () => {
     doc.rect(margin, yPos, col1Width, 7);
     doc.rect(margin + col1Width, yPos, col2Width, 7);
     doc.rect(margin + col1Width + col2Width, yPos, col3Width, 7);
-    
+
     doc.text(`NAMA ${title}`, margin + 2, yPos + 5);
     doc.text(`PANGKAT ${title}`, margin + col1Width + 2, yPos + 5);
     doc.text(`NOMBOR ${title}`, margin + col1Width + col2Width + 2, yPos + 5);
@@ -439,17 +443,30 @@ const generatePDF = async () => {
     doc.rect(margin, yPos, col1Width, 7);
     doc.rect(margin + col1Width, yPos, col2Width, 7);
     doc.rect(margin + col1Width + col2Width, yPos, col3Width, 7);
-    
+
     doc.text(officer.nama || "", margin + 2, yPos + 5);
     doc.text(officer.pangkat || "", margin + col1Width + 2, yPos + 5);
-    doc.text(officer.noPegawai || "", margin + col1Width + col2Width + 2, yPos + 5);
+    doc.text(
+      officer.noPegawai || "",
+      margin + col1Width + col2Width + 2,
+      yPos + 5
+    );
     yPos += 12;
   };
 
   // Add each officer's details in table layout
-  addOfficerTable("PEGAWAI PEMOHON", generatedData.value.pegawai.PEGAWAI_PEMOHON);
-  addOfficerTable("PEGAWAI PENGHANTAR", generatedData.value.pegawai.PEGAWAI_PENGHANTAR);
-  addOfficerTable("PEGAWAI PENERIMA", generatedData.value.pegawai.PEGAWAI_PENERIMA);
+  addOfficerTable(
+    "PEGAWAI PEMOHON",
+    generatedData.value.pegawai.PEGAWAI_PEMOHON
+  );
+  addOfficerTable(
+    "PEGAWAI PENGHANTAR",
+    generatedData.value.pegawai.PEGAWAI_PENGHANTAR
+  );
+  addOfficerTable(
+    "PEGAWAI PENERIMA",
+    generatedData.value.pegawai.PEGAWAI_PENERIMA
+  );
 
   // Add forensic officers if any
   if (generatedData.value.pegawai.PEGAWAI_FORENSIK.length > 0) {
@@ -467,11 +484,14 @@ const generatePDF = async () => {
   yPos += 7;
 
   doc.setFontSize(normalSize);
-  const peralatanLines = doc.splitTextToSize(generatedData.value.peralatan || "", 170);
+  const peralatanLines = doc.splitTextToSize(
+    generatedData.value.peralatan || "",
+    170
+  );
   const peralatanHeight = peralatanLines.length * 7;
   doc.rect(margin, yPos, tableWidth, peralatanHeight);
   peralatanLines.forEach((line, index) => {
-    doc.text(line, margin + 2, yPos + 5 + (index * 7));
+    doc.text(line, margin + 2, yPos + 5 + index * 7);
   });
   yPos += peralatanHeight + 5;
 
@@ -483,11 +503,14 @@ const generatePDF = async () => {
   yPos += 7;
 
   doc.setFontSize(normalSize);
-  const langkahLines = doc.splitTextToSize(generatedData.value.langkah2 || "", 170);
+  const langkahLines = doc.splitTextToSize(
+    generatedData.value.langkah2 || "",
+    170
+  );
   const langkahHeight = langkahLines.length * 7;
   doc.rect(margin, yPos, tableWidth, langkahHeight);
   langkahLines.forEach((line, index) => {
-    doc.text(line, margin + 2, yPos + 5 + (index * 7));
+    doc.text(line, margin + 2, yPos + 5 + index * 7);
   });
   yPos += langkahHeight + 5;
 
@@ -516,7 +539,7 @@ const generatePDF = async () => {
     const imageWidth = 80;
     const imageHeight = 60;
     const imagesPerRow = 2;
-    const xMargin = (210 - (imagesPerRow * imageWidth)) / 3;
+    const xMargin = (210 - imagesPerRow * imageWidth) / 3;
 
     for (let i = 0; i < allImages.length; i++) {
       if (i > 0 && i % imagesPerRow === 0) {
@@ -527,12 +550,24 @@ const generatePDF = async () => {
       const xPos = xMargin + (i % imagesPerRow) * (imageWidth + xMargin);
       try {
         const imgData = allImages[i].documentURL || allImages[i].base64;
-        doc.addImage(imgData, 'JPEG', xPos, yPos, imageWidth, imageHeight, undefined, 'FAST');
-        
+        doc.addImage(
+          imgData,
+          "JPEG",
+          xPos,
+          yPos,
+          imageWidth,
+          imageHeight,
+          undefined,
+          "FAST"
+        );
+
         // Add image caption
         doc.setFontSize(8);
-        const caption = allImages[i].documentName || allImages[i].name || `Gambar ${i + 1}`;
-        doc.text(caption, xPos + imageWidth/2, yPos + imageHeight + 5, { align: 'center' });
+        const caption =
+          allImages[i].documentName || allImages[i].name || `Gambar ${i + 1}`;
+        doc.text(caption, xPos + imageWidth / 2, yPos + imageHeight + 5, {
+          align: "center",
+        });
       } catch (error) {
         console.error(`Error adding image ${i + 1}:`, error);
       }
@@ -554,15 +589,19 @@ const generatePDF = async () => {
       // Create a box for each document entry
       const docHeight = docItem.keterangan ? 14 : 7; // Height depends on whether there's a description
       doc.rect(margin, yPos, tableWidth, docHeight);
-      
+
       // Add document name
-      doc.text(`${index + 1}. ${docItem.documentName || docItem.name}`, margin + 2, yPos + 5);
-      
+      doc.text(
+        `${index + 1}. ${docItem.documentName || docItem.name}`,
+        margin + 2,
+        yPos + 5
+      );
+
       // Add description if exists
       if (docItem.keterangan) {
         doc.text(`   Keterangan: ${docItem.keterangan}`, margin + 2, yPos + 12);
       }
-      
+
       yPos += docHeight + 5; // Add some spacing between document entries
     });
   }
@@ -710,6 +749,7 @@ const formatDate = (dateString) => {
         #default="{ state }"
         :actions="false"
         class="space-y-6"
+        incomplete-message="Medan mandatori yang bertanda * wajib diisi."
       >
         <!-- Top Row: KES ID, TAG NO, JENIS BARANG -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">

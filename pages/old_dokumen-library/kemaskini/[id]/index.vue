@@ -280,7 +280,12 @@ onMounted(() => {
     </rs-card>
 
     <rs-card class="mt-4 p-4">
-      <FormKit type="form" @submit="submitForm" :actions="false">
+      <FormKit
+        type="form"
+        @submit="submitForm"
+        :actions="false"
+        incomplete-message="Medan mandatori yang bertanda * wajib diisi."
+      >
         <div class="space-y-4">
           <!-- Negara Pengeluaran -->
           <FormKit

@@ -36,6 +36,8 @@ export default defineEventHandler(async (event) => {
         },
       });
 
+      whereConditions.create_by = userID;
+
       if (pemohonList.length > 0) {
         // Get pemohon IDs
         const pemohonIDs = pemohonList.map((p) => p.id);

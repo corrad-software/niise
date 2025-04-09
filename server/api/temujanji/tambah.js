@@ -114,6 +114,7 @@ export default defineEventHandler(async (event) => {
         tarikh: new Date(tarikh),
         masa: new Date(`${tarikh}T${masa}:00`),
         status: "Temujanji Diterima",
+        create_by: userID,
         ...(savedDocuments.gambarSubjek && {
           document_temujanji_gambarSubjekTodocument: {
             connect: {

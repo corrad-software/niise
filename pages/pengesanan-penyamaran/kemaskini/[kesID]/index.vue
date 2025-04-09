@@ -240,7 +240,12 @@ const formatFileSize = (bytes) => {
     </div>
 
     <rs-card class="mt-4 p-4">
-      <FormKit type="form" :actions="false" @submit="submitForm">
+      <FormKit
+        type="form"
+        :actions="false"
+        @submit="submitForm"
+        incomplete-message="Medan mandatori yang bertanda * wajib diisi."
+      >
         <!-- Section 1: Document Information -->
         <div class="mb-8">
           <h4 class="text-lg font-semibold mb-4 pb-2 border-b">
@@ -254,6 +259,9 @@ const formatFileSize = (bytes) => {
                 v-model="formData.jenisDokumen"
                 :options="jenisDokumenOptions"
                 validation="required"
+                :validation-messages="{
+                  required: 'Jenis dokumen wajib diisi',
+                }"
               />
               <FormKit
                 type="select"
@@ -261,12 +269,18 @@ const formatFileSize = (bytes) => {
                 v-model="formData.negara"
                 :options="negaraOptions"
                 validation="required"
+                :validation-messages="{
+                  required: 'Negara wajib diisi',
+                }"
               />
               <FormKit
                 type="text"
                 label="No Dokumen"
                 v-model="formData.noDokumen"
                 validation="required"
+                :validation-messages="{
+                  required: 'No dokumen wajib diisi',
+                }"
               />
               <FormKit
                 type="date"
@@ -274,6 +288,7 @@ const formatFileSize = (bytes) => {
                 v-model="formData.tarikhLuputDokumen"
                 validation="required|date"
                 :validation-messages="{
+                  required: 'Tarikh luput dokumen wajib diisi',
                   date: 'Sila masukkan tarikh yang sah',
                 }"
               />
@@ -293,6 +308,9 @@ const formatFileSize = (bytes) => {
                 label="Nama Pemilik"
                 v-model="formData.namaPemilik"
                 validation="required"
+                :validation-messages="{
+                  required: 'Nama pemilik wajib diisi',
+                }"
               />
               <FormKit
                 type="select"
@@ -300,6 +318,9 @@ const formatFileSize = (bytes) => {
                 v-model="formData.kewarganegaraan"
                 :options="kewarganegaraanOptions"
                 validation="required"
+                :validation-messages="{
+                  required: 'Kewarganegaraan wajib diisi',
+                }"
               />
               <FormKit
                 type="date"
@@ -307,6 +328,7 @@ const formatFileSize = (bytes) => {
                 v-model="formData.tarikhLahir"
                 validation="required|date"
                 :validation-messages="{
+                  required: 'Tarikh lahir wajib diisi',
                   date: 'Sila masukkan tarikh yang sah',
                 }"
               />
@@ -316,6 +338,9 @@ const formatFileSize = (bytes) => {
                 v-model="formData.jantina"
                 :options="jantinaOptions"
                 validation="required"
+                :validation-messages="{
+                  required: 'Jantina wajib diisi',
+                }"
               />
             </div>
           </FormKit>
@@ -333,6 +358,12 @@ const formatFileSize = (bytes) => {
                 label="Skor Persamaan Muka"
                 v-model="formData.skorPersamaanMuka"
                 validation="required|number|min_value:0|max_value:100"
+                :validation-messages="{
+                  required: 'Skor persamaan muka wajib diisi',
+                  number: 'Skor persamaan muka harus dalam format nombor',
+                  min_value: 'Skor persamaan muka tidak boleh kurang dari 0',
+                  max_value: 'Skor persamaan muka tidak boleh melebihi 100',
+                }"
                 step="0.01"
                 help="Skor antara 0 hingga 100"
               />
@@ -341,6 +372,13 @@ const formatFileSize = (bytes) => {
                 label="Skor Persamaan Cap Jari"
                 v-model="formData.skorPersamaanCapJari"
                 validation="required|number|min_value:0|max_value:100"
+                :validation-messages="{
+                  required: 'Skor persamaan cap jari wajib diisi',
+                  number: 'Skor persamaan cap jari harus dalam format nombor',
+                  min_value:
+                    'Skor persamaan cap jari tidak boleh kurang dari 0',
+                  max_value: 'Skor persamaan cap jari tidak boleh melebihi 100',
+                }"
                 step="0.01"
                 help="Skor antara 0 hingga 100"
               />
@@ -437,6 +475,9 @@ const formatFileSize = (bytes) => {
                 v-model="formData.dapatan"
                 :options="dapatanOptions"
                 validation="required"
+                :validation-messages="{
+                  required: 'Dapatan wajib diisi',
+                }"
               />
 
               <!-- TD&B System Report -->
@@ -496,6 +537,9 @@ const formatFileSize = (bytes) => {
                   type="file"
                   label="Laporan Sistem TD&B (PDF)"
                   validation="required"
+                  :validation-messages="{
+                    required: 'Laporan Sistem TD&B wajib diisi',
+                  }"
                   accept=".pdf"
                   :help="
                     currentDocument

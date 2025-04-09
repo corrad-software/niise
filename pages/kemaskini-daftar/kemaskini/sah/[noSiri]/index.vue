@@ -13,24 +13,36 @@
           label="Peralatan dalam keadaan baik"
           v-model="peralatanBaik"
           validation="required"
+          :validation-messages="{
+            required: 'Peralatan dalam keadaan baik wajib diisi',
+          }"
         />
         <FormKit
           type="checkbox"
           label="Pegawai berkelayakan"
           v-model="pegawaiBerkelayakan"
           validation="required"
+          :validation-messages="{
+            required: 'Pegawai berkelayakan wajib diisi',
+          }"
         />
         <FormKit
           type="checkbox"
           label="Kaedah dapat dilakukan"
           v-model="kaedahDilakukan"
           validation="required"
+          :validation-messages="{
+            required: 'Kaedah dapat dilakukan wajib diisi',
+          }"
         />
         <FormKit
           type="checkbox"
           label="Subkontrak diperlukan"
           v-model="subkontrakDiperlukan"
           validation="required"
+          :validation-messages="{
+            required: 'Subkontrak diperlukan wajib diisi',
+          }"
         />
         <FormKit
           type="select"
@@ -38,6 +50,9 @@
           v-model="tugasanDiterima"
           :options="['Ya', 'Tidak']"
           validation="required"
+          :validation-messages="{
+            required: 'Tugasan diterima wajib diisi',
+          }"
         />
         <FormKit
           type="textarea"

@@ -20,6 +20,9 @@
             'Lain-lain (Nyatakan)',
           ]"
           validation="required"
+          :validation-messages="{
+            required: 'Sebab penolakan permohonan wajib diisi',
+          }"
         />
         <FormKit
           type="textarea"

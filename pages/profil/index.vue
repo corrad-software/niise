@@ -124,7 +124,12 @@ const changePassword = async () => {
     <rs-card class="mt-4 px-4 py-6">
       <h3 class="text-xl font-semibold mb-6">Maklumat Peribadi</h3>
 
-      <FormKit type="form" :actions="false" @submit="updateProfile">
+      <FormKit
+        type="form"
+        :actions="false"
+        @submit="updateProfile"
+        incomplete-message="Medan mandatori yang bertanda * wajib diisi."
+      >
         <div class="grid gap-6 md:grid-cols-2">
           <FormKit
             type="text"
@@ -190,7 +195,12 @@ const changePassword = async () => {
     <rs-card class="mt-4 px-4 py-6">
       <h3 class="text-xl font-semibold mb-6">Tukar Kata Laluan</h3>
 
-      <FormKit type="form" :actions="false" @submit="changePassword">
+      <FormKit
+        type="form"
+        :actions="false"
+        @submit="changePassword"
+        incomplete-message="Medan mandatori yang bertanda * wajib diisi."
+      >
         <FormKit
           :type="showOldPassword ? 'text' : 'password'"
           label="Kata Laluan Semasa"

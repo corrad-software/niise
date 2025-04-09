@@ -292,7 +292,12 @@ const getCurrentDate = () => {
     </div>
 
     <rs-card class="mt-4 px-4 py-6">
-      <FormKit type="form" :actions="false" @submit="submitForm">
+      <FormKit
+        type="form"
+        :actions="false"
+        @submit="submitForm"
+        incomplete-message="Medan mandatori yang bertanda * wajib diisi."
+      >
         <div class="grid gap-6 md:grid-cols-3">
           <!-- Nama Pemohon Input -->
           <FormKit
@@ -300,6 +305,9 @@ const getCurrentDate = () => {
             label="Nama Pemohon"
             v-model="namaPemohon"
             validation="required"
+            :validation-messages="{
+              required: 'Nama Pemohon wajib diisi',
+            }"
             :disabled="true"
           />
 
@@ -310,6 +318,9 @@ const getCurrentDate = () => {
             v-model="pangkatPemohon"
             validation="required"
             :disabled="true"
+            :validation-messages="{
+              required: 'Pangkat Pemohon wajib diisi',
+            }"
           />
 
           <!-- No Pegawai Pemohon Input -->
@@ -319,6 +330,9 @@ const getCurrentDate = () => {
             v-model="noPegawaiPemohon"
             validation="required"
             :disabled="true"
+            :validation-messages="{
+              required: 'No Pegawai Pemohon wajib diisi',
+            }"
           />
         </div>
 
@@ -338,6 +352,9 @@ const getCurrentDate = () => {
             label="Nama Penghantar"
             v-model="namaPenghantar"
             validation="required"
+            :validation-messages="{
+              required: 'Nama Penghantar wajib diisi',
+            }"
           />
 
           <!-- Conditionally render Pangkat Penghantar field if checkbox is not checked -->
@@ -347,6 +364,9 @@ const getCurrentDate = () => {
             label="Pangkat Penghantar"
             v-model="pangkatPenghantar"
             validation="required"
+            :validation-messages="{
+              required: 'Pangkat Penghantar wajib diisi',
+            }"
           />
 
           <!-- Conditionally render No Pegawai Penghantar field if checkbox is not checked -->
@@ -356,6 +376,9 @@ const getCurrentDate = () => {
             label="No Pegawai Penghantar"
             v-model="noPegawaiPenghantar"
             validation="required"
+            :validation-messages="{
+              required: 'No Pegawai Penghantar wajib diisi',
+            }"
           />
         </div>
 
@@ -367,6 +390,8 @@ const getCurrentDate = () => {
             v-model="tarikhTemujanji"
             :validation="'required|date|date_after:' + getCurrentDate()"
             :validation-messages="{
+              required: 'Tarikh temujanji wajib diisi',
+              date: 'Tarikh temujanji harus dalam format tarikh',
               date_after: 'Tarikh temujanji harus selepas hari ini',
             }"
           />
@@ -377,6 +402,9 @@ const getCurrentDate = () => {
             label="Slot masa"
             v-model="slotMasa"
             validation="required"
+            :validation-messages="{
+              required: 'Slot masa wajib diisi',
+            }"
           />
         </div>
 
@@ -386,6 +414,9 @@ const getCurrentDate = () => {
           label="No Kertas Siasatan"
           v-model="noKertasSiasatan"
           validation="required"
+          :validation-messages="{
+            required: 'No Kertas Siasatan wajib diisi',
+          }"
         />
 
         <!-- No Laporan Polis Input -->
@@ -394,6 +425,9 @@ const getCurrentDate = () => {
           label="No Laporan Polis"
           v-model="noLaporanPolis"
           validation="required"
+          :validation-messages="{
+            required: 'No Laporan Polis wajib diisi',
+          }"
         />
 
         <!-- Ringkasan Kenyataan Kes Input -->
@@ -402,6 +436,9 @@ const getCurrentDate = () => {
           label="Ringkasan Kenyataan Kes"
           v-model="ringkasanKenyataanKes"
           validation="required"
+          :validation-messages="{
+            required: 'Ringkasan Kenyataan Kes wajib diisi',
+          }"
         />
 
         <!-- Bilangan Input -->

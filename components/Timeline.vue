@@ -55,6 +55,10 @@ const getTimeDifference = (currentDate, nextDate) => {
 
 const getStatusColor = (type) => {
   switch (type) {
+    case "add":
+      return "bg-green-500";
+    case "edit":
+      return "bg-blue-500";
     case "creation":
       return "bg-gray-500";
     case "semakan":
@@ -84,6 +88,10 @@ const formatDate = (date) => {
 
 const getStatusIcon = (type) => {
   switch (type) {
+    case "add":
+      return "ph:plus-circle";
+    case "edit":
+      return "ph:pencil";
     case "creation":
       return "ph:plus";
     case "semakan":
@@ -101,13 +109,15 @@ const getStatusIcon = (type) => {
 
 const getStatusText = (event) => {
   const statusMap = {
+    add: "Permohonan Didaftarkan",
+    edit: "Semakan Dilakukan",
     creation: "Permohonan Didaftarkan",
     semakan: "Semakan Dilakukan",
     approval: event.status,
     penerimaan: "Permohonan Diterima",
     penolakan: "Permohonan Ditolak",
   };
-  return statusMap[event.type] || event.status;
+  return statusMap[event.type] || event.title || event.status;
 };
 
 // Compute events with time differences
@@ -161,9 +171,11 @@ const eventsWithTimeDiff = computed(() => {
                     <span class="font-medium text-gray-900">{{
                       getStatusText(event)
                     }}</span>
-                    <span v-if="event.details" class="text-gray-500">{{
-                      event.details
-                    }}</span>
+                  </div>
+                  <div v-if="event.details" class="mt-1">
+                    <p class="text-sm text-gray-500">
+                      {{ event.details }}
+                    </p>
                   </div>
                   <div v-if="event.user" class="mt-1">
                     <p class="text-sm text-gray-500">

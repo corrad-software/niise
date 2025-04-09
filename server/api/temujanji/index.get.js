@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
   try {
-    const { roles } = event.context.user;
+    const { roles, userID } = event.context.user;
     // Get query parameters
     const query = getQuery(event);
     const status = query.status;
@@ -40,6 +40,10 @@ export default defineEventHandler(async (event) => {
     if (roles.includes("Pegawai Penyiasat")) {
       showButtonObj.tambah = true;
       showButtonObj.keputusan = true;
+    }
+
+    if (roles.includes("Pegawai Penyiasat")) {
+      whereConditions.create_by = userID;
     }
 
     const appointments = await prisma.temujanji.findMany({

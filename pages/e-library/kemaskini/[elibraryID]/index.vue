@@ -1,4 +1,6 @@
 <script setup>
+import Timeline from "~/components/Timeline.vue";
+
 // Update page meta definition to match pattern
 definePageMeta({
   title: "Kemaskini E-Library",
@@ -31,6 +33,9 @@ const uploadedFiles = ref([]);
 const uploadedImages = ref([]);
 const isSubmitting = ref(false);
 const existingImages = ref([]);
+const timelineEvents = ref([]);
+const timelineLoading = ref(false);
+const timelineError = ref(null);
 
 const jenisDokumenOptions = [
   { label: "Sila Pilih", value: "" },
@@ -153,7 +158,7 @@ const removeImage = (index) => {
 };
 
 const submitForm = async () => {
-  try {    
+  try {
     isSubmitting.value = true;
     const { data } = await useFetch(`/api/elibrary/${elibraryID.value}`, {
       method: "PUT",
@@ -249,8 +254,39 @@ const previewAllImages = () => {
   showImage(currentIndex);
 };
 
+// Update the fetchTimelineData function
+const fetchTimelineData = async () => {
+  timelineLoading.value = true;
+  timelineError.value = null;
+  try {
+    const { data: response } = await useFetch(
+      `/api/elibrary/timeline/${elibraryID.value}`
+    );
+    if (response.value?.statusCode === 200) {
+      timelineEvents.value = response.value.data.map((event) => ({
+        date: event.date,
+        title: event.title,
+        description: event.description,
+        details: event.details,
+        type: event.type,
+        user: event.user,
+      }));
+    } else {
+      throw new Error(
+        response.value?.message || "Failed to fetch timeline data"
+      );
+    }
+  } catch (error) {
+    console.error("Error fetching timeline data:", error);
+    timelineError.value = error.message;
+  } finally {
+    timelineLoading.value = false;
+  }
+};
+
 onMounted(() => {
   fetchELibraryData();
+  fetchTimelineData();
 });
 </script>
 
@@ -302,7 +338,12 @@ onMounted(() => {
 
     <!-- Form Section -->
     <rs-card class="p-4">
-      <FormKit type="form" @submit="submitForm" :actions="false">
+      <FormKit
+        type="form"
+        @submit="submitForm"
+        :actions="false"
+        incomplete-message="Medan mandatori yang bertanda * wajib diisi."
+      >
         <div class="space-y-6">
           <!-- Document Information Section -->
           <div>
@@ -477,6 +518,17 @@ onMounted(() => {
           </div>
         </div>
       </FormKit>
+    </rs-card>
+
+    <!-- Timeline Section -->
+    <div class="flex items-center justify-between space-y-2">
+      <div>
+        <h3 class="text-2xl font-bold tracking-tight">Sejarah Aktiviti</h3>
+      </div>
+    </div>
+
+    <rs-card class="pt-6 px-6">
+      <Timeline :events="timelineEvents" />
     </rs-card>
   </div>
 </template>

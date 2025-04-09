@@ -33,7 +33,12 @@ const changePassword = () => {
           </p>
         </div>
 
-        <FormKit type="form" :actions="false" @submit="changePassword">
+        <FormKit
+          type="form"
+          :actions="false"
+          @submit="changePassword"
+          incomplete-message="Medan mandatori yang bertanda * wajib diisi."
+        >
           <FormKit
             type="email"
             name="email"

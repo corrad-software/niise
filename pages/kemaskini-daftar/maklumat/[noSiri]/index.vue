@@ -1268,7 +1268,12 @@ const showReportDetails = async (reportId) => {
         </h3>
       </template>
       <template #body>
-        <FormKit type="form" :actions="false" @submit="handleSubmit">
+        <FormKit
+          type="form"
+          :actions="false"
+          @submit="handleSubmit"
+          incomplete-message="Medan mandatori yang bertanda * wajib diisi."
+        >
           <FormKit
             type="select"
             name="id"
@@ -1301,7 +1306,12 @@ const showReportDetails = async (reportId) => {
         <h3>FR2 : Borang Semakan Permohonan Analisis</h3>
       </template>
       <template #body>
-        <FormKit type="form" :actions="false" @submit="handleSemakSubmit">
+        <FormKit
+          type="form"
+          :actions="false"
+          @submit="handleSemakSubmit"
+          incomplete-message="Medan mandatori yang bertanda * wajib diisi."
+        >
           <!-- Existing form for kaunter role -->
           <FormKit
             type="radio"
@@ -1309,6 +1319,9 @@ const showReportDetails = async (reportId) => {
             label="Peralatan dalam keadaan baik"
             :options="['Ya', 'Tidak']"
             validation="required"
+            :validation-messages="{
+              required: 'Peralatan dalam keadaan baik wajib diisi',
+            }"
           />
           <FormKit
             type="radio"
@@ -1316,6 +1329,9 @@ const showReportDetails = async (reportId) => {
             label="Pegawai berkelayakan"
             :options="['Ya', 'Tidak']"
             validation="required"
+            :validation-messages="{
+              required: 'Pegawai berkelayakan wajib diisi',
+            }"
           />
           <FormKit
             type="radio"
@@ -1323,6 +1339,9 @@ const showReportDetails = async (reportId) => {
             label="Kaedah dapat dilakukan"
             :options="['Ya', 'Tidak']"
             validation="required"
+            :validation-messages="{
+              required: 'Kaedah dapat dilakukan wajib diisi',
+            }"
           />
           <FormKit
             type="radio"
@@ -1330,6 +1349,9 @@ const showReportDetails = async (reportId) => {
             label="Subkontrak diperlukan"
             :options="['Ya', 'Tidak']"
             validation="required"
+            :validation-messages="{
+              required: 'Subkontrak diperlukan wajib diisi',
+            }"
           />
           <FormKit
             type="radio"
@@ -1337,12 +1359,18 @@ const showReportDetails = async (reportId) => {
             label="Tugasan diterima"
             :options="['Ya', 'Tidak']"
             validation="required"
+            :validation-messages="{
+              required: 'Tugasan diterima wajib diisi',
+            }"
           />
           <FormKit
             type="textarea"
             name="ulasanPegawaiKaunter"
             label="Ulasan pegawai kaunter"
             validation="required"
+            :validation-messages="{
+              required: 'Ulasan pegawai kaunter wajib diisi',
+            }"
           />
           <div class="flex justify-end gap-2 mt-4">
             <rs-button variant="info" @click="closeSemakModal">Batal</rs-button>
@@ -1361,13 +1389,21 @@ const showReportDetails = async (reportId) => {
         <h3>FR 3: Borang Akuan Penerimaan Barang Kes</h3>
       </template>
       <template #body>
-        <FormKit type="form" :actions="false" @submit="handleTerimaSubmit">
+        <FormKit
+          type="form"
+          :actions="false"
+          @submit="handleTerimaSubmit"
+          incomplete-message="Medan mandatori yang bertanda * wajib diisi."
+        >
           <FormKit
             type="radio"
             name="peralatanBaik"
             label="Peralatan dalam keadaan baik"
             :options="['Ya', 'Tidak']"
             validation="required"
+            :validation-messages="{
+              required: 'Peralatan dalam keadaan baik wajib diisi',
+            }"
           />
           <FormKit
             type="radio"
@@ -1375,6 +1411,9 @@ const showReportDetails = async (reportId) => {
             label="Pegawai berkelayakan"
             :options="['Ya', 'Tidak']"
             validation="required"
+            :validation-messages="{
+              required: 'Pegawai berkelayakan wajib diisi',
+            }"
           />
           <FormKit
             type="radio"
@@ -1382,6 +1421,9 @@ const showReportDetails = async (reportId) => {
             label="Kaedah dapat dilakukan"
             :options="['Ya', 'Tidak']"
             validation="required"
+            :validation-messages="{
+              required: 'Kaedah dapat dilakukan wajib diisi',
+            }"
           />
           <FormKit
             type="radio"
@@ -1389,6 +1431,9 @@ const showReportDetails = async (reportId) => {
             label="Subkontrak diperlukan"
             :options="['Ya', 'Tidak']"
             validation="required"
+            :validation-messages="{
+              required: 'Subkontrak diperlukan wajib diisi',
+            }"
           />
           <FormKit
             type="radio"
@@ -1396,12 +1441,18 @@ const showReportDetails = async (reportId) => {
             label="Tugasan diterima"
             :options="['Ya', 'Tidak']"
             validation="required"
+            :validation-messages="{
+              required: 'Tugasan diterima wajib diisi',
+            }"
           />
           <FormKit
             type="textarea"
             name="ulasanPegawaiKaunter"
             label="Ulasan pegawai kaunter"
             validation="required"
+            :validation-messages="{
+              required: 'Ulasan pegawai kaunter wajib diisi',
+            }"
           />
           <div class="flex justify-end gap-2 mt-4">
             <rs-button variant="info" @click="closeTerimaModal"
@@ -1422,7 +1473,12 @@ const showReportDetails = async (reportId) => {
         <h3>FR 4 : Borang Akuan Penolakan Barang Kes</h3>
       </template>
       <template #body>
-        <FormKit type="form" :actions="false" @submit="handleTolakSubmit">
+        <FormKit
+          type="form"
+          :actions="false"
+          @submit="handleTolakSubmit"
+          incomplete-message="Medan mandatori yang bertanda * wajib diisi."
+        >
           <FormKit
             v-model="selectedSebabPenolakan"
             type="select"
@@ -1461,7 +1517,12 @@ const showReportDetails = async (reportId) => {
         <h3>Semak Permohonan</h3>
       </template>
       <template #body>
-        <FormKit type="form" :actions="false" @submit="handleSemakSubmitKetua">
+        <FormKit
+          type="form"
+          :actions="false"
+          @submit="handleSemakSubmitKetua"
+          incomplete-message="Medan mandatori yang bertanda * wajib diisi."
+        >
           <FormKit
             type="select"
             name="kelulusanKetuaBahagian"

@@ -4,6 +4,7 @@ import { mkdir } from "fs/promises";
 
 export default defineEventHandler(async (event) => {
   try {
+    const { userID, roles } = event.context.user;
     const body = await readBody(event);
     const elibraryID = event.context.params.elibraryID;
 
@@ -29,15 +30,22 @@ export default defineEventHandler(async (event) => {
       };
     }
 
+    // Get the original data for comparison
+    const originalData = await prisma.elibrary.findUnique({
+      where: {
+        elibraryID: parseInt(elibraryID),
+      },
+    });
+
     // Handle file uploads if any
     const savedDocuments = [];
     if (body.images && body.images.length > 0) {
       // Ensure uploads directory exists
       const uploadsDir = join(
-      process.env.SERVER == "true"
-        ? join(process.cwd(), "../public/uploads")
-        : join(process.cwd(), "public/uploads")
-    );
+        process.env.SERVER == "true"
+          ? join(process.cwd(), "../public/uploads")
+          : join(process.cwd(), "public/uploads")
+      );
       try {
         await mkdir(uploadsDir, { recursive: true });
       } catch (err) {
@@ -92,6 +100,47 @@ export default defineEventHandler(async (event) => {
       },
       include: {
         document: true,
+      },
+    });
+
+    // Create log entry with changes
+    const changes = {
+      jenisDokumen: {
+        from: originalData.elibrary_jenisDokumen,
+        to: body.elibrary_jenisDokumen,
+      },
+      negaraPengeluaran: {
+        from: originalData.elibrary_negaraPengeluaran,
+        to: body.elibrary_negaraPengeluaran,
+      },
+      tahunPengeluaran: {
+        from: originalData.elibrary_tahunPengeluaran,
+        to: parseInt(body.elibrary_tahunPengeluaran),
+      },
+      ketulenan: {
+        from: originalData.elibrary_ketulenan,
+        to: body.elibrary_ketulenan,
+      },
+      maklumatTerperinci: {
+        from: originalData.elibrary_maklumatTerperinci,
+        to: body.elibrary_maklumatTerperinci,
+      },
+      ulasan: {
+        from: originalData.elibrary_ulasan,
+        to: body.elibrary_ulasan,
+      },
+    };
+
+    if (savedDocuments.length > 0) {
+      changes.newDocuments = savedDocuments.length;
+    }
+
+    await prisma.elibrary_log.create({
+      data: {
+        elibraryID: parseInt(elibraryID),
+        userID: userID,
+        action: 'EDIT',
+        changes: JSON.stringify(changes),
       },
     });
 

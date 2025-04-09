@@ -492,7 +492,12 @@ const previewAllImages = (images) => {
       :hide-footer="true"
     >
       <template #body>
-        <FormKit type="form" @submit="submitImages" :actions="false">
+        <FormKit
+          type="form"
+          @submit="submitImages"
+          :actions="false"
+          incomplete-message="Medan mandatori yang bertanda * wajib diisi."
+        >
           <div class="space-y-6 p-2">
             <!-- File Upload -->
             <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
