@@ -163,7 +163,7 @@ export default defineEventHandler(async (event) => {
 
     return {
       statusCode: 200,
-      message: "Permohonan and all related data successfully deleted.",
+      message: "Permohonan telah berjaya dihapus.",
     };
   } catch (error) {
     console.error("Error deleting permohonan:", error);
